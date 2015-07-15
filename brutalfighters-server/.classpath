@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="libs"/>
+	<classpathentry kind="src" path="assets"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="libs/jsonbeans-0.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/junit-4.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/kryo-2.23.1-SNAPSHOT-all-debug.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/minlog-none-1.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
