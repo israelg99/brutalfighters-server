@@ -28,13 +28,23 @@ import com.esotericsoftware.kryonet.Connection;
 
 public class GameMatch {
 	
+	/*
+	 * 
+	 * Warmup: 20sec
+	 * Players: 6
+	 * Win State: 3 flags
+	 * Respawn: 6sec
+	 * Match Finish: 6sec
+	 * 
+	 */
+	
 	public static final int TEAM1 = 0;
 	public static final int TEAM2 = 1;
 	
-	private static final int DEFAULT_PLAYER_LIMIT = 2;
-	private static final int WIN_STATE = 1;
+	private static final int DEFAULT_PLAYER_LIMIT = 6;
+	private static final int WIN_STATE = 3;
 
-	private static final int DEFAULT_WARMUP = 3000;
+	private static final int DEFAULT_WARMUP = 20000;
 	private static final int DEFAULT_RESPAWN = 6000;
 	private static final int DEFAULT_FINISH = 6000;
 			
