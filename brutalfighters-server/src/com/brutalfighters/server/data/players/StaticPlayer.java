@@ -179,17 +179,17 @@ public class StaticPlayer {
 
 			p.vely = p.vely < 0 ? 0 : p.vely;
 			
-			if(p.isJump) {
-				if(!p.collidesTop && hasFullControl(p)) {
+			if(p.isJump && hasFullControl(p)) {
+				if(!p.collidesTop) {
 					p.vely = fighter.JUMP_HEIGHT;
 				} else {
 					p.vely = 0;
 				}
-				
-				if(p.collidesTop && p.collidesBot) {
-					p.vely = 0;
-					p.isJump = false;
-				}
+			}
+			
+			if(p.collidesTop && p.collidesBot) {
+				p.vely = 0;
+				p.isJump = false;
 			}
 			
 		} else {
