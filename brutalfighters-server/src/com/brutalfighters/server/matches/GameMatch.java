@@ -41,48 +41,46 @@ public class GameMatch {
 	public static final int TEAM1 = 0;
 	public static final int TEAM2 = 1;
 	
-	private static final int DEFAULT_PLAYER_LIMIT = 6;
-	private static final int WIN_STATE = 3;
+	protected static final int DEFAULT_PLAYER_LIMIT = 6;
+	protected static final int WIN_STATE = 3;
 
-	private static final int DEFAULT_WARMUP = 20000;
-	private static final int DEFAULT_RESPAWN = 6000;
-	private static final int DEFAULT_FINISH = 6000;
+	protected static final int DEFAULT_WARMUP = 20000;
+	protected static final int DEFAULT_RESPAWN = 6000;
+	protected static final int DEFAULT_FINISH = 6000;
 			
-	private PlayerMap players;
-	private PlayerMap[] teams;
+	protected PlayerMap players;
+	protected PlayerMap[] teams;
 	
-	private Flag[] flags;
+	protected Flag[] flags;
 	
-	private Projectiles projectiles;
+	protected Projectiles projectiles;
 	
-	private final String mapName;
+	protected final String mapName;
 	
-	private final int playerLimit;
+	protected int playerLimit;
 	
-	private boolean isOpen;
+	protected boolean isOpen;
 	
-	private String ID;
+	protected String ID;
 	
-	private Score score;
+	protected Score score;
 	
-	private int RESPAWN;
+	protected int RESPAWN;
 	
-	private int teamWon;
+	protected int teamWon;
 	
-	private Counter WARMUP, FINISH;
+	protected Counter WARMUP, FINISH;
 	
-	public GameMatch(String mapName, String ID) {
+	public GameMatch(String mapName, String ID, PlayerMap players, PlayerMap[] teams) {
 		this.ID = ID;
 		
 		this.score = new Score();
 		this.score.flags = new int[] {0,0};
 		this.score.kills = new int[] {0,0};
 		
-		players = new PlayerMap();
+		this.players = players;
 		
-		teams = new PlayerMap[2];
-		teams[0] = new PlayerMap();
-		teams[1] = new PlayerMap();
+		this.teams = teams;
 		
 		flags = new Flag[2];
 		setFlag(TEAM1, FlagHandler.getFlag(mapName, TEAM1));
@@ -103,33 +101,19 @@ public class GameMatch {
 		
 		setTeamWon(-1);
 	}
-	public GameMatch(String mapName) {
-		this(mapName, "-1"); //$NON-NLS-1$
+	public GameMatch(String mapName, String ID) {
+		this(mapName, ID, new PlayerMap(), new PlayerMap[]{new PlayerMap(),new PlayerMap()});
 	}
 	
 	// UPDATES
 	public void updateMatch(Iterator<Map.Entry<String,GameMatch>> iter) {
-		if(!gameFinished(iter)) { // We can split this method into 2 methods, for more security.
-			if(WARMUP.isFinished()) {
-				updateGame();
-				updateClients();
-			} else {
-				// Although we update the warmup first and therefore skip the first second of update,
-				// the client has the warmup already loaded.
-				updateWarmup();
-				updateClientsWarmup(); 
-			}
-		} else if(FINISH.getCounter() > 0) {
-			FINISH.subCounter(GameServer.getDelay());
-		} else {
-			removeMatch(iter);
-		}
+		
 	}	
-	private boolean gameFinished(Iterator<Map.Entry<String,GameMatch>> iter) {
+	protected boolean gameFinished(Iterator<Map.Entry<String,GameMatch>> iter) {
 		return getTeamWon() != -1 || checkEmpty(iter) || checkGameState();
 	}
 
-	private boolean checkGameState() {
+	protected boolean checkGameState() {
 		for(int i = 0; i < score.flags.length; i++) {
 			if(score.flags[i] >= WIN_STATE) {
 				setTeamWon(i);
@@ -143,39 +127,39 @@ public class GameMatch {
 		}
 		return false;
 	}
-	private void resetFinish() {
+	protected void resetFinish() {
 		FINISH.resetCounter();
 	}
 	
-	private boolean checkEmpty(Iterator<Map.Entry<String,GameMatch>> iter) {
+	protected boolean checkEmpty(Iterator<Map.Entry<String,GameMatch>> iter) {
 		if(players.size() <= 0) {
 			removeMatch(iter);
 			return true;
 		}
 		return false;
 	}
-	private void updateWarmup() {
+	protected void updateWarmup() {
 		WARMUP.subCounter(GameServer.getDelay());
 	}
-	private void updateGame() {
+	protected void updateGame() {
 		updatePlayers();
 		updateProjectiles();
 		updateFlags();
 	}
 	
-	private void updateFlags() {
+	protected void updateFlags() {
 		FlagHandler.updateFlags(flags);
 	}
-	private void updateProjectiles() {
+	protected void updateProjectiles() {
 		projectiles.updateProjectiles();
 	}	
-	private void updatePlayers() {
+	protected void updatePlayers() {
 		for(Map.Entry<Connection, PlayerData> entry : players.entrySet()) {
 			StaticPlayer.update(entry, getMap());
 		}
 	}
 	
-	private void updateClientsWarmup() {
+	protected void updateClientsWarmup() {
 		if(WARMUP.getCounter()%1000 == 0) {
 			Packet2Warmup packet = new Packet2Warmup();
 			
@@ -187,7 +171,7 @@ public class GameMatch {
 		}
 	}
 	
-	private void updateClients() {
+	protected void updateClients() {
 		Packet2Players packet = new Packet2Players();
 		
 		for(Connection cnct : players.keySet()) {
@@ -299,7 +283,7 @@ public class GameMatch {
 			approveResources(cnct);
 		}
 	}
-	private void approveResources(Connection connection) {
+	protected void approveResources(Connection connection) {
 		if(players.containsKey(connection)) {
 			Packet1Connected res = new Packet1Connected();
 			res = new Packet1Connected();
@@ -307,27 +291,28 @@ public class GameMatch {
 			res.theClient = players.get(connection);
 			res.players = players.getOtherPlayers(connection);
 			res.flags = flags;
+			res.warmup = getWarmup();
 			connection.sendTCP(res);
 		}
 	}
 	
-	private void updateClients(Packet packet) {
+	protected void updateClients(Packet packet) {
 		for(Connection cnct : players.keySet()) {
 			cnct.sendUDP(packet);
 		}
 	}
-	private void updateClientsTCP(Packet packet) {
+	protected void updateClientsTCP(Packet packet) {
 		for(Connection cnct : players.keySet()) {
 			cnct.sendTCP(packet);
 		}
 	}
 	
 	// Remove Match
-	private void removeMatch() {
+	protected void removeMatch() {
 		updateClientsTCP(new Packet2MatchOver());
 		GameMatchManager.removeMatch(ID);
 	}
-	private void removeMatch(Iterator<Map.Entry<String,GameMatch>> iter) {
+	protected void removeMatch(Iterator<Map.Entry<String,GameMatch>> iter) {
 		updateClientsTCP(new Packet2MatchOver());
 		System.out.println("MATCH REMOVED"); //$NON-NLS-1$
 		iter.remove();
@@ -434,7 +419,7 @@ public class GameMatch {
 	public Flag getFlag(int index) {
 		return flags[index];
 	}
-	private void setFlag(int index, Flag flag) {
+	protected void setFlag(int index, Flag flag) {
 		flags[index] = flag;
 	}
 	public Flag getEnemyFlag(int team) {
@@ -456,7 +441,7 @@ public class GameMatch {
 	}
 	
 	// Match Limits and States
-	private int getPlayerLimit() {
+	protected int getPlayerLimit() {
 		return playerLimit;
 	}
 	public boolean isFull() {
@@ -501,8 +486,10 @@ public class GameMatch {
 		this.teamWon = -1;
 	}
 	
+	protected int getWarmup() {
+		return WARMUP.getCounter();
+	}
 	public boolean isWarmup() {
 		return !WARMUP.isFinished();
 	}
-	
 }

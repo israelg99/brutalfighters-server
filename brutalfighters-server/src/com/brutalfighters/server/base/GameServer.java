@@ -10,10 +10,10 @@ import com.brutalfighters.server.data.maps.MapManager;
 import com.brutalfighters.server.data.players.PlayerData;
 import com.brutalfighters.server.data.projectiles.ProjectileData;
 import com.brutalfighters.server.matches.GameMatchManager;
-import com.brutalfighters.server.packets.ClosedMatchPacket;
-import com.brutalfighters.server.packets.OpenMatchPacket;
+import com.brutalfighters.server.packets.GameMatchPacket;
+import com.brutalfighters.server.packets.ConnectGameMatch;
 import com.brutalfighters.server.packets.Packet;
-import com.brutalfighters.server.packets.Packet0Connect;
+import com.brutalfighters.server.packets.Packet0ConnectMatch;
 import com.brutalfighters.server.packets.Packet1Connected;
 import com.brutalfighters.server.packets.Packet2MatchFinished;
 import com.brutalfighters.server.packets.Packet2MatchOver;
@@ -71,10 +71,10 @@ public class GameServer {
 
 	private static void registerPackets() {
 		server.getKryo().register(Packet.class);
-		server.getKryo().register(ClosedMatchPacket.class);
-		server.getKryo().register(OpenMatchPacket.class);
+		server.getKryo().register(GameMatchPacket.class);
+		server.getKryo().register(ConnectGameMatch.class);
 		
-		server.getKryo().register(Packet0Connect.class);
+		server.getKryo().register(Packet0ConnectMatch.class);
 		server.getKryo().register(PlayerData.class);
 		server.getKryo().register(PlayerData[].class);
 		server.getKryo().register(BuffData.class);

@@ -3,10 +3,11 @@ package com.brutalfighters.server.base;
 import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.PlayerData;
 import com.brutalfighters.server.matches.GameMatchManager;
-import com.brutalfighters.server.packets.ClosedMatchPacket;
-import com.brutalfighters.server.packets.OpenMatchPacket;
+import com.brutalfighters.server.matches.GameMode;
+import com.brutalfighters.server.packets.GameMatchPacket;
+import com.brutalfighters.server.packets.ConnectGameMatch;
 import com.brutalfighters.server.packets.Packet;
-import com.brutalfighters.server.packets.Packet0Connect;
+import com.brutalfighters.server.packets.Packet0ConnectMatch;
 import com.brutalfighters.server.packets.Packet3InputAAttack;
 import com.brutalfighters.server.packets.Packet3InputJump;
 import com.brutalfighters.server.packets.Packet3InputLeft;
@@ -37,16 +38,19 @@ public class NetworkListener extends Listener {
 				return;
 			}
 			
-			if(object instanceof OpenMatchPacket) {
-				if (object instanceof Packet0Connect) {
-					System.out.println("HEY! new player"); //$NON-NLS-1$
-					GameMatchManager.connectPlayer(((Packet0Connect) object).fighter, connection);
+			if(object instanceof ConnectGameMatch) {
+				if (object instanceof Packet0ConnectMatch) {
+					System.out.println("HEY! new match player"); //$NON-NLS-1$
+					Packet0ConnectMatch packet = ((Packet0ConnectMatch) object);
+					if(GameMode.contains(packet.gamemode)) {
+						GameMatchManager.connectPlayer(GameMode.valueOf(packet.gamemode), ((Packet0ConnectMatch) object).fighter, connection);
+					}
 					return;
 				}
 			}
 
-			if(object instanceof ClosedMatchPacket && !GameMatchManager.getClosedMatch(connection).isWarmup()) {
-				PlayerData player = GameMatchManager.closedMatches().getPlayer(connection);
+			if(object instanceof GameMatchPacket) {
+				PlayerData player = GameMatchManager.checkPlayer(connection);
 				
 				if(player != null) {
 					if(!player.isDead) {

@@ -2,7 +2,7 @@ package com.brutalfighters.server.base;
 
 import java.io.IOException;
 
-import com.brutalfighters.server.packets.ClosedMatchPacket;
+import com.brutalfighters.server.packets.GameMatchPacket;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
@@ -24,7 +24,7 @@ public class MPServer {
 	}
 	
 	private void registerPackets() {
-		kryo.register(ClosedMatchPacket.class);
+		kryo.register(GameMatchPacket.class);
 	}
 	
 	public Kryo getKryo() {

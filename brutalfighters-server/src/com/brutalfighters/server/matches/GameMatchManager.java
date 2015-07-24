@@ -5,7 +5,6 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.brutalfighters.server.data.maps.CTFMap;
 import com.brutalfighters.server.data.players.Champion;
@@ -15,14 +14,16 @@ import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.esotericsoftware.kryonet.Connection;
 
 public class GameMatchManager {
-	private static GameMatches closedMatches;
-	private static GameMatches openMatches;
+	private static GameMatches<ClosedGameMatch> closedMatches;
+	private static GameMatches<OpenGameMatch> openMatches;
+	private static GameMatches<FreestyleGameMatch> freestyleMatches;
 	private static GameMatch currentMatch;
 	private static SecureRandom matchID;
 	
 	public static void gameMatchManager() {
-		closedMatches = new GameMatches();
-		openMatches = new GameMatches();
+		closedMatches = new GameMatches<ClosedGameMatch>(ClosedGameMatch.class);
+		openMatches = new GameMatches<OpenGameMatch>(OpenGameMatch.class);
+		freestyleMatches = new GameMatches<FreestyleGameMatch>(FreestyleGameMatch.class);
 		matchID = new SecureRandom();
 		
 		gameResources();
@@ -42,29 +43,49 @@ public class GameMatchManager {
 	}
 
 	// Getters and Setters
-	public static GameMatches closedMatches() {
+	public static GameMatches<ClosedGameMatch> closedMatches() {
 		return closedMatches;
 	}
-	public static GameMatches openMatches() {
+	public static GameMatches<OpenGameMatch> openMatches() {
 		return openMatches;
 	}
-	public static HashMap<String, GameMatch> getClosedMatches() {
+	public static GameMatches<FreestyleGameMatch> freestyleMatches() {
+		return freestyleMatches;
+	}
+	public static HashMap<String, ClosedGameMatch> getClosedMatches() {
 		return closedMatches.getMatches();
 	}
-	public static HashMap<String, GameMatch> getOpenMatches() {
+	public static HashMap<String, OpenGameMatch> getOpenMatches() {
 		return openMatches.getMatches();
+	}
+	public static HashMap<String, FreestyleGameMatch> getFreestyleMatches() {
+		return freestyleMatches.getMatches();
 	}
 	public static GameMatch getClosedMatch(Connection cnct) {
 		return closedMatches.getMatch(cnct);
 	}
+	public static GameMatch getFreestyleMatch(Connection cnct) {
+		return freestyleMatches.getMatch(cnct);
+	}
 	public static PlayerData getClosedPlayer(Connection cnct) {
 		return closedMatches.getMatch(cnct).getPlayer(cnct);
 	}
+	public static PlayerData getFreestylePlayer(Connection cnct) {
+		return freestyleMatches.getMatch(cnct).getPlayer(cnct);
+	}
+	
+	public static PlayerData checkPlayer(Connection cnct) {
+		PlayerData p = openMatches.getPlayer(cnct);
+		if(p == null) {
+			p = closedMatches.getPlayer(cnct);
+			if(p == null) {
+				p = freestyleMatches.getPlayer(cnct);
+			}
+		}
+		return p;
+	}
 	
 	// Match Setups
-	public static void setupOpenMatch() {
-		openMatches.setupMatch();
-	}
 	public static void removeMatch(String ID) {
 		System.out.println("MATCH REMOVED"); //$NON-NLS-1$
 		openMatches.removeMatch(ID);
@@ -74,50 +95,55 @@ public class GameMatchManager {
 	}
 	
 	// Connect and Disconnect Players to Matches
-	public static void connectPlayer(String fighter, Connection cnct) {
-		System.out.println("Got a new player : " + cnct.getID() + " Playing: " + fighter); //$NON-NLS-1$ //$NON-NLS-2$
+	public static void connectPlayer(GameMode gamemode, String fighter, Connection cnct) {
+		System.out.println("Got a new player: " + cnct.getID() + " | Playing:" + fighter + " | In Game Mode:" + gamemode.name()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		if(Champion.contains(Character.toUpperCase(fighter.charAt(0)) + fighter.substring(1))) {
-			matchPlayer(fighter, cnct);
+			if(gamemode.equals(GameMode.MATCH)) {
+				matchPlayer(openMatches, fighter, cnct);
+			} else if(gamemode.equals(GameMode.FREESTYLE)) {
+				matchPlayer(freestyleMatches, fighter, cnct);
+			}
 		}
 	}
-	
+
 	// Player Disconnection Handling
 	public static void disconnectPlayer(Connection cnct) {
 		closedMatches.removePlayer(cnct);
 		openMatches.removePlayer(cnct);
+		freestyleMatches.removePlayer(cnct);
 		System.out.println("Removed the disconnected player"); //$NON-NLS-1$
 	}
 	public static void escapePlayer(Connection cnct) {
-		closedMatches.removePlayer(cnct);
-		openMatches.removePlayer(cnct);
+		disconnectPlayer(cnct);
 		System.out.println("Removed the escaped player"); //$NON-NLS-1$
 	}
 
-	public static void matchPlayer(String fighter, Connection cnct) {
+	public static void matchPlayer(GameMatches matches, String fighter, Connection cnct) {
 		System.out.println("Matching a player : " + cnct.getID()); //$NON-NLS-1$
-		openMatches.connectPlayer(cnct, getAvailableMatch(), fighter);
+		matches.connectPlayer(cnct, fighter);
 	}
 	
-	// Update Matches
-	private static void updateMatch(Iterator<Map.Entry<String,GameMatch>> iter, String id) {
-		setCurrentMatch(id);
+	// Update Matches -- We can't update the matches in the `GameMatches` class because we have to setCurrentMatch(GameMatch);
+	private static void updateMatch(Iterator<Map.Entry<String,GameMatch>> iter, GameMatch match) {
+		setCurrentMatch(match);
 		updateCurrentMatch(iter);
 	}
-	private static void updateMatches() {
-		Iterator<Map.Entry<String,GameMatch>> iter = closedMatches.getMatches().entrySet().iterator();
+	private static void updateMatches(GameMatches matches) {
+		Iterator<Map.Entry<String,GameMatch>> iter = matches.getMatches().entrySet().iterator();
 		while (iter.hasNext()) {
 		    Map.Entry<String,GameMatch> entry = iter.next();
-		    updateMatch(iter, entry.getKey());
+		    updateMatch(iter, entry.getValue());
 		}
 	}
 	public static void updateManager() {
-		updateMatches();
-		updateOpenMatches();
+		updateMatches(closedMatches);
+		updateMatches(openMatches);
+		updateMatches(freestyleMatches);
 	}
 	
 	// Current Match
-	private static void setCurrentMatch(String id) {
-		currentMatch = closedMatches.getMatch(id);
+	private static void setCurrentMatch(GameMatch match) {
+		currentMatch = match;
 	}
 	public static GameMatch getCurrentMatch() {
 		return currentMatch;
@@ -135,37 +161,19 @@ public class GameMatchManager {
 		return getCurrentMatch().getProjectiles();
 	}
 	
-	// Open Matches Update
-	public static void updateOpenMatches() {
-		Iterator<Map.Entry<String,GameMatch>> iter = openMatches.getMatches().entrySet().iterator();
-		while (iter.hasNext()) {
-		    Map.Entry<String,GameMatch> entry = iter.next();
-			if(entry.getValue().isFull()) {
-				System.out.println("Yay! an open match is ready to be closed! :-)"); //$NON-NLS-1$
-				entry.getValue().close();
-				closedMatches.getMatch(closedMatches.setupMatch(entry)).startMatch();
-				iter.remove();
-			}
-		}
-	}
-	
-	// Search Matches
-	private static String getAvailableMatch() {
-		System.out.println("Searching for an available match.."); //$NON-NLS-1$
-		for (Entry<String, GameMatch> entry : openMatches.getMatches().entrySet()) {
-		    if(!entry.getValue().isFull() && entry.getValue().isOpen()) {
-		    	System.out.println("Found a match!"); //$NON-NLS-1$
-		    	return entry.getKey();
-		    }
-		}
-		
-		System.out.println("Didn't find, going to setup one.."); //$NON-NLS-1$
-		return openMatches.setupMatch();
-	}
-	
 	// Secure Match ID
 	public static String nextSecureKeyID() {
 		return new BigInteger(130, matchID).toString(32);
+	}
+	public static String uniqueSecureKeyID() {
+		String ID = GameMatchManager.nextSecureKeyID();
+		System.out.println("Got key? " + ID); //$NON-NLS-1$
+		while(closedMatches.isKey(ID) || openMatches.isKey(ID) || freestyleMatches.isKey(ID)) {
+			ID = GameMatchManager.nextSecureKeyID();
+		}
+		System.out.println("YES THE KEY IS " + ID); //$NON-NLS-1$
+		
+		return ID;
 	}
 	
 }

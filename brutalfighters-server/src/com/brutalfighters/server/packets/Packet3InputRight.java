@@ -1,5 +1,5 @@
 package com.brutalfighters.server.packets;
 
-public class Packet3InputRight extends ClosedMatchPacket {
+public class Packet3InputRight extends GameMatchPacket {
 
 }

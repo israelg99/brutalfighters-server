@@ -50,7 +50,8 @@ public class PlayerMap {
 		return getOtherMap(connection).values();
 	}
 	public HashMap<Connection, PlayerData> getOtherMap(Connection connection) {
-		HashMap<Connection, PlayerData> temp = (HashMap<Connection, PlayerData>) players.clone();
+		HashMap<Connection, PlayerData> temp = new HashMap<Connection, PlayerData>();
+		temp.putAll(players);
 		temp.remove(connection);
 		return temp;
 	}
