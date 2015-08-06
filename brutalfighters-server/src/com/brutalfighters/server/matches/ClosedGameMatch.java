@@ -35,7 +35,6 @@ public class ClosedGameMatch extends GameMatch {
 				// Although we update the warmup first and therefore skip the first second of update,
 				// the client has the warmup already loaded.
 				updateWarmup();
-				updateClientsWarmup(); 
 			}
 		} else if(FINISH.getCounter() > 0) {
 			FINISH.subCounter(GameServer.getDelay());

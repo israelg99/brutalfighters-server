@@ -20,7 +20,6 @@ import com.brutalfighters.server.packets.Packet1Connected;
 import com.brutalfighters.server.packets.Packet2MatchFinished;
 import com.brutalfighters.server.packets.Packet2MatchOver;
 import com.brutalfighters.server.packets.Packet2Players;
-import com.brutalfighters.server.packets.Packet2Warmup;
 import com.brutalfighters.server.util.Counter;
 import com.brutalfighters.server.util.MathUtil;
 import com.brutalfighters.server.util.Score;
@@ -156,18 +155,6 @@ public class GameMatch {
 	protected void updatePlayers() {
 		for(Map.Entry<Connection, PlayerData> entry : players.entrySet()) {
 			StaticPlayer.update(entry, getMap());
-		}
-	}
-	
-	protected void updateClientsWarmup() {
-		if(WARMUP.getCounter()%1000 == 0) {
-			Packet2Warmup packet = new Packet2Warmup();
-			
-			for(Connection cnct : players.keySet()) {
-				packet = new Packet2Warmup();
-				packet.warmup = WARMUP.getCounter();
-				cnct.sendTCP(packet);
-			}
 		}
 	}
 	
