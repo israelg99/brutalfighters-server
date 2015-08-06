@@ -736,7 +736,7 @@ public enum Champion {
 		p.running_speed = RUNNING_SPEED;
 	}
 	public void AAttack(PlayerData p, Connection cnct) {
-		AOE.dealAOE_enemy(p.team, CollisionDetection.getBounds(p.flip, p.posx, p.posy, AA_X_RANGE, AA_Y_RANGE), -AA_DMG);
+		AOE.dealAOE_enemy(p.team, CollisionDetection.getBounds(p.flip, p.posx-StaticPlayer.convertSpeed(p, p.width/2), p.posy, AA_X_RANGE, AA_Y_RANGE), -AA_DMG);
 	}
 	public boolean applySkillMana(PlayerData p, int index) {
 		if(p.mana >= skillMana[index]) {
