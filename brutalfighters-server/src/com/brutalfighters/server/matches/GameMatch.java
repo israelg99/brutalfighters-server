@@ -41,7 +41,7 @@ public class GameMatch {
 	public static final int TEAM1 = 0;
 	public static final int TEAM2 = 1;
 	
-	protected static final int DEFAULT_PLAYER_LIMIT = 2;
+	protected static final int DEFAULT_PLAYER_LIMIT = 5;
 	protected static final int WIN_STATE = 3;
 
 	protected static final int DEFAULT_WARMUP = 20000;
@@ -183,29 +183,33 @@ public class GameMatch {
 					pd.isRunning = false;
 					pd.isAAttack = true;
 					pd.isSkilling = true;
-					pd.isSkill4 = true;
-					fighter.startSkill4(pd, connection);
+					pd.isSkill3 = true;
+					fighter.startSkill3(pd, connection);
 				break;
 				
 				case "Dusk": //$NON-NLS-1$
+					pd.isAAttack = true;
 					pd.isSkilling = true;
-					pd.isSkill4 = true;
-					fighter.startSkill4(pd, connection);
+					pd.isSkill1 = true;
+					fighter.startSkill1(pd, connection);
 				break;
 				
 				case "Chip": //$NON-NLS-1$
-					pd.isLeft = false;
-					pd.isRight = true;
-					pd.isJump = true;
+					pd.isAAttack = true;
+					pd.isSkilling = true;
+					pd.isSkill2 = true;
+					fighter.startSkill2(pd, connection);
 				break;
 				
 				case "Surge": //$NON-NLS-1$
+					pd.isAAttack = true;
 					pd.isSkilling = true;
 					pd.isSkill4 = true;
 					fighter.startSkill4(pd, connection);
 				break;
 				
 				case "Lust": //$NON-NLS-1$
+					pd.isAAttack = true;
 					pd.isSkilling = true;
 					pd.isSkill1 = true;
 					fighter.startSkill1(pd, connection);
@@ -256,7 +260,7 @@ public class GameMatch {
 		for(Map.Entry<Connection, PlayerData> entry : getPlayers().entrySet()) {
 			PlayerData pd = entry.getValue();
 			StaticPlayer.maxHP(pd);
-			pd.hp = 300;
+			pd.hp -= 200;
 			pd.isLeft = false;
 			pd.isRight = false;
 			pd.isRunning = false;
