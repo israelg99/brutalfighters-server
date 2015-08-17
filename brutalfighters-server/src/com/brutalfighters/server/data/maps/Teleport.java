@@ -13,9 +13,10 @@ public class Teleport {
 		
 		// Get the tileset, not the tile itself just tileset to get properties.
 		Tileset teleport = map.getTileset(0, p.posx, p.posy-p.height/3);
-		if(teleport.hasProperty(GameMap.TELEPORT())) { // Are we standing on a teleport?
+		
+		if(teleport.hasProperty(Tileset.TELEPORT())) { // Are we standing on a teleport?
 			// Decoding the coordinates, parsing them, and multiplying them to real game pixel coordinates.
-			String[] target = ((String) teleport.getProperty(GameMap.TELEPORT())).split(","); //$NON-NLS-1$
+			String[] target = ((String) teleport.getProperty(Tileset.TELEPORT())).split(","); //$NON-NLS-1$
 			
 			// Setting the coordinates to the player.
 			p.posx = map.toPixelX(Integer.parseInt(target[0]));

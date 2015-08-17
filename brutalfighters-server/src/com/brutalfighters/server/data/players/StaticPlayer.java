@@ -31,6 +31,8 @@ public class StaticPlayer {
 		PlayerData p = entry.getValue();
 		Connection cnct = entry.getKey();
 		
+		resetExtrapolation(p);
+		
 		if(!applyDeath(p)) {
 			
 			if(p.isSkilling) {
@@ -53,6 +55,13 @@ public class StaticPlayer {
 		}
 	}
 	
+	private static void resetExtrapolation(PlayerData p) {
+		p.isExtrapolating = true;
+	}
+	private static void disableExtrapolation(PlayerData p) {
+		p.isExtrapolating = false;
+	}
+
 	private static void updateBuffs(PlayerData p) {
 		List<BuffData> buffs = new ArrayList<BuffData>(Arrays.asList(p.buffs));
 		Iterator<BuffData> iterator = buffs.iterator();
@@ -65,6 +74,7 @@ public class StaticPlayer {
 
 	private static void applyTeleport(PlayerData p, GameMap map) {
 		if(p.isTeleporting) {
+			disableExtrapolation(p);
 			Teleport.applyTeleporting(map, p);
 		}
 	}
@@ -105,7 +115,7 @@ public class StaticPlayer {
 		}
 	}
 	public static void applyWalking(PlayerData p, int speed) {
-		p.velx = 0;
+		p.velx = 0; // We must have it here, no worries, we should not apply walking when the X velocity is modified anyway.
 		if((p.isLeft != p.isRight)) {
 			if(p.isRight) {
 				p.velx = speed;
@@ -172,13 +182,16 @@ public class StaticPlayer {
 
 	public static void applyVelocity(PlayerData p) {
 		
+		// Getting the champion and the speed
 		Champion fighter = Champion.valueOf(p.name);
 		float speed = p.isRunning ? p.running_speed : p.walking_speed;
 		
 		if(p.onGround) {
-
+			
+			// Velocity Reset
 			p.vely = p.vely < 0 ? 0 : p.vely;
 			
+			/* JUMP */
 			if(p.isJump && hasFullControl(p)) {
 				if(!p.collidesTop) {
 					p.vely = fighter.JUMP_HEIGHT;
@@ -191,17 +204,23 @@ public class StaticPlayer {
 				p.vely = 0;
 				p.isJump = false;
 			}
+			/* END JUMP */
 			
 		} else {
+			
+			// Jump Cut
 			if(hasFullControl(p) && !p.isJump && p.vely > fighter.JUMP_HEIGHT/2) {
 				p.vely = fighter.JUMP_HEIGHT/2;
 			}
+			
+			// Air Momentum
 			speed *= airForce;
 			
 			// Gravity
 			applyGravitation(p);
 		}
 		
+		// Walking (Velocity X reset inside ofc)
 		applyWalking(p, (int)speed);
 	}
 	

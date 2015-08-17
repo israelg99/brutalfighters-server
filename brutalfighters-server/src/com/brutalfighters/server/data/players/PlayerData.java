@@ -81,4 +81,7 @@ public class PlayerData {
 	public boolean collidesRight;
 	public boolean collidesTop;
 	public boolean collidesBot;
+	
+	// Extrapolation
+	public boolean isExtrapolating;
 }

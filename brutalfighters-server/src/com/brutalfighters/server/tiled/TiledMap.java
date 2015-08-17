@@ -2,11 +2,12 @@ package com.brutalfighters.server.tiled;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TiledMap {
 	protected int width, height, tileWidth, tileHeight;
-	protected List<Tileset> tilesets = new ArrayList<Tileset>();
+	protected HashMap<Integer,Tileset> tilesets = new HashMap<Integer,Tileset>();
 	protected List<TiledLayer> tiledlayers = new ArrayList<TiledLayer>();
 	
 	public TiledMap(int width, int height, int tileWidth, int tileHeight) {
@@ -19,27 +20,32 @@ public class TiledMap {
 	//   TILESETS
 	
 	// Add Tileset
-	public void addTileset() {
-		tilesets.add(new Tileset());
+	@SuppressWarnings("boxing")
+	public void addTileset(int id) {
+		tilesets.put(id, new Tileset());
 	}
 	
 	// Edit Tileset
+	@SuppressWarnings("boxing")
 	public void editTileset(int id, String key, Object value) {
 		tilesets.get(id).setProperty(key, value);
 	}
 	
 	// Get Tileset
-	public List<Tileset> getTilesets() {
+	public HashMap<Integer,Tileset> getTilesets() {
 		return tilesets;
 	}
+	@SuppressWarnings("boxing")
 	public Tileset getTileset(int id) {
 		return tilesets.get(id);
 	}
+	@SuppressWarnings("boxing")
 	public boolean isBlocked(int id) {
 		return tilesets.get(id).isBlocked();
 	}
-	public String getKind(int id) {
-		return tilesets.get(id).getKind();
+	@SuppressWarnings("boxing")
+	public String getStep(int id) {
+		return tilesets.get(id).getStep();
 	}
 	
 	// More Tileset
@@ -73,14 +79,11 @@ public class TiledMap {
 	
 	
 	
-	// Tiles (Into the last TiledLayer)
+	// Tiles
 	
 	// Add Tiles
-	public void addTile(int i) {
-		tiledlayers.get(i).addTile(getTileWidth(), getTileHeight(), getTileset(0).isBlocked(), getTileset(0).getKind());
-	}
 	public void addTile(int i, int id) {
-		tiledlayers.get(i).addTile(id, getTileWidth(), getTileHeight(), getTileset(id).isBlocked(), getTileset(id).getKind());
+		tiledlayers.get(i).addTile(id, getTileWidth(), getTileHeight(), getTileset(id).getRatio(), getTileset(id).getBlocked(), getTileset(id).getStep());
 	}
 	
 	// Get Tiles

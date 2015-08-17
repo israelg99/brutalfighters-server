@@ -37,10 +37,11 @@ public class GameMatch {
 	 * 
 	 */
 	
+	public static final int TEAM_LENGTH = 2;
 	public static final int TEAM1 = 0;
 	public static final int TEAM2 = 1;
 	
-	protected static final int DEFAULT_PLAYER_LIMIT = 6;
+	protected static final int DEFAULT_PLAYER_LIMIT = 2;
 	protected static final int WIN_STATE = 3;
 
 	protected static final int DEFAULT_WARMUP = 20000;

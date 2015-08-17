@@ -7,6 +7,7 @@ import com.brutalfighters.server.data.maps.MapManager;
 import com.brutalfighters.server.data.players.PlayerData;
 import com.brutalfighters.server.matches.GameMatchManager;
 import com.brutalfighters.server.util.CollisionDetection;
+import com.brutalfighters.server.util.Vec2;
 import com.esotericsoftware.kryonet.Connection;
 
 
@@ -16,22 +17,22 @@ public class FlagHandler {
 	public static final int GRAVITY = 12;
 	
 	// Get flag accordingly to your parameters
-	public static Flag getFlag(float x, float y, String flip) {
+	public static Flag getFlag(Vec2 pos, String flip) {
 		Flag flag = new Flag();
 		
 		flag.isTaken = false;
 		flag.vely = 0;
 		flag.velx = 0;
 		
-		flag.posx = x;
-		flag.posy = y;
+		flag.posx = pos.x;
+		flag.posy = pos.y;
 		
 		flag.flip = flip;
 		
 		return flag;
 	}
 	public static Flag getFlag(Flag flag) {
-		Flag temp = getFlag(flag.posx, flag.posy, flag.flip);
+		Flag temp = getFlag(new Vec2(flag.posx, flag.posy), flag.flip);
 		temp.isTaken = flag.isTaken;
 		temp.vely = flag.vely;
 		temp.velx = flag.velx;

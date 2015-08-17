@@ -2,6 +2,7 @@ package com.brutalfighters.server.data.maps;
 
 import com.brutalfighters.server.data.flags.Flag;
 import com.brutalfighters.server.data.flags.FlagHandler;
+import com.brutalfighters.server.matches.GameMatch;
 import com.brutalfighters.server.tiled.TiledMap;
 import com.brutalfighters.server.util.Vec2;
 
@@ -13,15 +14,14 @@ public class CTFMap extends GameMap {
 	public CTFMap(TiledMap map) {
 		super(map);
 
-		this.bases = new Base[2];
-		this.flags = new Flag[2];
+		this.bases = new Base[GameMatch.TEAM_LENGTH];
+		this.flags = new Flag[GameMatch.TEAM_LENGTH];
 		
-		this.setBase(0, new Base(new Vec2(leftBoundary+100, 300), "right")); //$NON-NLS-1$
-		this.setBase(1, new Base(new Vec2(rightBoundary-100, 300), "left")); //$NON-NLS-1$
+		this.setBase(GameMatch.TEAM1, new Base(new Vec2(leftBoundary+100, 384), "right")); //$NON-NLS-1$
+		this.setBase(GameMatch.TEAM2, new Base(new Vec2(rightBoundary-100, 384), "left")); //$NON-NLS-1$
 
-		// 284
-		this.setFlag(0, FlagHandler.getFlag(leftBoundary+400, 291, "right")); //$NON-NLS-1$
-		this.setFlag(1, FlagHandler.getFlag(rightBoundary-400, 291, "left")); //$NON-NLS-1$
+		this.setFlag(GameMatch.TEAM1, new Vec2(leftBoundary+400, FlagHandler.HEIGHT + 291), "right"); //$NON-NLS-1$
+		this.setFlag(GameMatch.TEAM2, new Vec2(rightBoundary-400, FlagHandler.HEIGHT + 291), "left"); //$NON-NLS-1$
 	}
 	
 	// It's not the main constructor because the default base and flags values
@@ -39,6 +39,9 @@ public class CTFMap extends GameMap {
 	public Base getBase(int index) {
 		return bases[index];
 	}
+	public void setBase(int index, Vec2 pos, String flip) {
+		bases[index] = new Base(pos, flip);
+	}
 	public void setBase(int index, Base base) {
 		bases[index] = base;
 	}
@@ -47,9 +50,12 @@ public class CTFMap extends GameMap {
 	// FLAGS
 	public Flag getFlag(int index) {
 		Flag flag = flags[index];
-		return FlagHandler.getFlag(flag.posx, flag.posy, flag.flip);
+		return FlagHandler.getFlag(new Vec2(flag.posx, flag.posy), flag.flip);
 	}
 	public void setFlag(int index, Flag flag) {
-		flags[index] = FlagHandler.getFlag(flag.posx, flag.posy, flag.flip);
+		flags[index] = FlagHandler.getFlag(new Vec2(flag.posx, flag.posy), flag.flip);
+	}
+	public void setFlag(int index, Vec2 pos, String flip) {
+		flags[index] = FlagHandler.getFlag(pos, flip);
 	}
 }

@@ -37,7 +37,7 @@ public class CollisionDetection {
 		setBounds(rectangle, flip, (int)x, (int)y, width, height);
 	}
 	
-	// Boundary Methods
+	// Boundary Methods - MUST NOT BE CHANGED!!!!!
 	public static float getLeft(PlayerData p) {
 		return -p.width/2;
 	}
@@ -60,7 +60,7 @@ public class CollisionDetection {
 	
 	public static boolean collidesBot(PlayerData p, GameMap map) {
 		// BOT!
-		return map.intersectsSurroundX(p.posx, p.posy+getBot(p)+p.vely, getVelocityBounds(p, false, true)) || p.posy + p.vely + getBot(p) < map.getBotBoundary();
+		return map.intersectsSurroundXBoth("top", p.posx, p.posy+getBot(p)+p.vely, getVelocityBounds(p, false, true)) || p.posy + p.vely + getBot(p) < map.getBotBoundary(); //$NON-NLS-1$
 	}
 	public static boolean collidesLeft(PlayerData p, GameMap map) {
 		// LEFT!
@@ -72,7 +72,7 @@ public class CollisionDetection {
 	}
 	public static boolean collidesTop(PlayerData p, GameMap map) {
 		// TOP!
-		return map.intersectsSurroundX(p.posx, p.posy+getTop(p), getVelocityBounds(p, false, true)) || p.posy + p.vely + getTop(p) > map.getTopBoundary();
+		return map.intersectsSurroundX(p.posx, p.posy+getTop(p)+p.vely, getVelocityBounds(p, false, true)) || p.posy + p.vely + getTop(p) > map.getTopBoundary();
 	}
 	
 	public static Tile getCellOn(PlayerData p, GameMap map) {
