@@ -41,7 +41,7 @@ public class GameMatch {
 	public static final int TEAM1 = 0;
 	public static final int TEAM2 = 1;
 	
-	protected static final int DEFAULT_PLAYER_LIMIT = 5;
+	protected static final int DEFAULT_PLAYER_LIMIT = 2;
 	protected static final int WIN_STATE = 3;
 
 	protected static final int DEFAULT_WARMUP = 20000;
@@ -328,7 +328,7 @@ public class GameMatch {
 		player.team = team;
 		teams[team].put(connection, player);
 		
-		players.put(connection, player);
+		players.put(connection, teams[team].get(connection));
 	}
 	public PlayerData getPlayer(Connection connection) {
 		return players.get(connection);

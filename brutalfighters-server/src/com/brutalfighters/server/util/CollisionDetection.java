@@ -58,6 +58,7 @@ public class CollisionDetection {
 		return bounds;
 	}
 	
+	/* We can use Enum of sides(bot,left,right,top) and pass it as a parameter, thus combine those 4 functions into one. */
 	public static boolean collidesBot(PlayerData p, GameMap map) {
 		// BOT!
 		return map.intersectsSurroundXBoth("top", p.posx, p.posy+getBot(p)+p.vely, getVelocityBounds(p, false, true)) || p.posy + p.vely + getBot(p) < map.getBotBoundary(); //$NON-NLS-1$

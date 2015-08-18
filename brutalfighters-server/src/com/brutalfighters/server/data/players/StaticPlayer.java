@@ -261,7 +261,8 @@ public class StaticPlayer {
 	
 	private static void applyAA(PlayerData p, Connection cnct) {
 		Champion fighter = Champion.valueOf(p.name);
-		if(p.isAAttack && isBum(p) && !p.isFlagged) {
+
+		if(p.isAAttack && isBum(p)) {
 			if(p.AACD <= 0) {
 				
 				fighter.AAttack(p, cnct);

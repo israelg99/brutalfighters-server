@@ -76,34 +76,31 @@ public class NetworkListener extends Listener {
 							}
 							if(player.hasControl && !player.isSkilling) {
 								
-								 if(!player.isFlagged) { //!isFlagged
-									
-									Champion fighter = Champion.valueOf(player.name);
-									if(object instanceof Packet3InputSkill1) {
-										player.isSkilling = true;
-										player.isSkill1 = true;
-										fighter.startSkill1(player, connection);
+								Champion fighter = Champion.valueOf(player.name);
+								if(object instanceof Packet3InputSkill1) {
+									player.isSkilling = true;
+									player.isSkill1 = true;
+									fighter.startSkill1(player, connection);
 //										GameMatchManager.getClosedMatch(connection).womboCombo(connection);
-										return;
-									} else if(object instanceof Packet3InputSkill2) {
-										player.isSkilling = true;
-										player.isSkill2 = true;
-										fighter.startSkill2(player, connection);
+									return;
+								} else if(object instanceof Packet3InputSkill2) {
+									player.isSkilling = true;
+									player.isSkill2 = true;
+									fighter.startSkill2(player, connection);
 //										GameMatchManager.getClosedMatch(connection).moveCombo(connection);
-										return;
-									} else if(object instanceof Packet3InputSkill3) {
-										player.isSkilling = true;
-										player.isSkill3 = true;
-										fighter.startSkill3(player, connection);
+									return;
+								} else if(object instanceof Packet3InputSkill3) {
+									player.isSkilling = true;
+									player.isSkill3 = true;
+									fighter.startSkill3(player, connection);
 //										GameMatchManager.getClosedMatch(connection).stopCombo(connection);
-										return;
-									} else if(object instanceof Packet3InputSkill4) {
-										player.isSkilling = true;
-										player.isSkill4 = true;
-										fighter.startSkill4(player, connection);
+									return;
+								} else if(object instanceof Packet3InputSkill4) {
+									player.isSkilling = true;
+									player.isSkill4 = true;
+									fighter.startSkill4(player, connection);
 //										GameMatchManager.getClosedMatch(connection).womboCombo(connection);
-										return;
-									}
+									return;
 								}
 							}
 						}
