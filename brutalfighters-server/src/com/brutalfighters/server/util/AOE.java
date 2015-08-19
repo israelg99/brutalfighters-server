@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.brutalfighters.server.data.buffs.BuffData;
-import com.brutalfighters.server.data.players.PlayerData;
-import com.brutalfighters.server.data.players.StaticPlayer;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.matches.GameMatch;
 import com.brutalfighters.server.matches.GameMatchManager;
 import com.esotericsoftware.kryonet.Connection;
@@ -36,23 +35,23 @@ public class AOE {
 	}
 	
 	// Main Deal AOE
-	public static boolean dealAOE_players(ArrayList<PlayerData> players, int aoe, BuffData[] buffs) {
+	public static boolean dealAOE_players(ArrayList<Fighter> players, int aoe, BuffData[] buffs) {
 		if(players.size() > 0) {
 			
 			boolean areBuffs = buffs.length > 0;
 			boolean isDmg = aoe != 0;
 			
 			for(int i = 0; i < players.size(); i++) {
-				PlayerData p = players.get(i);
+				Fighter p = players.get(i);
 				
-				if(p.isVulnerable) {
+				if(p.getPlayer().isVulnerable) {
 					// Apply HP
 					if(isDmg) { // In order no to call the function for nothing.
-						StaticPlayer.applyRandomHP(p, aoe);
+						p.applyRandomHP(aoe);
 					}	
 					
 					if(areBuffs) { // In order no to call the function for nothing.
-						StaticPlayer.applyBuffs(p, buffs);
+						p.applyBuffs(buffs);
 					}
 				}
 				
@@ -63,17 +62,17 @@ public class AOE {
 	}
 	
 	// Get players that are impacted by the AOE
-	public static ArrayList<PlayerData> getAOE_Players(int team, Rectangle bounds) {
-		ArrayList<PlayerData> players = new ArrayList<PlayerData>();
-		for(Map.Entry<Connection, PlayerData> entry : GameMatchManager.getCurrentMatch().getTeam(team).entrySet()) {
-			if(!entry.getValue().isDead && CollisionDetection.intersects(entry.getValue(), bounds)) {
+	public static ArrayList<Fighter> getAOE_Players(int team, Rectangle bounds) {
+		ArrayList<Fighter> players = new ArrayList<Fighter>();
+		for(Map.Entry<Connection, Fighter> entry : GameMatchManager.getCurrentMatch().getTeam(team).entrySet()) {
+			if(!entry.getValue().getPlayer().isDead && entry.getValue().intersects(bounds)) {
 				players.add(entry.getValue());
 			}
 		}
 		return players;
 	}
-	public static ArrayList<PlayerData> getAOE_Players(Rectangle bounds) {
-		ArrayList<PlayerData> both = new ArrayList<PlayerData>();
+	public static ArrayList<Fighter> getAOE_Players(Rectangle bounds) {
+		ArrayList<Fighter> both = new ArrayList<Fighter>();
 		both.addAll(getAOE_Players(GameMatch.TEAM1, bounds));
 		both.addAll(getAOE_Players(GameMatch.TEAM2, bounds));
 		return both;

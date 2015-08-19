@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import com.brutalfighters.server.data.maps.MapManager;
-import com.brutalfighters.server.data.players.PlayerData;
 import com.brutalfighters.server.data.players.PlayerMap;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.esotericsoftware.kryonet.Connection;
 
 public class GameMatches<T extends GameMatch> {
@@ -40,7 +40,7 @@ public class GameMatches<T extends GameMatch> {
 	}
 	
 	public void addMatch(String ID, T match) { // It adds the players and the match into the HashMaps.
-		for(Entry<Connection, PlayerData> entry : match.getPlayers().entrySet()) {
+		for(Entry<Connection, Fighter> entry : match.getPlayers().entrySet()) {
 		    players.put(entry.getKey(), ID);
 		}
 
@@ -92,6 +92,7 @@ public class GameMatches<T extends GameMatch> {
 	
 	public void connectPlayer(Connection cnct, String id, String fighter) {
 		System.out.println("Connecting a new player to the SKID: " + id); //$NON-NLS-1$
+		
 		getMatch(id).addPlayer(cnct, id, fighter);
 		players.put(cnct, id);
 	}
@@ -110,7 +111,7 @@ public class GameMatches<T extends GameMatch> {
 		return getMatch(id).getMapName();
 	}
 	
-	public PlayerData getPlayer(Connection cnct) {
+	public Fighter getPlayer(Connection cnct) {
 		if(getMatch(cnct) != null) {
 			return getMatch(cnct).getPlayer(cnct);
 		}

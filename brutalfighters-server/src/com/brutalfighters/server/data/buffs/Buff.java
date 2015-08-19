@@ -3,22 +3,21 @@ package com.brutalfighters.server.data.buffs;
 import java.util.Iterator;
 
 import com.brutalfighters.server.base.GameServer;
-import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.PlayerData;
-import com.brutalfighters.server.data.players.StaticPlayer;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 
 
 public enum Buff {
 	HALF_SLOW("HALF_SLOW", 2000) { //$NON-NLS-1$
 
 		@Override
-		public void start(PlayerData p, int index) {
-			p.walking_speed /= 2;
-			p.running_speed /= 2;
+		public void start(Fighter p, int index) {
+			p.getPlayer().walking_speed /= 2;
+			p.getPlayer().running_speed /= 2;
 		}
 		
 		@Override
-		public void update(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
+		public void update(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
 			if(Buff.isActive(p, buff, iterator)) {
 				/*if(buff.time / GameServer.getDelay() % 3 == 0) {
 					Champion fighter = Champion.valueOf(p.name);
@@ -29,8 +28,8 @@ public enum Buff {
 		}
 
 		@Override
-		public void end(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
-			Champion.valueOf(p.name).assignSpeed(p);
+		public void end(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
+			p.assignSpeed();
 			
 			iterator.remove();
 		}
@@ -40,14 +39,14 @@ public enum Buff {
 	BIT_SLOW("BIT_SLOW", 2000) { //$NON-NLS-1$
 		
 		@Override
-		public void start(PlayerData p, int index) {
-			p.walking_speed -= p.walking_speed/5;
-			p.running_speed -= p.walking_speed/5;
+		public void start(Fighter p, int index) {
+			p.getPlayer().walking_speed -= p.getPlayer().walking_speed/5;
+			p.getPlayer().running_speed -= p.getPlayer().walking_speed/5;
 		}
 		
 		@Override
-		public void end(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
-			Champion.valueOf(p.name).assignSpeed(p);
+		public void end(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
+			p.assignSpeed();
 			
 			iterator.remove();
 		}
@@ -57,28 +56,29 @@ public enum Buff {
 	ICE_STUN("ICE_STUN", 3000) { //$NON-NLS-1$
 		
 		@Override
-		public void start(PlayerData p, int index) {
-			p.velx = 0;
-			p.vely = 0;
-			p.walking_speed = 0;
-			p.running_speed = 0;
-			p.hasControl = false;
-			p.isVulnerable = false;
+		public void start(Fighter p, int index) {
+			PlayerData player = p.getPlayer();
+			player.velx = 0;
+			player.vely = 0;
+			player.walking_speed = 0;
+			player.running_speed = 0;
+			player.hasControl = false;
+			player.isVulnerable = false;
 		}
 		
 		@Override
-		public void update(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
+		public void update(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
 			if(Buff.isActive(p, buff, iterator)) {
-				StaticPlayer.applyGravity(p);
+				p.applyGravity();
 			}
 		}
 		
 		@Override
-		public void end(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
-			p.hasControl = true;
-			p.isVulnerable = true;
+		public void end(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
+			p.getPlayer().hasControl = true;
+			p.getPlayer().isVulnerable = true;
 			
-			Champion.valueOf(p.name).assignSpeed(p);
+			p.assignSpeed();
 			
 			iterator.remove();
 		}
@@ -90,10 +90,10 @@ public enum Buff {
 		private final int heal = 10;
 		
 		@Override
-		public void update(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
+		public void update(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
 			if(Buff.isActive(p, buff, iterator)) {
 				if(Buff.isTime(buff, 2)) {
-					StaticPlayer.applyRandomHP(p, heal);
+					p.applyRandomHP(heal);
 				}
 			}
 		}
@@ -105,10 +105,10 @@ public enum Buff {
 		private final int dmg = 50;
 		
 		@Override
-		public void update(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
+		public void update(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
 			if(Buff.isActive(p, buff, iterator)) {
 				if(Buff.isTime(buff, 10)) {
-					StaticPlayer.applyRandomHP(p, -dmg);
+					p.applyRandomHP(-dmg);
 				}
 			}
 		}
@@ -120,10 +120,10 @@ public enum Buff {
 		private final int dmg = 2;
 		
 		@Override
-		public void update(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
+		public void update(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
 			if(Buff.isActive(p, buff, iterator)) {
 				if(Buff.isTime(buff, 3)) {
-					StaticPlayer.applyRandomHP(p, -dmg);
+					p.applyRandomHP(-dmg);
 				}
 			}
 		}
@@ -139,19 +139,19 @@ public enum Buff {
 	}
 	
 	
-	public void start(PlayerData p, int index) {
+	public void start(Fighter p, int index) {
 		
 	}
 	
-	public void update(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
+	public void update(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
 		Buff.isActive(p, buff, iterator);
 	}
 	
-	public void end(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
+	public void end(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
 		iterator.remove();
 	}
 	
-	private static boolean isActive(PlayerData p, BuffData buff, Iterator<BuffData> iterator) {
+	private static boolean isActive(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
 		if(buff.time > 0) {
 			buff.time -= GameServer.getDelay();
 			return true;

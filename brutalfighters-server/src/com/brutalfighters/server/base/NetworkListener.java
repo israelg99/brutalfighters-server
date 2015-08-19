@@ -1,11 +1,11 @@
 package com.brutalfighters.server.base;
 
-import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.PlayerData;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.matches.GameMatchManager;
 import com.brutalfighters.server.matches.GameMode;
-import com.brutalfighters.server.packets.GameMatchPacket;
 import com.brutalfighters.server.packets.ConnectGameMatch;
+import com.brutalfighters.server.packets.GameMatchPacket;
 import com.brutalfighters.server.packets.Packet;
 import com.brutalfighters.server.packets.Packet0ConnectMatch;
 import com.brutalfighters.server.packets.Packet3InputAAttack;
@@ -50,7 +50,8 @@ public class NetworkListener extends Listener {
 			}
 
 			if(object instanceof GameMatchPacket) {
-				PlayerData player = GameMatchManager.checkPlayer(connection);
+				Fighter fighter = GameMatchManager.checkPlayer(connection);
+				PlayerData player = fighter.getPlayer();
 				
 				if(player != null) {
 					if(!player.isDead) {
@@ -76,29 +77,28 @@ public class NetworkListener extends Listener {
 							}
 							if(player.hasControl && !player.isSkilling) {
 								
-								Champion fighter = Champion.valueOf(player.name);
 								if(object instanceof Packet3InputSkill1) {
 									player.isSkilling = true;
 									player.isSkill1 = true;
-									fighter.startSkill1(player, connection);
+									fighter.startSkill1(connection);
 //										GameMatchManager.getClosedMatch(connection).womboCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill2) {
 									player.isSkilling = true;
 									player.isSkill2 = true;
-									fighter.startSkill2(player, connection);
+									fighter.startSkill2(connection);
 //										GameMatchManager.getClosedMatch(connection).moveCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill3) {
 									player.isSkilling = true;
 									player.isSkill3 = true;
-									fighter.startSkill3(player, connection);
+									fighter.startSkill3(connection);
 //										GameMatchManager.getClosedMatch(connection).stopCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill4) {
 									player.isSkilling = true;
 									player.isSkill4 = true;
-									fighter.startSkill4(player, connection);
+									fighter.startSkill4(connection);
 //										GameMatchManager.getClosedMatch(connection).womboCombo(connection);
 									return;
 								}

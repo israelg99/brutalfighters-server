@@ -4,9 +4,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.brutalfighters.server.data.maps.Base;
-import com.brutalfighters.server.data.players.PlayerData;
+import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.PlayerMap;
-import com.brutalfighters.server.data.players.StaticPlayer;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.util.Counter;
 import com.esotericsoftware.kryonet.Connection;
 
@@ -56,16 +56,27 @@ public class FreestyleGameMatch extends GameMatch {
 	// Players / players Control
 	@Override
 	public void addPlayer(Connection connection, String m_id, String fighter) {
-		PlayerData player;
+
+		fighter = Character.toUpperCase(fighter.charAt(0)) + fighter.substring(1);
 		
+		// Checking if the fighter name the client passed does in fact exist
+		if(!Champion.contains(fighter)) {
+			return;
+		}
+		
+		// Setting up the information needed for getting the fighter
 		int team = teams[0].size() < teams[1].size() ? TEAM1 : TEAM2;
 		Base base = getMap().getBase(team);
-		player = StaticPlayer.getNewPlayer(fighter, base.pos.x, base.pos.y, base.flip, m_id);
-		player.team = team;
+		
+		// Getting the fighter
+		Fighter player = Champion.valueOf(fighter).getNew(base, m_id);
+		player.getPlayer().team = team;
+		
+		// Adding the fighter into the data arrays
 		teams[team].put(connection, player);
+		players.put(connection, teams[team].get(connection));
 		
-		players.put(connection, player);
-		
+		// In freestyle we send resources immediately
 		approveResources(connection);
 	}
 }

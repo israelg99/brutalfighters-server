@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class Vec2 implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public float x, y;
+	private float x, y;
 	
 	public Vec2(float xa, float ya) {
 		this.x = xa;

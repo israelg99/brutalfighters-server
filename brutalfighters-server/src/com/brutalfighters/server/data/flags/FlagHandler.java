@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.brutalfighters.server.data.maps.MapManager;
 import com.brutalfighters.server.data.players.PlayerData;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.matches.GameMatchManager;
 import com.brutalfighters.server.util.CollisionDetection;
 import com.brutalfighters.server.util.Vec2;
@@ -24,8 +25,8 @@ public class FlagHandler {
 		flag.vely = 0;
 		flag.velx = 0;
 		
-		flag.posx = pos.x;
-		flag.posy = pos.y;
+		flag.posx = pos.getX();
+		flag.posy = pos.getY();
 		
 		flag.flip = flip;
 		
@@ -84,10 +85,15 @@ public class FlagHandler {
 		// FLAG IS TAKEN
 		} else {
 			boolean isTaken = false;
-			for(Map.Entry<Connection, PlayerData> entry : GameMatchManager.getCurrentMatch().getEnemyTeam(index).entrySet()) {
-				if(entry.getValue().isFlagged) {
+			
+			PlayerData p;
+			
+			for(Map.Entry<Connection, Fighter> entry : GameMatchManager.getCurrentMatch().getEnemyTeam(index).entrySet()) {
+				
+				p = entry.getValue().getPlayer();
+				
+				if(p.isFlagged) {
 					
-					PlayerData p = entry.getValue();
 					int pad = p.width/3;
 					
 					if(p.flip.equals("left")) { //$NON-NLS-1$
@@ -120,12 +126,6 @@ public class FlagHandler {
 	
 	public static boolean flagsCollide(Flag flag1, Flag flag2) {
 		return getBounds(flag1).intersects(getBounds(flag2));
-	}
-	public static boolean collidesFlag(Flag flag, PlayerData p) {
-		return CollisionDetection.intersects(p, getBounds(flag));
-	}
-	public static boolean collidesBase(PlayerData p, String mapName, int team) {
-		return collidesFlag(MapManager.getMap(mapName).getFlag(team), p);
 	}
 	public static boolean collidesBot(Flag flag) {
 		return GameMatchManager.getCurrentMap().intersects(flag.posx, flag.posy-HEIGHT/2, getBounds(flag));

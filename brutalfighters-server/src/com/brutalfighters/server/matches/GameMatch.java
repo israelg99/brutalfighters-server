@@ -12,7 +12,7 @@ import com.brutalfighters.server.data.maps.MapManager;
 import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.PlayerData;
 import com.brutalfighters.server.data.players.PlayerMap;
-import com.brutalfighters.server.data.players.StaticPlayer;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.data.projectiles.ProjectileData;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.brutalfighters.server.packets.Packet;
@@ -25,7 +25,7 @@ import com.brutalfighters.server.util.MathUtil;
 import com.brutalfighters.server.util.Score;
 import com.esotericsoftware.kryonet.Connection;
 
-public class GameMatch {
+abstract public class GameMatch {
 	
 	/*
 	 * 
@@ -106,9 +106,8 @@ public class GameMatch {
 	}
 	
 	// UPDATES
-	public void updateMatch(Iterator<Map.Entry<String,GameMatch>> iter) {
-		
-	}	
+	public abstract void updateMatch(Iterator<Map.Entry<String,GameMatch>> iter);
+	
 	protected boolean gameFinished(Iterator<Map.Entry<String,GameMatch>> iter) {
 		return getTeamWon() != -1 || checkEmpty(iter) || checkGameState();
 	}
@@ -154,8 +153,8 @@ public class GameMatch {
 		projectiles.updateProjectiles();
 	}	
 	protected void updatePlayers() {
-		for(Map.Entry<Connection, PlayerData> entry : players.entrySet()) {
-			StaticPlayer.update(entry, getMap());
+		for(Map.Entry<Connection, Fighter> entry : players.entrySet()) {
+			entry.getValue().update(entry.getKey(), getMap());
 		}
 	}
 	
@@ -164,8 +163,8 @@ public class GameMatch {
 		
 		for(Connection cnct : players.keySet()) {
 			packet = new Packet2Players();
-			packet.theClient = players.get(cnct);
-			packet.players = players.getOtherPlayers(cnct);
+			packet.theClient = players.get(cnct).getPlayer();
+			packet.players = players.getOtherPlayersData(cnct);
 			packet.projectiles = getProjectilesArray();
 			packet.flags = flags;
 			packet.score = score;
@@ -174,9 +173,11 @@ public class GameMatch {
 	}
 	
 	public void womboCombo(Connection connection) {
-		for(Map.Entry<Connection, PlayerData> entry : getPlayers().entrySet()) {
-			PlayerData pd = entry.getValue();
-			Champion fighter = Champion.valueOf(pd.name);
+		for(Map.Entry<Connection, Fighter> entry : getPlayers().entrySet()) {
+			
+			Fighter fighter = entry.getValue();
+			PlayerData pd = fighter.getPlayer();
+			
 			switch(pd.name) {
 				case "Blaze": //$NON-NLS-1$
 					pd.isLeft = false;
@@ -184,55 +185,57 @@ public class GameMatch {
 					pd.isAAttack = true;
 					pd.isSkilling = true;
 					pd.isSkill3 = true;
-					fighter.startSkill3(pd, connection);
+					fighter.startSkill3(connection);
 				break;
 				
 				case "Dusk": //$NON-NLS-1$
 					pd.isAAttack = true;
 					pd.isSkilling = true;
 					pd.isSkill1 = true;
-					fighter.startSkill1(pd, connection);
+					fighter.startSkill1(connection);
 				break;
 				
 				case "Chip": //$NON-NLS-1$
 					pd.isAAttack = true;
 					pd.isSkilling = true;
 					pd.isSkill2 = true;
-					fighter.startSkill2(pd, connection);
+					fighter.startSkill2(connection);
 				break;
 				
 				case "Surge": //$NON-NLS-1$
 					pd.isAAttack = true;
 					pd.isSkilling = true;
 					pd.isSkill4 = true;
-					fighter.startSkill4(pd, connection);
+					fighter.startSkill4(connection);
 				break;
 				
 				case "Lust": //$NON-NLS-1$
 					pd.isAAttack = true;
 					pd.isSkilling = true;
 					pd.isSkill1 = true;
-					fighter.startSkill1(pd, connection);
+					fighter.startSkill1(connection);
 				break;
 			}
 		}
 	}
 	
 	public void moveCombo(Connection connection) {
-		for(Map.Entry<Connection, PlayerData> entry : getPlayers().entrySet()) {
-			PlayerData pd = entry.getValue();
-			Champion fighter = Champion.valueOf(pd.name);
+		for(Map.Entry<Connection, Fighter> entry : getPlayers().entrySet()) {
+
+			Fighter fighter = entry.getValue();
+			PlayerData pd = fighter.getPlayer();
+			
 			switch(pd.name) {
 				case "Blaze": //$NON-NLS-1$
 					pd.isSkilling = true;
 					pd.isSkill1 = true;
-					fighter.startSkill1(pd, connection);
+					fighter.startSkill1(connection);
 				break;
 				
 				case "Dusk": //$NON-NLS-1$
 					pd.isSkilling = true;
 					pd.isSkill4 = true;
-					fighter.startSkill4(pd, connection);
+					fighter.startSkill4(connection);
 				break;
 				
 				case "Chip": //$NON-NLS-1$
@@ -240,13 +243,13 @@ public class GameMatch {
 					pd.isRunning = true;
 					pd.isSkilling = true;
 					pd.isSkill2 = true;
-					fighter.startSkill2(pd, connection);
+					fighter.startSkill2(connection);
 				break;
 				
 				case "Surge": //$NON-NLS-1$
 					pd.isSkilling = true;
 					pd.isSkill2 = true;
-					fighter.startSkill2(pd, connection);
+					fighter.startSkill2(connection);
 				break;
 				
 				case "Lust": //$NON-NLS-1$
@@ -257,9 +260,9 @@ public class GameMatch {
 	}
 	public void stopCombo() {
 		this.score.kills = new int[] {MathUtil.nextInt(20, 40),MathUtil.nextInt(20, 40)};
-		for(Map.Entry<Connection, PlayerData> entry : getPlayers().entrySet()) {
-			PlayerData pd = entry.getValue();
-			StaticPlayer.maxHP(pd);
+		for(Map.Entry<Connection, Fighter> entry : getPlayers().entrySet()) {
+			PlayerData pd = entry.getValue().getPlayer();
+			entry.getValue().maxHP();
 			pd.hp -= 200;
 			pd.isLeft = false;
 			pd.isRight = false;
@@ -280,8 +283,8 @@ public class GameMatch {
 			Packet1Connected res = new Packet1Connected();
 			res = new Packet1Connected();
 			res.map = MapManager.getDefaultMap();
-			res.theClient = players.get(connection);
-			res.players = players.getOtherPlayers(connection);
+			res.theClient = players.get(connection).getPlayer();
+			res.players = players.getOtherPlayersData(connection);
 			res.flags = flags;
 			res.warmup = getWarmup();
 			connection.sendTCP(res);
@@ -320,17 +323,28 @@ public class GameMatch {
 	
 	// Players / players Control
 	public void addPlayer(Connection connection, String m_id, String fighter) {
-		PlayerData player;
 		
+		fighter = Character.toUpperCase(fighter.charAt(0)) + fighter.substring(1);
+		
+		// Checking if the fighter name the client passed does in fact exist
+		if(!Champion.contains(fighter)) {
+			return;
+		}
+		
+		// Setting up the information needed for getting the fighter
 		int team = teams[0].size() < teams[1].size() ? TEAM1 : TEAM2;
 		Base base = getMap().getBase(team);
-		player = StaticPlayer.getNewPlayer(fighter, base.pos.x, base.pos.y, base.flip, m_id);
-		player.team = team;
-		teams[team].put(connection, player);
 		
+		// Getting the fighter
+		Fighter player = Champion.valueOf(fighter).getNew(base, m_id);
+		player.getPlayer().team = team;
+		
+		// Adding the fighter into the data arrays
+		teams[team].put(connection, player);
 		players.put(connection, teams[team].get(connection));
+		
 	}
-	public PlayerData getPlayer(Connection connection) {
+	public Fighter getPlayer(Connection connection) {
 		return players.get(connection);
 	}
 	public void removePlayer(Connection connection) {

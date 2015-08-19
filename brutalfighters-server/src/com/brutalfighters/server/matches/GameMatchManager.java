@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.brutalfighters.server.data.maps.CTFMap;
 import com.brutalfighters.server.data.players.Champion;
-import com.brutalfighters.server.data.players.PlayerData;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.data.projectiles.Projectile;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.esotericsoftware.kryonet.Connection;
@@ -30,12 +30,7 @@ public class GameMatchManager {
 		
 	}
 	
-	private static void gameResources() {
-		// Loading the Champion Enum
-		System.err.println("Initialize the Champion Enum!"); //$NON-NLS-1$
-		Champion.init();
-		System.out.println("Finished Initializing the Champion Enum!"); //$NON-NLS-1$
-		
+	private static void gameResources() {		
 		// Loading the Projectile Enum
 		System.err.println("Initialize the Projectile Enum!"); //$NON-NLS-1$
 		Projectile.init();
@@ -67,15 +62,15 @@ public class GameMatchManager {
 	public static GameMatch getFreestyleMatch(Connection cnct) {
 		return freestyleMatches.getMatch(cnct);
 	}
-	public static PlayerData getClosedPlayer(Connection cnct) {
+	public static Fighter getClosedPlayer(Connection cnct) {
 		return closedMatches.getMatch(cnct).getPlayer(cnct);
 	}
-	public static PlayerData getFreestylePlayer(Connection cnct) {
+	public static Fighter getFreestylePlayer(Connection cnct) {
 		return freestyleMatches.getMatch(cnct).getPlayer(cnct);
 	}
 	
-	public static PlayerData checkPlayer(Connection cnct) {
-		PlayerData p = openMatches.getPlayer(cnct);
+	public static Fighter checkPlayer(Connection cnct) {
+		Fighter p = openMatches.getPlayer(cnct);
 		if(p == null) {
 			p = closedMatches.getPlayer(cnct);
 			if(p == null) {
@@ -151,7 +146,7 @@ public class GameMatchManager {
 	private static void updateCurrentMatch(Iterator<Map.Entry<String,GameMatch>> iter) {
 		getCurrentMatch().updateMatch(iter);
 	}
-	public static PlayerData getCurrentPlayer(Connection cnct) {
+	public static Fighter getCurrentPlayer(Connection cnct) {
 		return getCurrentMatch().getPlayer(cnct);
 	}
 	public static CTFMap getCurrentMap() {

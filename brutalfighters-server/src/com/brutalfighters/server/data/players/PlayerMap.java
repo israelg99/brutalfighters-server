@@ -5,24 +5,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.esotericsoftware.kryonet.Connection;
 
 public class PlayerMap {
-	public HashMap<Connection, PlayerData> players;
+	public HashMap<Connection, Fighter> players;
 	
 	public PlayerMap() {
-		players = new HashMap<Connection, PlayerData>();
+		players = new HashMap<Connection, Fighter>();
 	}
-	public PlayerMap(HashMap<Connection, PlayerData> data) {
-		players = new HashMap<Connection, PlayerData>();
+	public PlayerMap(HashMap<Connection, Fighter> data) {
+		players = new HashMap<Connection, Fighter>();
 		players.putAll(data);
 	}
 	
 	// GETTERS AND SETTERS
-	public PlayerData get(Connection connection) {
+	public Fighter get(Connection connection) {
 		return players.get(connection);
 	}
-	public void put(Connection connection, PlayerData p) {
+	public void put(Connection connection, Fighter p) {
 		players.put(connection, p);
 	}
 	public void remove(Connection connection) {
@@ -32,25 +33,35 @@ public class PlayerMap {
 		return players.size();
 	}
 	
-	public PlayerData[] getPlayers() {
-		return getPlayersCollection().toArray(new PlayerData[players.values().size()]);
+	public Fighter[] getPlayers() {
+		return getPlayersCollection().toArray(new Fighter[players.values().size()]);
 	}
-	public Collection<PlayerData> getPlayersCollection() {
+	public Collection<Fighter> getPlayersCollection() {
 		return getPlayersMap().values();
 	}
-	public HashMap<Connection, PlayerData> getPlayersMap() {
+	public HashMap<Connection, Fighter> getPlayersMap() {
 		return players;
 	}
 	
-	public PlayerData[] getOtherPlayers(Connection connection) {
-		Collection<PlayerData> coll = getOtherCollection(connection);
-		return coll.toArray(new PlayerData[coll.size()]);
+	public PlayerData[] getOtherPlayersData(Connection connection) {
+		Fighter[] players = getOtherPlayers(connection);
+		PlayerData[] pdatas = new PlayerData[players.length];
+		
+		for(int i = 0; i < pdatas.length; i++) {
+			pdatas[i] = players[i].getPlayer();
+		}
+		
+		return pdatas;
 	}
-	public Collection<PlayerData> getOtherCollection(Connection connection) {
+	public Fighter[] getOtherPlayers(Connection connection) {
+		Collection<Fighter> coll = getOtherCollection(connection);
+		return coll.toArray(new Fighter[coll.size()]);
+	}
+	public Collection<Fighter> getOtherCollection(Connection connection) {
 		return getOtherMap(connection).values();
 	}
-	public HashMap<Connection, PlayerData> getOtherMap(Connection connection) {
-		HashMap<Connection, PlayerData> temp = new HashMap<Connection, PlayerData>();
+	public HashMap<Connection, Fighter> getOtherMap(Connection connection) {
+		HashMap<Connection, Fighter> temp = new HashMap<Connection, Fighter>();
 		temp.putAll(players);
 		temp.remove(connection);
 		return temp;
@@ -59,7 +70,7 @@ public class PlayerMap {
 	public boolean containsKey(Connection connection) {
 		return players.containsKey(connection);
 	}
-	public Set<Map.Entry<Connection, PlayerData>> entrySet() {
+	public Set<Map.Entry<Connection, Fighter>> entrySet() {
 		return getPlayersMap().entrySet();
 	}
 	public Set<Connection> keySet() {
