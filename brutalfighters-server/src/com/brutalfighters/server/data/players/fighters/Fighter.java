@@ -11,7 +11,6 @@ import com.brutalfighters.server.data.buffs.Buff;
 import com.brutalfighters.server.data.buffs.BuffData;
 import com.brutalfighters.server.data.buffs.Buffs;
 import com.brutalfighters.server.data.flags.Flag;
-import com.brutalfighters.server.data.flags.FlagHandler;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.maps.GameMap;
 import com.brutalfighters.server.data.maps.MapManager;
@@ -23,55 +22,173 @@ import com.brutalfighters.server.tiled.Tileset;
 import com.brutalfighters.server.util.AOE;
 import com.brutalfighters.server.util.CollisionDetection;
 import com.brutalfighters.server.util.MathUtil;
+import com.brutalfighters.server.util.Vec2;
 import com.esotericsoftware.kryonet.Connection;
 
 abstract public class Fighter {
 	
-	protected static final int skills = 4;
-	protected static final float airForce = 1.4f;
-	protected static final int gravityForce = 27;
-	protected static final int fallingMomentum = 9;
+	// Finals
+	protected static final int SKILLS = 4;
+	protected static final float AIR_FORCE = 1.4f;
+	protected static final int GRAVITY_FORCE = 27;
+	protected static final int FALLING_MOMENTUM = 9;
 	
-	protected String NAME;
-	protected int MAXHP, MAXMANA, MANAREGEN;
-	protected int WIDTH, HEIGHT;
-	protected int WALKING_SPEED, RUNNING_SPEED, JUMP_HEIGHT;
-	protected int AA_CD, AA_X_RANGE, AA_Y_RANGE, AA_DMG;
 	
+	// Mana
+	protected int manaRegen;
+	
+	// Skills
+	protected final int[] max_skillCD;
 	protected int[] skillMana;
 	
-	protected final int[] skillTempCD;
+	// Match ID
+	protected String m_id;
 	
+	// Connection
+	protected boolean isConnected;
+	
+	// AA
+	protected int AA_dmg;
+	protected Vec2 AA_range;
+	protected Vec2 AA_CD;
+	
+	// Movement and Jumping speed
+	protected Vec2 walking_speed;
+	protected Vec2 running_speed;
+	protected Vec2 jump_height;
+	
+	// Max Size
+	protected Vec2 max_size;
+	
+	// The PlayerData
 	protected PlayerData player;
 	
-	public Fighter(Base base, String m_id, String name, int maxhp, int maxmana, int width, int height, int walking_speed,
-				int running_speed, int jump_height, int AACD,
-				int AA_X_RANGE, int AA_Y_RANGE, int AA_DMG, int manaRegen,
-				int[] skillMana, int[] skillTempCD) {
+	public Fighter(Base base, String m_id, String name, int maxhp, int maxmana, Vec2 size, int walking_speed,
+				int running_speed, int jump_height, int AA_CD,
+				Vec2 AA_range, int AA_DMG, int manaRegen,
+				int[] skillMana, int[] max_skillCD) {
 		
-		this.NAME = name;
+		// Skill Temp CD
+		this.max_skillCD = max_skillCD.clone();
 		
-		this.MAXHP = maxhp;
-		this.MAXMANA = maxmana;
-		this.MANAREGEN = manaRegen;
+		// Constructing a new fighter/player data
+		setPlayer(new PlayerData(base, name, maxhp, maxmana, size));
+
+		// Mana
+		setManaRegen(manaRegen);
 		
-		this.WIDTH = width;
-		this.HEIGHT = height;
+		// Max Size
+		max_size = new Vec2(size);
 		
-		this.WALKING_SPEED = walking_speed;
-		this.RUNNING_SPEED = running_speed;
-		this.JUMP_HEIGHT = jump_height;
+		// Movement Speed
+		setWalkingSpeed(new Vec2(walking_speed));
+		setRunningSpeed(new Vec2(running_speed));
+		setJumpHeight(new Vec2(jump_height));
+
+		// Match ID
+		setMatchID(m_id);
 		
-		this.AA_CD = AACD;
-		this.AA_X_RANGE = AA_X_RANGE;
-		this.AA_Y_RANGE = AA_Y_RANGE;
-		this.AA_DMG = AA_DMG;
+		// Connection
+		setConnected(true);
 		
+		// Auto Attack
+		setAA_CD(new Vec2(AA_CD, AA_CD));
+		setAA_Range(AA_range);
+		setAA_Dmg(AA_DMG);
+		
+		// Skill Mana
+		setSkillMana(skillMana.clone());
+
+	}
+	
+	public static int getSkills() {
+		return SKILLS;
+	}
+	public static float getAirForce() {
+		return AIR_FORCE;
+	}
+	public static int getGravityForce() {
+		return GRAVITY_FORCE;
+	}
+	public static int getFallingMomentum() {
+		return FALLING_MOMENTUM;
+	}
+	
+	public int getManaRegen() {
+		return manaRegen;
+	}
+	public void setManaRegen(int manaRegen) {
+		this.manaRegen = manaRegen;
+	}
+
+	public int[] getSkillMana() {
+		return skillMana;
+	}
+	public void setSkillMana(int[] skillMana) {
 		this.skillMana = skillMana;
-		this.skillTempCD = skillTempCD;
-		
-		setNewPlayer(base, m_id);
-		
+	}
+
+	public String getMatchID() {
+		return m_id;
+	}
+	public void setMatchID(String m_id) {
+		this.m_id = m_id;
+	}
+
+	public boolean isConnected() {
+		return isConnected;
+	}
+	public void setConnected(boolean isConnected) {
+		this.isConnected = isConnected;
+	}
+
+	public int getAA_Dmg() {
+		return AA_dmg;
+	}
+	public void setAA_Dmg(int aA_dmg) {
+		AA_dmg = aA_dmg;
+	}
+
+	public Vec2 getAA_Range() {
+		return AA_range;
+	}
+	public void setAA_Range(Vec2 aA_range) {
+		AA_range = aA_range;
+	}
+
+	public Vec2 getAA_CD() {
+		return AA_CD;
+	}
+	public void setAA_CD(Vec2 aA_CD) {
+		AA_CD = aA_CD;
+	}
+	public void resetAA_CD() {
+		getAA_CD().setX(getAA_CD().getY());
+	}
+
+	public Vec2 getWalkingSpeed() {
+		return walking_speed;
+	}
+	public void setWalkingSpeed(Vec2 walking_speed) {
+		this.walking_speed = walking_speed;
+	}
+
+	public Vec2 getRunningSpeed() {
+		return running_speed;
+	}
+	public void setRunningSpeed(Vec2 running_speed) {
+		this.running_speed = running_speed;
+	}
+
+	public Vec2 getJumpHeight() {
+		return jump_height;
+	}
+	public void setJumpHeight(Vec2 jump_height) {
+		this.jump_height = jump_height;
+	}
+
+	public int[] getMaxSkillCD() {
+		return max_skillCD;
 	}
 	
 	public final PlayerData getPlayer() {
@@ -87,9 +204,9 @@ abstract public class Fighter {
 		
 		if(!applyDeath()) {
 			
-			if(getPlayer().isSkilling) {
+			if(getPlayer().isSkilling()) {
 				applySkill(cnct);
-			} else if(getPlayer().hasControl) {
+			} else if(getPlayer().hasControl()) {
 				applyVelocity();
 				applyAA(cnct);
 				applyTeleport(map);
@@ -108,24 +225,24 @@ abstract public class Fighter {
 	}
 	
 	protected final void resetExtrapolation() {
-		getPlayer().isExtrapolating = true;
+		getPlayer().enableExtrapolating();
 	}
 	protected final void disableExtrapolation() {
-		getPlayer().isExtrapolating = false;
+		getPlayer().disableExtrapolating();
 	}
 
 	protected final void updateBuffs() {
-		List<BuffData> buffs = new ArrayList<BuffData>(Arrays.asList(getPlayer().buffs));
+		List<BuffData> buffs = new ArrayList<BuffData>(Arrays.asList(getPlayer().getBuffs()));
 		Iterator<BuffData> iterator = buffs.iterator();
 		while(iterator.hasNext()) {
 		    BuffData buff = iterator.next();
 		    Buff.valueOf(buff.name).update(this, buff, iterator);
 		}
-		getPlayer().buffs = buffs.toArray(new BuffData[buffs.size()]);
+		getPlayer().setBuffs(buffs.toArray(new BuffData[buffs.size()]));
 	}
 
 	protected final void applyTeleport(GameMap map) {
-		if(getPlayer().isTeleporting) {
+		if(getPlayer().isTeleporting()) {
 			disableExtrapolation();
 			applyTeleporting(map);
 		}
@@ -134,23 +251,23 @@ abstract public class Fighter {
 		
 		// Resetting the teleporting state, so the player won't have this on true all the time.
 		// Note that we do not use the release packet for teleporting, because we can easily just reset it here.
-		getPlayer().isTeleporting = false;
+		getPlayer().disableTeleporting();
 		
 		// Get the tileset, not the tile itself just tileset to get properties.
-		Tileset teleport = map.getTileset(0, getPlayer().posx, getPlayer().posy-getPlayer().height/3);
+		Tileset teleport = map.getTileset(0, getPlayer().getPos().getX(), getPlayer().getPos().getY()-getPlayer().getSize().getY()/3);
 		
 		if(teleport.hasProperty(Tileset.TELEPORT())) { // Are we standing on a teleport?
 			// Decoding the coordinates, parsing them, and multiplying them to real game pixel coordinates.
 			String[] target = ((String) teleport.getProperty(Tileset.TELEPORT())).split(","); //$NON-NLS-1$
 			
 			// Setting the coordinates to the player.
-			getPlayer().posx = map.toPixelX(Integer.parseInt(target[0]));
+			getPlayer().getPos().setX(map.toPixelX(Integer.parseInt(target[0])));
 			
 			// The coordinates in Tiled and the map file are flipped,
 			// the (0,0) block tile, is in the top left,
 			// but we are going to flip the Y so it will be in the bottom left.
 			// We add half of the tile height, so the player won't be stuck in the middle of the block tile.
-			getPlayer().posy = (map.getHeightPixels() - map.toPixelY(Integer.parseInt(target[1]))) + map.getTileHeight()/2;
+			getPlayer().getPos().setY((map.getHeightPixels() - map.toPixelY(Integer.parseInt(target[1]))) + map.getTileHeight()/2);
 			
 			// Returns true, as the player teleported successfully.
 			return true;
@@ -165,100 +282,109 @@ abstract public class Fighter {
 	protected final void applyFlag() {
 		GameMatch match = GameMatchManager.getCurrentMatch();
 		String mapName = match.getMapName();
-		Flag teamFlag = match.getFlag(getPlayer().team);
-		Flag enemyFlag = match.getEnemyFlag(getPlayer().team);
+		Flag teamFlag = match.getFlag(getPlayer().getTeam());
+		Flag enemyFlag = match.getEnemyFlag(getPlayer().getTeam());
 		
-		if(!teamFlag.isTaken && !FlagHandler.inBase(teamFlag, mapName, getPlayer().team) && collidesFlag(teamFlag)) {
-			FlagHandler.toBase(teamFlag, mapName, getPlayer().team);
+		if(!teamFlag.getFlag().isTaken() && !teamFlag.inBase(mapName, getPlayer().getTeam()) && collidesFlag(teamFlag)) {
+			teamFlag = Flag.getFlag(mapName, getPlayer().getTeam());
 		}
 		
-		if(collidesFlag(enemyFlag) && !enemyFlag.isTaken && !getPlayer().isFlagged) {
-			enemyFlag.isTaken = true;
-			getPlayer().isFlagged = true;
+		if(collidesFlag(enemyFlag) && !enemyFlag.getFlag().isTaken() && !getPlayer().isHoldingFlag()) {
+			enemyFlag.getFlag().gotStolen();
+			getPlayer().stoleFlag();
 		}
 		
-		if(getPlayer().isFlagged && enemyFlag.isTaken && collidesFlagBase(mapName, getPlayer().team) && FlagHandler.inBase(teamFlag, mapName, getPlayer().team)) {
-			GameMatchManager.getCurrentMatch().addFlag(getPlayer().team);
-			enemyFlag.isTaken = false;
-			getPlayer().isFlagged = false;
-			FlagHandler.toBase(enemyFlag, mapName, GameMatch.getEnemyTeamID(getPlayer().team));
+		if(getPlayer().isHoldingFlag() && enemyFlag.getFlag().isTaken() && collidesFlagBase(mapName, getPlayer().getTeam()) && teamFlag.inBase(mapName, getPlayer().getTeam())) {
+			GameMatchManager.getCurrentMatch().addFlag(getPlayer().getTeam());
+			enemyFlag.getFlag().gotDropped();
+			getPlayer().droppedFlag();
+			enemyFlag = Flag.getFlag(mapName, getPlayer().getTeam());
 		}
 	}
 	public final boolean collidesFlag(Flag flag) {
-		return intersects(FlagHandler.getBounds(flag));
+		return intersects(flag.getBounds());
 	}
 	public final boolean collidesFlagBase(String mapName, int team) {
 		return collidesFlag(MapManager.getMap(mapName).getFlag(team));
 	}
 
 	public final void applyFlip() {
-		if(!getPlayer().isRight == getPlayer().isLeft) {
-			getPlayer().flip = getPlayer().isRight ? "right" : getPlayer().isLeft ? "left" : getPlayer().flip; //$NON-NLS-1$ //$NON-NLS-2$
+		if(!getPlayer().isRight() == getPlayer().isLeft()) {
+			if(getPlayer().isRight()) {
+				getPlayer().flipRight();
+			} else {
+				getPlayer().flipLeft();
+			}
 		}
 	}
 	public final void applyGravity() {
-		if(getPlayer().onGround) {
-			getPlayer().vely = getPlayer().vely < 0 ? 0 : getPlayer().vely;
+		if(getPlayer().onGround()) {
+			gravityVelocityReset();
 		} else {
 			applyGravitation();
 		}
 	}
+	public final void gravityVelocityReset() {
+		if(getPlayer().getVel().getY() < 0) {
+			getPlayer().getVel().resetY();
+		}
+	}
 	public final void applyWalking(int speed) {
-		getPlayer().velx = 0; // We must have it here, no worries, we should not apply walking when the X velocity is modified anyway.
-		if((getPlayer().isLeft != getPlayer().isRight)) {
-			if(getPlayer().isRight) {
-				getPlayer().velx = speed;
-				getPlayer().flip = "right"; //$NON-NLS-1$
-			} else if(getPlayer().isLeft) {
-				getPlayer().velx = -speed;
-				getPlayer().flip = "left"; //$NON-NLS-1$
+		getPlayer().getVel().resetX(); // We must have it here, no worries, we should not apply walking when the X velocity is modified anyway.
+		if((getPlayer().isLeft() != getPlayer().isRight())) {
+			if(getPlayer().isRight()) {
+				getPlayer().getVel().setX(speed);
+				getPlayer().flipRight();
+			} else if(getPlayer().isLeft()) {
+				getPlayer().getVel().setX(-speed);
+				getPlayer().flipLeft();
 			}
 		}
 	}
 	
 	
 	protected final void applyBodyGravity(GameMap map) {
-		if(getPlayer().onGround || collidesBot(map)) {
-			getPlayer().vely = 0;
+		if(getPlayer().onGround() || collidesBot(map)) {
+			getPlayer().getVel().resetY();
 			alignGround(map.getTileHeight());
 		} else {
 			applyGravitation();
-			getPlayer().posy += getPlayer().vely;
+			getPlayer().getPos().addY(getPlayer().getVel().getY());
 		}
 		
 	}
 
 	protected final void applySkill(Connection cnct) {
-		if(getPlayer().isSkill1) {
+		if(getPlayer().isSkill1()) {
 			skill1(cnct);
-		} else if(getPlayer().isSkill2) {
+		} else if(getPlayer().isSkill2()) {
 			skill2(cnct);
-		} else if(getPlayer().isSkill3) {
+		} else if(getPlayer().isSkill3()) {
 			skill3(cnct);
-		} else if(getPlayer().isSkill4) {
+		} else if(getPlayer().isSkill4()) {
 			skill4(cnct);
 		}	
 	}
 
 	protected final void applyAlive() {
-		if(getPlayer().DCD > 0) {
-			getPlayer().DCD -= GameServer.getDelay();
+		if(getPlayer().isDCD()) {
+			getPlayer().subDCD();
 		} else {
-			resetPlayer(GameMatchManager.getCurrentMap().getBase(getPlayer().team));
+			getPlayer().reset((GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam())));
 		}
 		
 	}
 
 	protected final boolean applyDeath() {
-		if(!getPlayer().isDead) {
-			if(getPlayer().hp <= 0) {
-				getPlayer().isDead = true;
-				if(getPlayer().isFlagged) {
-					getPlayer().isFlagged = false;
-					GameMatchManager.getCurrentMatch().getEnemyFlag(getPlayer().team).isTaken = false;
+		if(!getPlayer().isDead()) {
+			if(getPlayer().hasNoHP()) {
+				getPlayer().died();
+				if(getPlayer().isHoldingFlag()) {
+					getPlayer().droppedFlag();
+					GameMatchManager.getCurrentMatch().getEnemyFlag(getPlayer().getTeam()).getFlag().gotDropped();
 				}
-				GameMatchManager.getCurrentMatch().addKill(GameMatch.getEnemyTeamID(getPlayer().team));
-				getPlayer().DCD = GameMatchManager.getCurrentMatch().getRespawnTime();
+				GameMatchManager.getCurrentMatch().addKill(GameMatch.getEnemyTeamID(getPlayer().getTeam()));
+				getPlayer().setDCD(GameMatchManager.getCurrentMatch().getRespawnTime());
 				return true;
 			}
 			return false;
@@ -270,37 +396,37 @@ abstract public class Fighter {
 	public final void applyVelocity() {
 		
 		// Getting the champion and the speed
-		float speed = getPlayer().isRunning ? getPlayer().running_speed : getPlayer().walking_speed;
+		float speed = getSpeed();
 		
-		if(getPlayer().onGround) {
+		if(getPlayer().onGround()) {
 			
 			// Velocity Reset
-			getPlayer().vely = getPlayer().vely < 0 ? 0 : getPlayer().vely;
+			gravityVelocityReset();
 			
 			/* JUMP */
-			if(getPlayer().isJump && hasFullControl()) {
-				if(!getPlayer().collidesTop) {
-					getPlayer().vely = JUMP_HEIGHT;
+			if(getPlayer().isJump() && hasFullControl()) {
+				if(!getPlayer().isCollidingTop()) {
+					getPlayer().getVel().setY(getJumpHeight().getX());
 				} else {
-					getPlayer().vely = 0;
+					getPlayer().getVel().resetY();
 				}
 			}
 			
-			if(getPlayer().collidesTop && getPlayer().collidesBot) {
-				getPlayer().vely = 0;
-				getPlayer().isJump = false;
+			if(getPlayer().isCollidingTop() && getPlayer().isCollidingBot()) {
+				getPlayer().getVel().resetY();
+				getPlayer().setJump(false);
 			}
 			/* END JUMP */
 			
 		} else {
 			
 			// Jump Cut
-			if(hasFullControl() && !getPlayer().isJump && getPlayer().vely > JUMP_HEIGHT/2) {
-				getPlayer().vely = JUMP_HEIGHT/2;
+			if(hasFullControl() && !getPlayer().isJump() && getPlayer().getVel().getY() > getJumpHeight().getX()/2) {
+				getPlayer().getVel().setY(getJumpHeight().getX()/2);
 			}
 			
 			// Air Momentum
-			speed *= airForce;
+			speed *= getAirForce();
 			
 			// Gravity
 			applyGravitation();
@@ -311,87 +437,87 @@ abstract public class Fighter {
 	}
 	
 	public final boolean hasFullControl() {
-		return getPlayer().hasControl && !getPlayer().isSkilling;
+		return getPlayer().hasControl() && !getPlayer().isSkilling();
 	}
 
 	protected final void applyCollision(GameMap map) {
 		if(collidesTop(map)) {
-			getPlayer().collidesTop = true;
+			getPlayer().isCollidingTop(true);
 		} else {
-			getPlayer().collidesTop = false;
+			getPlayer().isCollidingTop(false);
 		}
 		if(collidesBot(map)) {
-			getPlayer().collidesBot = true;
-			if(getPlayer().vely <= 0) {
-				getPlayer().onGround = true;
+			getPlayer().isCollidingBot(true);
+			if(getPlayer().getVel().getY() <= 0) {
+				getPlayer().isOnGround(true);
 				alignGround(map.getTileHeight());
 			}
 		} else {
-			getPlayer().collidesBot = false;
-			getPlayer().onGround = false;
+			getPlayer().isCollidingBot(false);
+			getPlayer().isOnGround(true);
 		}
 		
 		if(collidesLeft(map)) {
-			getPlayer().collidesLeft = true;
+			getPlayer().isCollidingLeft(true);
 		} else {
-			getPlayer().collidesLeft = false;
+			getPlayer().isCollidingLeft(false);
 		}
 		
 		if(collidesRight(map)) {
-			getPlayer().collidesRight = true;
+			getPlayer().isCollidingRight(true);
 		} else {
-			getPlayer().collidesRight = false;
+			getPlayer().isCollidingRight(false);
 		}
 	}
 	// Boundary Methods - MUST NOT BE CHANGED!!!!!
 	public final float getLeft() {
-		return -getPlayer().width/2;
+		return -getPlayer().getSize().getX()/2;
 	}
 	public final float getRight() {
-		return getPlayer().width/2;
+		return getPlayer().getSize().getX()/2;
 	}
 	public final float getTop() {
-		return getPlayer().height/2;
+		return getPlayer().getSize().getY()/2;
 	}
 	public final float getBot() {
-		return -getPlayer().height/2;
+		return -getPlayer().getSize().getY()/2;
 	}
 	
 	public final Rectangle getVelocityBounds(boolean velx, boolean vely) {
 		Rectangle bounds = getBounds();
-		bounds.x += velx ? getPlayer().velx : 0;
-		bounds.y += vely ? getPlayer().vely : 0;
+		bounds.x += velx ? getPlayer().getVel().getX() : 0;
+		bounds.y += vely ? getPlayer().getVel().getY() : 0;
 		return bounds;
 	}
 	
 	/* We can use Enum of sides(bot,left,right,top) and pass it as a parameter, thus combine those 4 functions into one. */
 	public final boolean collidesBot(GameMap map) {
 		// BOT!
-		return map.intersectsSurroundXBoth("top", getPlayer().posx, getPlayer().posy+getBot()+getPlayer().vely, getVelocityBounds(false, true)) || getPlayer().posy + getPlayer().vely + getBot() < map.getBotBoundary(); //$NON-NLS-1$
+		return map.intersectsSurroundXBoth("top", getPlayer().getPos().getX(), getPlayer().getPos().getY()+getBot()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getBot() < map.getBotBoundary(); //$NON-NLS-1$
 	}
 	public final boolean collidesLeft(GameMap map) {
 		// LEFT!
-		return map.intersectsSurroundY(getPlayer().posx+getLeft()+getPlayer().velx, getPlayer().posy, getVelocityBounds(true, false)) ||getPlayer().posx + getPlayer().velx + getLeft() < map.getLeftBoundary();
+		return map.intersectsSurroundY(getPlayer().getPos().getX()+getLeft()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) ||getPlayer().getPos().getX() + getPlayer().getVel().getX() + getLeft() < map.getLeftBoundary();
 	}
 	public final boolean collidesRight(GameMap map) {
 		// RIGHT!
-		return map.intersectsSurroundY(getPlayer().posx+getRight()+getPlayer().velx, getPlayer().posy, getVelocityBounds(true, false)) || getPlayer().posx + getPlayer().velx + getRight() > map.getRightBoundary();
+		return map.intersectsSurroundY(getPlayer().getPos().getX()+getRight()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) || getPlayer().getPos().getX() + getPlayer().getVel().getX() + getRight() > map.getRightBoundary();
 	}
 	public final boolean collidesTop(GameMap map) {
 		// TOP!
-		return map.intersectsSurroundX(getPlayer().posx, getPlayer().posy+getTop()+getPlayer().vely, getVelocityBounds(false, true)) || getPlayer().posy + getPlayer().vely + getTop() > map.getTopBoundary();
+		return map.intersectsSurroundX(getPlayer().getPos().getX(), getPlayer().getPos().getY()+getTop()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getTop() > map.getTopBoundary();
 	}
 	
 	public final Tile getCellOn(GameMap map) {
-		return map.getTile(0, getPlayer().posx, getPlayer().posy + getBot());
+		return map.getTile(0, getPlayer().getPos().getX(), getPlayer().getPos().getY() + getBot());
 	}
 	
 	public final boolean isFacingCollision() {
-		return (getPlayer().flip.equals("right") && getPlayer().collidesRight) || (getPlayer().flip.equals("left") && getPlayer().collidesLeft); //$NON-NLS-1$ //$NON-NLS-2$
+		return (getPlayer().getFlip().equals(GameMatch.RIGHT) && getPlayer().isCollidingRight()) || (getPlayer().getFlip().equals(GameMatch.LEFT) && getPlayer().isCollidingLeft()); 
 	}
 	
 	public final Rectangle getBounds() {
-		Rectangle bounds = CollisionDetection.getBounds("both", getPlayer().posx, getPlayer().posy, getPlayer().width, getPlayer().height); //$NON-NLS-1$
+		Rectangle bounds = CollisionDetection.getBounds("both", getPlayer().getPos().getX(), getPlayer().getPos().getY(), getPlayer().getSize().getX(), getPlayer().getSize().getY()); //$NON-NLS-1$
 		return bounds;
 	}
 	public final boolean intersects(Rectangle rect) {
@@ -402,17 +528,17 @@ abstract public class Fighter {
 	}
 	
 	protected final void applyAA(Connection cnct) {
-		if(getPlayer().isAAttack && isBum()) {
-			if(getPlayer().AACD <= 0) {
+		if(getPlayer().isAAttack() && isBum()) {
+			if(getAA_CD().getX() <= 0) {
 				
 				AAttack(cnct);
 				
-				getPlayer().AACD = AA_CD;
+				resetAA_CD();
 			} else {
-				getPlayer().AACD -= GameServer.getDelay();
+				getAA_CD().subX(GameServer.getDelay());
 			}
 		} else {
-			getPlayer().AACD = AA_CD;
+			resetAA_CD();
 		}
 		
 	}
@@ -422,48 +548,48 @@ abstract public class Fighter {
 		// Apply velocity
 		
 		// Check collision Y
-		if(movingY() && ((getPlayer().vely > 0 && !getPlayer().collidesTop) 
-				|| (getPlayer().vely < 0 && !getPlayer().collidesBot))) {
-			getPlayer().posy += getPlayer().vely;
+		if(movingY() && ((getPlayer().getVel().getY() > 0 && !getPlayer().isCollidingTop()) 
+				|| (getPlayer().getVel().getY() < 0 && !getPlayer().isCollidingBot()))) {
+			getPlayer().getPos().addY(getPlayer().getVel().getY());
 		}
 		
 		// Check collision X
 		if(movingX()) {
-			if((getPlayer().velx > 0 && !getPlayer().collidesRight)
-					|| getPlayer().velx < 0 && !getPlayer().collidesLeft) {
-				getPlayer().posx += getPlayer().velx;
+			if((getPlayer().getVel().getX() > 0 && !getPlayer().isCollidingRight())
+					|| getPlayer().getVel().getX() < 0 && !getPlayer().isCollidingLeft()) {
+				getPlayer().getPos().addX(getPlayer().getVel().getX());
 			}
 		}
 		
 	}
 	
 	protected final void applyRegen() {
-		healMana(MANAREGEN);
+		healMana(getManaRegen());
 	}
 	
 	public final void applyGravitation() {
-		getPlayer().vely = getPlayer().vely - fallingMomentum < -gravityForce ? -gravityForce : getPlayer().vely - fallingMomentum;	
+		getPlayer().getVel().setY(getPlayer().getVel().getY() - getFallingMomentum() < -getGravityForce() ? -getGravityForce() : getPlayer().getVel().getY() - getFallingMomentum());	
 	}
 	public final void alignGround(int ground) {
-		getPlayer().posy = (int)(getPlayer().posy / ground) * ground + getPlayer().height/2 - 1;
+		getPlayer().getPos().setY((int)(getPlayer().getPos().getY() / ground) * ground + getPlayer().getSize().getY()/2 - 1);
 	}
 
 
 	// State Method
 	public final boolean movingX() {
-		return getPlayer().velx != 0;
+		return getPlayer().getVel().getX() != 0;
 	}
 	public final boolean movingY() {
-		return getPlayer().vely != 0;
+		return getPlayer().getVel().getY() != 0;
 	}
 	
 	public final boolean isBum() {
-		return getPlayer().hasControl && !getPlayer().isSkilling && getPlayer().onGround && !movingX() && !movingY();
+		return getPlayer().hasControl() && !getPlayer().isSkilling() && getPlayer().onGround() && !movingX() && !movingY();
 	}
 	
 	// Buffs
 	public final void applyBuffs(BuffData[] buffs) {
-		if(getPlayer().isVulnerable) {
+		if(getPlayer().isVulnerable()) {
 			for(int i = 0; i < buffs.length; i++) {
 				// Add Buff
 				Buffs.addBuff(getPlayer(), Buff.getBuff(buffs[i]));
@@ -473,13 +599,13 @@ abstract public class Fighter {
 				// players to refer to the same buff object.
 				
 				// Start/Initiate the Buff
-				Buff.valueOf(getPlayer().buffs[getPlayer().buffs.length-1].name).start(this, getPlayer().buffs.length);
+				Buff.valueOf(getPlayer().getBuffs()[getPlayer().getBuffs().length-1].name).start(this, getPlayer().getBuffs().length);
 			}
 		}
 	}
 	
 	// HP
-	public final void applyHP(int hp) {
+	public final void applyHP(float hp) {
 		if(hp > 0) { 
 			healHP(hp);
 			return;
@@ -488,31 +614,23 @@ abstract public class Fighter {
 			return;
 		}
 	}
-	public final void applyRandomHP(int hp) {
+	public final void applyRandomHP(float hp) {
 		applyHP(hp - MathUtil.nextInt(0, Math.abs((int)(hp*0.1))) + MathUtil.nextInt(0, Math.abs((int)(hp*0.1))));
 	}
-	protected final void dealHP(int dmg) {
-		if(!getPlayer().isDead && getPlayer().hp > 0 && getPlayer().isVulnerable) {
-			getPlayer().hp = getPlayer().hp + dmg < 0 ? 0 : getPlayer().hp + dmg; // the dmg itself is negative.
+	protected final void dealHP(float dmg) {
+		if(!getPlayer().isDead() && getPlayer().hasHP() && getPlayer().isVulnerable()) {
+			getPlayer().getHP().setX(getPlayer().getHP().getX() + dmg < 0 ? 0 : getPlayer().getHP().getX() + dmg); // the dmg itself is negative.
 		}
 	}
-	protected final void healHP(int heal) {
-		if(!getPlayer().isDead) {
-			getPlayer().hp = getPlayer().hp + heal > MAXHP ?
-					MAXHP : getPlayer().hp + heal;
+	protected final void healHP(float heal) {
+		if(!getPlayer().isDead()) {
+			getPlayer().getHP().setX(getPlayer().getHP().getX() + heal > getPlayer().getHP().getY() ?
+					getPlayer().getHP().getY() : getPlayer().getHP().getX() + heal);
 		}
-	}
-	public final void maxHP() {
-		if(!getPlayer().isDead) {
-			getPlayer().hp = MAXHP;
-		}
-	}
-	public final void zeroHP() {
-		getPlayer().hp =  0;
 	}
 	
 	// MANA
-	public final void applyMana(int mana) {
+	public final void applyMana(float mana) {
 		if(mana > 0) { 
 			healMana(mana);
 			return;
@@ -521,125 +639,29 @@ abstract public class Fighter {
 			return;
 		}
 	}
-	public final void applyRandomMana(int mana) {
-		applyMana(mana - MathUtil.nextInt(0, (int)(mana*0.1) + MathUtil.nextInt(0, (mana))));
+	public final void applyRandomMana(float mana) {
+		applyMana(mana - MathUtil.nextFloat(0, (int)(mana*0.1) + MathUtil.nextFloat(0, (mana))));
 	}
-	protected final void dealMana(int dmg) {
-		if(!getPlayer().isDead && getPlayer().mana > 0 && getPlayer().isVulnerable) {
-			getPlayer().mana = getPlayer().mana + dmg < 0 ? 0 : getPlayer().mana + dmg; // the dmg itself is negative.
+	protected final void dealMana(float dmg) {
+		if(!getPlayer().isDead() && getPlayer().hasMana() && getPlayer().isVulnerable()) {
+			getPlayer().getMana().setX((getPlayer().getMana().getX() + dmg < 0 ? 0 : getPlayer().getMana().getX())); // the dmg itself is negative.
 		}
 	}
-	protected final void healMana(int heal) {
-		if(!getPlayer().isDead) {
-			int newMana = getPlayer().mana + heal;
-			getPlayer().mana = newMana > MAXMANA ?
-					MAXMANA : newMana;
+	protected final void healMana(float heal) {
+		if(!getPlayer().isDead()) {
+			float newMana = getPlayer().getMana().getX() + heal;
+			getPlayer().getMana().setX(newMana > getPlayer().getMana().getY() ?
+					getPlayer().getMana().getY() : newMana);
 		}
-	}
-	public final void MAXMANA() {
-		if(!getPlayer().isDead) {
-			getPlayer().mana = MAXMANA;
-		}
-	}
-	public final void zeroMana() {
-		getPlayer().mana =  0;
 	}
 	
 	// SPEED CONVERTION
-	public final int convertSpeed(int speed) {
-		return getPlayer().flip.equals("right") ? speed : -speed; //$NON-NLS-1$
+	public final float convertSpeed(float speed) {
+		return getPlayer().getFlip().equals(GameMatch.RIGHT) ? speed : -speed; 
 	}
-	
-	public final PlayerData getNewPlayer(Base base, String m_id) {
-		
-		PlayerData p = new PlayerData();
-		
-		// Basic
-		p.name = Character.toUpperCase(NAME.charAt(0)) + NAME.substring(1);
-		
-		p.posx = base.getX();
-		p.posy = base.getY();
-		
-		p.width = WIDTH;
-		p.height = HEIGHT;
-		
-		p.flip = base.getFlip();
-		
-		p.velx = 0;
-		p.vely = 0;
-		
-		p.walking_speed = WALKING_SPEED;
-		p.running_speed = RUNNING_SPEED;
-		
-		p.maxhp = MAXHP;
-		p.hp = p.maxhp;
-		
-		p.maxmana = MAXMANA;
-		p.mana = p.maxmana;
-		
-		// Match ID
-		p.m_id = m_id;
-		
-		// Connection
-		p.isConnected = true;
-		
-		// CD
-		p.AACD = AA_CD;
-		p.DCD = GameMatch.getDefaultRespawn();
-		
-		p.buffs = new BuffData[0];
-		
-		// Skill Mana
-		p.skillMana = skillMana.clone();
-		
-		// Skill Temp CD
-		p.skillCD = skillTempCD.clone();
-		
-		// States
-		p.isRunning = false;
-		p.onGround = false;
-		p.isAAttack = false;
-		p.isDead = false;
-		p.isVulnerable = true;
-		p.isFlagged = false;
-		p.hasControl = true;
-		
-		// Skill States
-		p.isSkill1 = false;
-		p.isSkill2 = false;
-		p.isSkill3 = false;
-		p.isSkill4 = false;
-		p.isSkilling = false;
-		
-		// Teleport
-		p.isTeleporting = false;
-		
-		// Movement States
-		p.isLeft = false;
-		p.isRight = false;
-		p.isJump = false;
-		p.isRunning = false;
-		p.isDead = false;
-		
-		// Collisions
-		p.collidesLeft = false;
-		p.collidesRight = false;
-		p.collidesTop = false;
-		p.collidesBot = false;
-		
-		return p;
-	}
-	
-	public final void setNewPlayer(Base base, String m_id) {
-		setPlayer(getNewPlayer(base, m_id));
-	}
-	public final void resetPlayer(Base base) {
-		setPlayer(getNewPlayer(base, getPlayer().m_id));
-	}
-
 	
 	protected void defaultUpdate() {
-		getPlayer().velx = 0;
+		getPlayer().getVel().resetX();
 		applyGravity();
 	}
 	
@@ -705,23 +727,35 @@ abstract public class Fighter {
 	
 	
 	public final float getSpeed() {
-		return getPlayer().isRunning ? RUNNING_SPEED : WALKING_SPEED;
+		return getPlayer().isRunning() ? getRunningSpeed().getX() : getWalkingSpeed().getX();
 	}
 	
-	public final void assignSpeed() {
-		getPlayer().walking_speed = WALKING_SPEED;
-		getPlayer().running_speed = RUNNING_SPEED;
+	public final void resetSpeeds() {
+		resetWalkingSpeed();
+		resetWalkingSpeed();
+		resetJumpHeight();
+	}
+	
+	public final void resetWalkingSpeed() {
+		getWalkingSpeed().setX(getWalkingSpeed().getY());
+	}
+	public final void resetRunningSpeed() {
+		getRunningSpeed().setX(getRunningSpeed().getY());
+	}
+	public final void resetJumpHeight() {
+		getJumpHeight().setX(getJumpHeight().getY());
 	}
 	
 	public final void AAttack(Connection cnct) {
-		AOE.dealAOE_enemy(getPlayer().team, CollisionDetection.getBounds(getPlayer().flip, getPlayer().posx-convertSpeed(getPlayer().width/2), getPlayer().posy, AA_X_RANGE, AA_Y_RANGE), -AA_DMG);
+		AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX()-convertSpeed(getPlayer().getSize().getX()/2), getPlayer().getPos().getY(), getAA_Range().getX(), getAA_Range().getY()), -getAA_Dmg());
 	}
 	
 	public final boolean applySkillMana(int index) {
-		if(getPlayer().mana >= skillMana[index]) {
+		if(getPlayer().getMana().getX() >= skillMana[index]) {
 			applyMana(-skillMana[index]);
 			return true;
 		}
 		return false;
 	}
 }
+

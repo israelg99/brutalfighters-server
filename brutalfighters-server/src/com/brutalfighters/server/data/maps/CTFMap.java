@@ -1,7 +1,7 @@
 package com.brutalfighters.server.data.maps;
 
 import com.brutalfighters.server.data.flags.Flag;
-import com.brutalfighters.server.data.flags.FlagHandler;
+import com.brutalfighters.server.data.flags.FlagData;
 import com.brutalfighters.server.matches.GameMatch;
 import com.brutalfighters.server.tiled.TiledMap;
 import com.brutalfighters.server.util.Vec2;
@@ -20,8 +20,8 @@ public class CTFMap extends GameMap {
 		this.setBase(GameMatch.TEAM1, new Base(new Vec2(leftBoundary+100, 384), "right")); //$NON-NLS-1$
 		this.setBase(GameMatch.TEAM2, new Base(new Vec2(rightBoundary-100, 384), "left")); //$NON-NLS-1$
 
-		this.setFlag(GameMatch.TEAM1, new Vec2(leftBoundary+400, FlagHandler.HEIGHT + 291), "right"); //$NON-NLS-1$
-		this.setFlag(GameMatch.TEAM2, new Vec2(rightBoundary-400, FlagHandler.HEIGHT + 291), "left"); //$NON-NLS-1$
+		this.setFlag(GameMatch.TEAM1, new Vec2(leftBoundary+400, FlagData.getSize().getY() + 291), "right"); //$NON-NLS-1$
+		this.setFlag(GameMatch.TEAM2, new Vec2(rightBoundary-400, FlagData.getSize().getY() + 291), "left"); //$NON-NLS-1$
 	}
 	
 	// It's not the main constructor because the default base and flags values
@@ -50,12 +50,12 @@ public class CTFMap extends GameMap {
 	// FLAGS
 	public Flag getFlag(int index) {
 		Flag flag = flags[index];
-		return FlagHandler.getFlag(new Vec2(flag.posx, flag.posy), flag.flip);
+		return new Flag(new Vec2(flag.getFlag().getPos().getX(), flag.getFlag().getPos().getY()), flag.getFlag().getFlip());
 	}
 	public void setFlag(int index, Flag flag) {
-		flags[index] = FlagHandler.getFlag(new Vec2(flag.posx, flag.posy), flag.flip);
+		flags[index] = new Flag(new Vec2(flag.getFlag().getPos().getX(), flag.getFlag().getPos().getY()), flag.getFlag().getFlip());
 	}
 	public void setFlag(int index, Vec2 pos, String flip) {
-		flags[index] = FlagHandler.getFlag(pos, flip);
+		flags[index] = new Flag(pos, flip);
 	}
 }

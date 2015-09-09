@@ -4,13 +4,15 @@ import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.brutalfighters.server.util.MathUtil;
+import com.brutalfighters.server.util.Vec2;
 import com.esotericsoftware.kryonet.Connection;
 
 public class Dusk extends Fighter {
 	
 	public Dusk(Base base, String m_id) {
-		super(base, m_id, "dusk", 900, 1000, 90,100, 10, 21, 44, 500, 110, 10, 68, //$NON-NLS-1$
-			9, new int[] {300,300,300,500}, new int[] {740,820,580,500});
+		super(base, m_id, "dusk", 900, 1000, new Vec2(90,100), 10, //$NON-NLS-1$
+				21, 44, 500, new Vec2(110,10), 68, 9,
+				new int[] {300,300,300,500}, new int[] {740,820,580,500});
 	}
 	
 	@Override
@@ -24,12 +26,12 @@ public class Dusk extends Fighter {
 		
 		updateSkill1(cnct);
 		
-		if(getPlayer().skillCD[0] > 0) {
-				if(getPlayer().skillCD[0] == skillTempCD[0] - GameServer.getDelay() * 12) {
-					float xstart = getPlayer().posx + convertSpeed(getPlayer().width*2);
-					Projectiles.addProjectile(cnct, getPlayer().team, "Dusk_BATZ", xstart, getPlayer().posy, getPlayer().flip, "init"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(getPlayer().getSkillCD()[0] > 0) {
+				if(getPlayer().getSkillCD()[0] == max_skillCD[0] - GameServer.getDelay() * 12) {
+					float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()*2);
+					Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Dusk_BATZ", xstart, getPlayer().getPos().getY(), getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-			getPlayer().skillCD[0] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
 		} else {
 			endSkill1(cnct);
 		}
@@ -37,9 +39,9 @@ public class Dusk extends Fighter {
 	
 	@Override
 	public void endSkill1(Connection cnct) {
-		getPlayer().skillCD[0] = skillTempCD[0];
-		getPlayer().isSkill1 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[0] = max_skillCD[0];
+		getPlayer().setSkill1(false);
+		getPlayer().disableSkilling();
 	}
 
 	
@@ -47,12 +49,12 @@ public class Dusk extends Fighter {
 	public void skill2(Connection cnct) {
 		updateSkill2(cnct);
 		
-		if(getPlayer().skillCD[1] > 0) {
-			if(getPlayer().skillCD[1] == skillTempCD[1] - GameServer.getDelay() * 13) {
-				float xstart = getPlayer().posx + convertSpeed(getPlayer().width);
-				Projectiles.addProjectile(cnct, getPlayer().team, "Dusk_BATS", xstart, getPlayer().posy, getPlayer().flip, "init"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(getPlayer().getSkillCD()[1] > 0) {
+			if(getPlayer().getSkillCD()[1] == max_skillCD[1] - GameServer.getDelay() * 13) {
+				float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX());
+				Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Dusk_BATS", xstart, getPlayer().getPos().getY(), getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			getPlayer().skillCD[1] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[1] -= GameServer.getDelay();
 		} else {
 			endSkill2(cnct);
 		}
@@ -61,21 +63,21 @@ public class Dusk extends Fighter {
 	
 	@Override
 	public void endSkill2(Connection cnct) {
-		getPlayer().skillCD[1] = skillTempCD[1];
-		getPlayer().isSkill2 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[1] = max_skillCD[1];
+		getPlayer().setSkill2(false);
+		getPlayer().disableSkilling();
 	}
 	
 	@Override
 	public void skill3(Connection cnct) {
 		updateSkill3(cnct);
 		
-		if(getPlayer().skillCD[2] > 0) {
-			if(getPlayer().skillCD[2] == skillTempCD[2] - GameServer.getDelay() * 10) {
-				float xstart = getPlayer().posx + convertSpeed(getPlayer().width*2);
-				Projectiles.addProjectile(cnct, getPlayer().team, "Dusk_LASER", xstart, getPlayer().posy+8, getPlayer().flip, "init"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(getPlayer().getSkillCD()[2] > 0) {
+			if(getPlayer().getSkillCD()[2] == max_skillCD[2] - GameServer.getDelay() * 10) {
+				float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()*2);
+				Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Dusk_LASER", xstart, getPlayer().getPos().getY()+8, getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			getPlayer().skillCD[2] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[2] -= GameServer.getDelay();
 		} else {
 			endSkill3(cnct);
 		}
@@ -84,9 +86,9 @@ public class Dusk extends Fighter {
 	
 	@Override
 	public void endSkill3(Connection cnct) {
-		getPlayer().skillCD[2] = skillTempCD[2];
-		getPlayer().isSkill3 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[2] = max_skillCD[2];
+		getPlayer().setSkill3(false);
+		getPlayer().disableSkilling();
 	}
 	
 	
@@ -94,10 +96,10 @@ public class Dusk extends Fighter {
 	public void skill4(Connection cnct) {
 		updateSkill4(cnct);
 		
-		if(getPlayer().skillCD[3] > 0) {
-			float xstart = getPlayer().posx + convertSpeed(MathUtil.nextInt(20,80));
-			Projectiles.addProjectile(cnct, getPlayer().team, "Dusk_PurpleBat", xstart, getPlayer().posy+MathUtil.nextInt(-40, +30), getPlayer().flip, "init"); //$NON-NLS-1$ //$NON-NLS-2$
-			getPlayer().skillCD[3] -= GameServer.getDelay();
+		if(getPlayer().getSkillCD()[3] > 0) {
+			float xstart = getPlayer().getPos().getX() + convertSpeed(MathUtil.nextInt(20,80));
+			Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Dusk_PurpleBat", xstart, getPlayer().getPos().getY()+MathUtil.nextInt(-40, +30), getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
+			getPlayer().getSkillCD()[3] -= GameServer.getDelay();
 		} else {
 			endSkill4(cnct);
 		}
@@ -105,8 +107,8 @@ public class Dusk extends Fighter {
 	
 	@Override
 	public void endSkill4(Connection cnct) {
-		getPlayer().skillCD[3] = skillTempCD[3];
-		getPlayer().isSkill4 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[3] = max_skillCD[3];
+		getPlayer().setSkill4(false);
+		getPlayer().disableSkilling();
 	}
 }

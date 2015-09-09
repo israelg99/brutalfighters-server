@@ -3,13 +3,15 @@ package com.brutalfighters.server.data.players.fighters;
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.projectiles.Projectiles;
+import com.brutalfighters.server.util.Vec2;
 import com.esotericsoftware.kryonet.Connection;
 
 public class Chip extends Fighter {
 	
 	public Chip(Base base, String m_id) {
-		super(base, m_id, "chip", 600, 1000, 90,100, 12, 21, 44, 500, 110, 10, 68, //$NON-NLS-1$
-				9, new int[] {300,200,300,600}, new int[] {900,820,560,440});
+		super(base, m_id, "chip", 600, 1000, new Vec2(90,100), 12, //$NON-NLS-1$
+				21, 44, 500, new Vec2(110,10), 68, 9,
+				new int[] {300,200,300,600}, new int[] {900,820,560,440});
 	}
 	
 	// SKILLS
@@ -27,12 +29,12 @@ public class Chip extends Fighter {
 		
 		updateSkill1(cnct);
 		
-		if(getPlayer().skillCD[0] > 0) {
-				if(getPlayer().skillCD[0] == skillTempCD[0] - GameServer.getDelay() * 14) {
-					float xstart = getPlayer().posx + convertSpeed(getPlayer().width/2);
-					Projectiles.addProjectile(cnct, getPlayer().team, "Chip_RPG", xstart, getPlayer().posy-3, getPlayer().flip, "init"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(getPlayer().getSkillCD()[0] > 0) {
+				if(getPlayer().getSkillCD()[0] == max_skillCD[0] - GameServer.getDelay() * 14) {
+					float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()/2);
+					Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Chip_RPG", xstart, getPlayer().getPos().getY()-3, getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-			getPlayer().skillCD[0] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
 		} else {
 			endSkill1(cnct);
 		}
@@ -40,9 +42,9 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void endSkill1(Connection cnct) {
-		getPlayer().skillCD[0] = skillTempCD[0];
-		getPlayer().isSkill1 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[0] = max_skillCD[0];
+		getPlayer().setSkill1(false);
+		getPlayer().disableSkilling();
 	}
 
 	
@@ -53,8 +55,8 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void startSkill2(Connection cnct) {
-		if(!getPlayer().collidesTop && applySkillMana(1)) {
-			getPlayer().vely = JUMP_HEIGHT;
+		if(!getPlayer().isCollidingTop() && applySkillMana(1)) {
+			getPlayer().getVel().setY(getJumpHeight().getX());
 			
 		} else {
 			endSkill2(cnct);
@@ -71,11 +73,11 @@ public class Chip extends Fighter {
 		
 		updateSkill2(cnct);
 		
-		if(getPlayer().skillCD[1] > 0) {
-			if(getPlayer().skillCD[1] >= skillTempCD[1] - GameServer.getDelay() * 10) {
-				getPlayer().vely += S2_Velocity;
+		if(getPlayer().getSkillCD()[1] > 0) {
+			if(getPlayer().getSkillCD()[1] >= max_skillCD[1] - GameServer.getDelay() * 10) {
+				getPlayer().getVel().addY(S2_Velocity);
 			}
-			getPlayer().skillCD[1] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[1] -= GameServer.getDelay();
 		} else {
 			endSkill2(cnct);
 		}
@@ -83,9 +85,9 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void endSkill2(Connection cnct) {
-		getPlayer().skillCD[1] = skillTempCD[1];
-		getPlayer().isSkill2 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[1] = max_skillCD[1];
+		getPlayer().setSkill2(false);
+		getPlayer().disableSkilling();
 	}
 	
 	
@@ -95,12 +97,12 @@ public class Chip extends Fighter {
 	public void skill3(Connection cnct) {
 		updateSkill3(cnct);
 		
-		if(getPlayer().skillCD[2] > 0) {
-			if(getPlayer().skillCD[2] == skillTempCD[2] - GameServer.getDelay() * 9) {
-				float xstart = getPlayer().posx + convertSpeed(getPlayer().width-10);
-				Projectiles.addProjectile(cnct, getPlayer().team, "Chip_TNT", xstart, getPlayer().posy-8, getPlayer().flip, "init"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(getPlayer().getSkillCD()[2] > 0) {
+			if(getPlayer().getSkillCD()[2] == max_skillCD[2] - GameServer.getDelay() * 9) {
+				float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()-10);
+				Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Chip_TNT", xstart, getPlayer().getPos().getY()-8, getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			getPlayer().skillCD[2] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[2] -= GameServer.getDelay();
 		} else {
 			endSkill3(cnct);
 		}
@@ -109,9 +111,9 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void endSkill3(Connection cnct) {
-		getPlayer().skillCD[2] = skillTempCD[2];
-		getPlayer().isSkill3 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[2] = max_skillCD[2];
+		getPlayer().setSkill3(false);
+		getPlayer().disableSkilling();
 	}
 	
 	
@@ -121,12 +123,12 @@ public class Chip extends Fighter {
 	public void skill4(Connection cnct) {
 		updateSkill4(cnct);
 		
-		if(getPlayer().skillCD[3] > 0) {
-			if(getPlayer().skillCD[3] == skillTempCD[3] - GameServer.getDelay() * 5) {
-				float xstart = getPlayer().posx + convertSpeed(getPlayer().width/2+5);
-				Projectiles.addProjectile(cnct, getPlayer().team, "Chip_MINE", xstart, getPlayer().posy-getPlayer().height/2-10, getPlayer().flip, "init"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(getPlayer().getSkillCD()[3] > 0) {
+			if(getPlayer().getSkillCD()[3] == max_skillCD[3] - GameServer.getDelay() * 5) {
+				float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()/2+5);
+				Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Chip_MINE", xstart, getPlayer().getPos().getY()-getPlayer().getSize().getY()/2-10, getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			getPlayer().skillCD[3] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[3] -= GameServer.getDelay();
 		} else {
 			endSkill4(cnct);
 		}
@@ -135,8 +137,8 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void endSkill4(Connection cnct) {
-		getPlayer().skillCD[3] = skillTempCD[3];
-		getPlayer().isSkill4 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[3] = max_skillCD[3];
+		getPlayer().setSkill4(false);
+		getPlayer().disableSkilling();
 	}
 }

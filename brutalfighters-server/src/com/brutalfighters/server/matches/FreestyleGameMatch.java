@@ -70,7 +70,7 @@ public class FreestyleGameMatch extends GameMatch {
 		
 		// Getting the fighter
 		Fighter player = Champion.valueOf(fighter).getNew(base, m_id);
-		player.getPlayer().team = team;
+		player.getPlayer().setTeam(team);
 		
 		// Adding the fighter into the data arrays
 		teams[team].put(connection, player);

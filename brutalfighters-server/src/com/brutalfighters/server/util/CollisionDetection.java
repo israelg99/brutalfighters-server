@@ -16,7 +16,7 @@ public class CollisionDetection {
 		}
 	}
 	
-	public static Rectangle getBounds(String flip, float x, float y, int width, int height) {
+	public static Rectangle getBounds(String flip, float x, float y, float width, float height) {
 		return getBounds(flip, (int)x, (int)y, width, height);
 	}
 	

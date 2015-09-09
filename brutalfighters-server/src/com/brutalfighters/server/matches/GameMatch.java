@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.flags.Flag;
-import com.brutalfighters.server.data.flags.FlagHandler;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.maps.CTFMap;
 import com.brutalfighters.server.data.maps.MapManager;
@@ -36,6 +35,9 @@ abstract public class GameMatch {
 	 * Match Finish: 6sec
 	 * 
 	 */
+	
+	// Flip Sides
+	public static final String RIGHT = "right", LEFT = "left"; //$NON-NLS-1$ //$NON-NLS-2$
 	
 	public static final int TEAM_LENGTH = 2;
 	public static final int TEAM1 = 0;
@@ -83,8 +85,8 @@ abstract public class GameMatch {
 		this.teams = teams;
 		
 		flags = new Flag[2];
-		setFlag(TEAM1, FlagHandler.getFlag(mapName, TEAM1));
-		setFlag(TEAM2, FlagHandler.getFlag(mapName, TEAM2));
+		setFlag(TEAM1, Flag.getFlag(mapName, TEAM1));
+		setFlag(TEAM2, Flag.getFlag(mapName, TEAM2));
 		
 		projectiles = new Projectiles();
 		
@@ -147,7 +149,7 @@ abstract public class GameMatch {
 	}
 	
 	protected void updateFlags() {
-		FlagHandler.updateFlags(flags);
+		Flag.updateFlags(flags);
 	}
 	protected void updateProjectiles() {
 		projectiles.updateProjectiles();
@@ -178,41 +180,41 @@ abstract public class GameMatch {
 			Fighter fighter = entry.getValue();
 			PlayerData pd = fighter.getPlayer();
 			
-			switch(pd.name) {
+			switch(pd.getName()) {
 				case "Blaze": //$NON-NLS-1$
-					pd.isLeft = false;
-					pd.isRunning = false;
-					pd.isAAttack = true;
-					pd.isSkilling = true;
-					pd.isSkill3 = true;
+					pd.setLeft(false);
+					pd.setRunning( false);
+					pd.setAAttack(true);
+					pd.enableSkilling();
+					pd.setSkill3(true);
 					fighter.startSkill3(connection);
 				break;
 				
 				case "Dusk": //$NON-NLS-1$
-					pd.isAAttack = true;
-					pd.isSkilling = true;
-					pd.isSkill1 = true;
+					pd.setAAttack(true);
+					pd.enableSkilling();
+					pd.setSkill1(true);
 					fighter.startSkill1(connection);
 				break;
 				
 				case "Chip": //$NON-NLS-1$
-					pd.isAAttack = true;
-					pd.isSkilling = true;
-					pd.isSkill2 = true;
+					pd.setAAttack(true);
+					pd.enableSkilling();
+					pd.setSkill2(true);
 					fighter.startSkill2(connection);
 				break;
 				
 				case "Surge": //$NON-NLS-1$
-					pd.isAAttack = true;
-					pd.isSkilling = true;
-					pd.isSkill4 = true;
+					pd.setAAttack(true);
+					pd.enableSkilling();
+					pd.setSkill4(true);
 					fighter.startSkill4(connection);
 				break;
 				
 				case "Lust": //$NON-NLS-1$
-					pd.isAAttack = true;
-					pd.isSkilling = true;
-					pd.isSkill1 = true;
+					pd.setAAttack(true);
+					pd.enableSkilling();
+					pd.setSkill1(true);
 					fighter.startSkill1(connection);
 				break;
 			}
@@ -225,30 +227,30 @@ abstract public class GameMatch {
 			Fighter fighter = entry.getValue();
 			PlayerData pd = fighter.getPlayer();
 			
-			switch(pd.name) {
+			switch(pd.getName()) {
 				case "Blaze": //$NON-NLS-1$
-					pd.isSkilling = true;
-					pd.isSkill1 = true;
+					pd.enableSkilling();
+					pd.setSkill1(true);
 					fighter.startSkill1(connection);
 				break;
 				
 				case "Dusk": //$NON-NLS-1$
-					pd.isSkilling = true;
-					pd.isSkill4 = true;
+					pd.enableSkilling();
+					pd.setSkill4(true);
 					fighter.startSkill4(connection);
 				break;
 				
 				case "Chip": //$NON-NLS-1$
-					pd.isLeft = true;
-					pd.isRunning = true;
-					pd.isSkilling = true;
-					pd.isSkill2 = true;
+					pd.setLeft(true);
+					pd.setRunning(true);
+					pd.enableSkilling();
+					pd.setSkill2(true);
 					fighter.startSkill2(connection);
 				break;
 				
 				case "Surge": //$NON-NLS-1$
-					pd.isSkilling = true;
-					pd.isSkill2 = true;
+					pd.enableSkilling();
+					pd.setSkill2(true);
 					fighter.startSkill2(connection);
 				break;
 				
@@ -262,13 +264,13 @@ abstract public class GameMatch {
 		this.score.kills = new int[] {MathUtil.nextInt(20, 40),MathUtil.nextInt(20, 40)};
 		for(Map.Entry<Connection, Fighter> entry : getPlayers().entrySet()) {
 			PlayerData pd = entry.getValue().getPlayer();
-			entry.getValue().maxHP();
-			pd.hp -= 200;
-			pd.isLeft = false;
-			pd.isRight = false;
-			pd.isRunning = false;
-			pd.isAAttack = false;
-			pd.isJump = false;
+			pd.maxHP();
+			pd.getHP().subX(200);
+			pd.setLeft(false);
+			pd.setRight(false);
+			pd.setRunning(false);
+			pd.setAAttack(false);
+			pd.setJump(false);
 		}
 	}
 	
@@ -337,7 +339,7 @@ abstract public class GameMatch {
 		
 		// Getting the fighter
 		Fighter player = Champion.valueOf(fighter).getNew(base, m_id);
-		player.getPlayer().team = team;
+		player.getPlayer().setTeam(team);
 		
 		// Adding the fighter into the data arrays
 		teams[team].put(connection, player);

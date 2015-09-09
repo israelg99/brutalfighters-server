@@ -12,8 +12,8 @@ public enum Buff {
 
 		@Override
 		public void start(Fighter p, int index) {
-			p.getPlayer().walking_speed /= 2;
-			p.getPlayer().running_speed /= 2;
+			p.getWalkingSpeed().setX(p.getWalkingSpeed().getX()/2);
+			p.getRunningSpeed().setX(p.getRunningSpeed().getX()/2);
 		}
 		
 		@Override
@@ -29,7 +29,7 @@ public enum Buff {
 
 		@Override
 		public void end(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
-			p.assignSpeed();
+			p.resetSpeeds();
 			
 			iterator.remove();
 		}
@@ -40,13 +40,13 @@ public enum Buff {
 		
 		@Override
 		public void start(Fighter p, int index) {
-			p.getPlayer().walking_speed -= p.getPlayer().walking_speed/5;
-			p.getPlayer().running_speed -= p.getPlayer().walking_speed/5;
+			p.getWalkingSpeed().setX(p.getWalkingSpeed().getX()/5);
+			p.getRunningSpeed().setX(p.getRunningSpeed().getX()/5);
 		}
 		
 		@Override
 		public void end(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
-			p.assignSpeed();
+			p.resetSpeeds();
 			
 			iterator.remove();
 		}
@@ -58,12 +58,12 @@ public enum Buff {
 		@Override
 		public void start(Fighter p, int index) {
 			PlayerData player = p.getPlayer();
-			player.velx = 0;
-			player.vely = 0;
-			player.walking_speed = 0;
-			player.running_speed = 0;
-			player.hasControl = false;
-			player.isVulnerable = false;
+			player.getVel().resetX();
+			player.getVel().resetY();
+			p.getWalkingSpeed().resetX();
+			p.getRunningSpeed().resetX();
+			player.setControl(false);
+			player.setVulnerable(false);
 		}
 		
 		@Override
@@ -75,10 +75,10 @@ public enum Buff {
 		
 		@Override
 		public void end(Fighter p, BuffData buff, Iterator<BuffData> iterator) {
-			p.getPlayer().hasControl = true;
-			p.getPlayer().isVulnerable = true;
+			p.getPlayer().setControl(true);
+			p.getPlayer().setVulnerable(true);
 			
-			p.assignSpeed();
+			p.resetSpeeds();
 			
 			iterator.remove();
 		}

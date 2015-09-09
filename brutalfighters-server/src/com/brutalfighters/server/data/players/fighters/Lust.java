@@ -5,13 +5,15 @@ import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.brutalfighters.server.util.AOE;
 import com.brutalfighters.server.util.CollisionDetection;
+import com.brutalfighters.server.util.Vec2;
 import com.esotericsoftware.kryonet.Connection;
 
 public class Lust extends Fighter {
 
 	public Lust(Base base, String m_id) {
-		super(base, m_id, "lust", 800, 1000, 90,100, 14, 26, 48, 500, 150, 10, 75, //$NON-NLS-1$
-				9, new int[] {250,200,400,300}, new int[] {600,380,0,450});
+		super(base, m_id, "lust", 800, 1000, new Vec2(90,100), //$NON-NLS-1$
+				14, 26, 48, 500, new Vec2(150,10), 75, 9,
+				new int[] {250,200,400,300}, new int[] {600,380,0,450});
 	}
 	
 	// SKILLS
@@ -19,12 +21,12 @@ public class Lust extends Fighter {
 	// Skill 1
 	
 	// Variables
-	public final int S1_DMG = 200, S1_HEIGHT = HEIGHT*2, S1_WIDTH = 100;
+	public final float S1_DMG = 200, S1_HEIGHT = getPlayer().getSize().getY()*2, S1_WIDTH = 100;
 	
 	@Override
 	public void startSkill1(Connection cnct) {
-		if(!getPlayer().collidesTop && applySkillMana(0)) {
-			getPlayer().vely = JUMP_HEIGHT;
+		if(!getPlayer().isCollidingTop() && applySkillMana(0)) {
+			getPlayer().getVel().setY(getJumpHeight().getX());
 		} else {
 			endSkill1(cnct);
 		}
@@ -40,11 +42,11 @@ public class Lust extends Fighter {
 		
 		updateSkill1(cnct);
 		
-		if(getPlayer().skillCD[0] > 0) {
-			if(getPlayer().skillCD[0] == skillTempCD[0] - GameServer.getDelay() * 3) {
-				AOE.dealAOE_enemy(getPlayer().team, CollisionDetection.getBounds(getPlayer().flip, getPlayer().posx, getPlayer().posy, S1_WIDTH, S1_HEIGHT), -S1_DMG);
+		if(getPlayer().getSkillCD()[0] > 0) {
+			if(getPlayer().getSkillCD()[0] == max_skillCD[0] - GameServer.getDelay() * 3) {
+				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), S1_WIDTH, S1_HEIGHT), -S1_DMG);
 			}
-			getPlayer().skillCD[0] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
 		} else {
 			endSkill1(cnct);
 		}
@@ -52,9 +54,9 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void endSkill1(Connection cnct) {
-		getPlayer().skillCD[0] = skillTempCD[0];
-		getPlayer().isSkill1 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[0] = max_skillCD[0];
+		getPlayer().setSkill1(false);
+		getPlayer().disableSkilling();
 	}
 	
 	
@@ -73,12 +75,12 @@ public class Lust extends Fighter {
 		
 		updateSkill2(cnct);
 		
-		if(getPlayer().skillCD[1] > 0) {
-			if(getPlayer().skillCD[1] == skillTempCD[1] - GameServer.getDelay() * 3) {
-				float xstart = getPlayer().posx + convertSpeed(10);
-				Projectiles.addProjectile(cnct, getPlayer().team, "Lust_EnergyBall", xstart, getPlayer().posy-3, getPlayer().flip, "init"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(getPlayer().getSkillCD()[1] > 0) {
+			if(getPlayer().getSkillCD()[1] == max_skillCD[1] - GameServer.getDelay() * 3) {
+				float xstart = getPlayer().getPos().getX() + convertSpeed(10);
+				Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Lust_EnergyBall", xstart, getPlayer().getPos().getY()-3, getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			getPlayer().skillCD[1] -= GameServer.getDelay();
+			getPlayer().getSkillCD()[1] -= GameServer.getDelay();
 		} else {
 			endSkill2(cnct);
 		}
@@ -86,9 +88,9 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void endSkill2(Connection cnct) {
-		getPlayer().skillCD[1] = skillTempCD[1];
-		getPlayer().isSkill2 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[1] = max_skillCD[1];
+		getPlayer().setSkill2(false);
+		getPlayer().disableSkilling();
 	}
 	
 	
@@ -99,7 +101,7 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void startSkill3(Connection cnct) {
-		if(getPlayer().hp < MAXHP && applySkillMana(2)) {
+		if(getPlayer().getHP().getX() < getPlayer().getHP().getY() && applySkillMana(2)) {
 			applyHP(S3_HP);
 			endSkill3(cnct);
 		} else {
@@ -109,9 +111,9 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void endSkill3(Connection cnct) {
-		getPlayer().skillCD[2] = skillTempCD[2];
-		getPlayer().isSkill3 = false;
-		getPlayer().isSkilling = false;
+		getPlayer().getSkillCD()[2] = max_skillCD[2];
+		getPlayer().setSkill3(false);
+		getPlayer().disableSkilling();
 	}
 	
 	
@@ -122,7 +124,7 @@ public class Lust extends Fighter {
 	@Override
 	public void startSkill4(Connection cnct) {
 		if(applySkillMana(3)) {
-			getPlayer().isVulnerable = false;
+			getPlayer().setVulnerable(false);
 		} else {
 			endSkill4(cnct);
 		}
@@ -138,17 +140,17 @@ public class Lust extends Fighter {
 	public void skill4(Connection cnct) {
 		updateSkill4(cnct);
 		
-		getPlayer().skillCD[3] -= GameServer.getDelay();
-		if(getPlayer().skillCD[3] <= 0) {
+		getPlayer().getSkillCD()[3] -= GameServer.getDelay();
+		if(getPlayer().getSkillCD()[3] <= 0) {
 			endSkill4(cnct);
 		}
 	}
 	
 	@Override
 	public void endSkill4(Connection cnct) {
-		getPlayer().skillCD[3] = skillTempCD[3];
-		getPlayer().isSkill4 = false;
-		getPlayer().isSkilling = false;
-		getPlayer().isVulnerable = true;
+		getPlayer().getSkillCD()[3] = max_skillCD[3];
+		getPlayer().setSkill4(false);
+		getPlayer().disableSkilling();
+		getPlayer().setVulnerable(true);
 	}
 }

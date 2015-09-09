@@ -18,7 +18,7 @@ public class Projectiles {
 		Projectile.valueOf(p.data().name).initialize(p);
 	}
 	public void add(Connection cnct, String name, int posx, int posy, int width, int height, String flip, String mode) {
-		add(cnct, GameMatchManager.getClosedMatch(cnct).getPlayer(cnct).getPlayer().team, name, posx, posy, width, height, flip, mode);
+		add(cnct, GameMatchManager.getClosedMatch(cnct).getPlayer(cnct).getPlayer().getTeam(), name, posx, posy, width, height, flip, mode);
 	}
 	public void add(Connection cnct, int team, String name, float posx, float posy, int width, int height, String flip, String mode) {
 		ProjectileData pd = new ProjectileData();

@@ -17,6 +17,9 @@ public class Vec2 implements Serializable {
 	public Vec2(Vec2 vec) {
 		this(vec.x, vec.y);
 	}
+	public Vec2(float xy) {
+		this(xy, xy);
+	}
 	
 	public float getX() {
 		return this.x;
@@ -25,47 +28,58 @@ public class Vec2 implements Serializable {
 		return this.y;
 	}
 	
-	public void set(int num) {
+	public void set(float num) {
 		setX(num);
 		setY(num);
 	}
-	public void set(int xa, int ya) {
+	public void set(float xa, float ya) {
 		setX(xa);
 		setY(ya);
 	}
-	public void setX(int xa) {
+	public void setX(float xa) {
 		this.x = xa;
 	}
-	public void setY(int ya) {
+	public void setY(float ya) {
 		this.y = ya;
 	}
 	
-	public void add(int num) {
+	public void reset() {
+		setX(0);
+		setY(0);
+	}
+	public void resetX() {
+		setX(0);
+	}
+	public void resetY() {
+		setY(0);
+	}
+	
+	public void add(float num) {
 		addX(num);
 		addY(num);
 	}
-	public void sub(int num) {
+	public void sub(float num) {
 		subX(num);
 		subY(num);
 	}
-	public void add(int xa, int ya) {
+	public void add(float xa, float ya) {
 		addX(xa);
 		addY(ya);
 	}
-	public void sub(int xa, int ya) {
+	public void sub(float xa, float ya) {
 		subX(xa);
 		subY(ya);
 	}
-	public void addX(int num) {
+	public void addX(float num) {
 		this.x+=num;
 	}
-	public void subX(int num) {
+	public void subX(float num) {
 		this.x-=num;
 	}
-	public void addY(int num) {
+	public void addY(float num) {
 		this.y+=num;
 	}
-	public void subY(int num) {
+	public void subY(float num) {
 		this.y-=num;
 	}
 	
@@ -74,5 +88,8 @@ public class Vec2 implements Serializable {
 	}
 	public float getMultiplied() {
 		return getX()*getY();
+	}
+	public Vec2 getVec2() {
+		return new Vec2(getX(), getY());
 	}
 }

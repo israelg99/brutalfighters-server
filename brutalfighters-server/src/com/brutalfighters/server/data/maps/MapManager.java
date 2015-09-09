@@ -2,7 +2,7 @@ package com.brutalfighters.server.data.maps;
 
 import java.util.HashMap;
 
-import com.brutalfighters.server.data.flags.FlagHandler;
+import com.brutalfighters.server.data.flags.FlagData;
 import com.brutalfighters.server.matches.GameMatch;
 import com.brutalfighters.server.tiled.TMXMapLoader;
 import com.brutalfighters.server.util.Vec2;
@@ -19,8 +19,8 @@ public class MapManager {
 		journeyVale.setBase(GameMatch.TEAM1, new Vec2(journeyVale.getLeftBoundary() + 100, 600), "right"); //$NON-NLS-1$
 		journeyVale.setBase(GameMatch.TEAM2, new Vec2(journeyVale.getRightBoundary() - 100, 600), "left"); //$NON-NLS-1$
 		
-		journeyVale.setFlag(GameMatch.TEAM1, new Vec2(journeyVale.getLeftBoundary() + 400, FlagHandler.HEIGHT + 291), "right"); //$NON-NLS-1$
-		journeyVale.setFlag(GameMatch.TEAM2, new Vec2(journeyVale.getRightBoundary() - 400, FlagHandler.HEIGHT + 291), "left"); //$NON-NLS-1$
+		journeyVale.setFlag(GameMatch.TEAM1, new Vec2(journeyVale.getLeftBoundary() + 400, FlagData.getSize().getY() + 291), "right"); //$NON-NLS-1$
+		journeyVale.setFlag(GameMatch.TEAM2, new Vec2(journeyVale.getRightBoundary() - 400, FlagData.getSize().getY() + 291), "left"); //$NON-NLS-1$
 		
 		maps.put("journey_vale", journeyVale); //$NON-NLS-1$
 	}

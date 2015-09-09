@@ -54,50 +54,50 @@ public class NetworkListener extends Listener {
 				PlayerData player = fighter.getPlayer();
 				
 				if(player != null) {
-					if(!player.isDead) {
+					if(!player.isDead()) {
 						if (object instanceof Packet3InputLeft) {
-							player.isLeft = true;
+							player.setLeft(true);
 							return;
 						} else if (object instanceof Packet3InputRight) {
-							player.isRight = true;
+							player.setRight(true);
 							return;
-						} else if(object instanceof Packet3InputTeleport && player.hasControl && !player.isSkilling) {
-							player.isTeleporting = true;
+						} else if(object instanceof Packet3InputTeleport && player.hasControl() && !player.isSkilling()) {
+							player.enableTeleporting();
 						}
-						if(player.onGround) {
+						if(player.onGround()) {
 							if (object instanceof Packet3InputJump) {
-								player.isJump = true;
+								player.setJump(true);
 								return;
 							} else if (object instanceof Packet3InputRun) {
-								player.isRunning = true;
+								player.setRunning(true);
 								return;
 							} else if (object instanceof Packet3InputAAttack) {
-								player.isAAttack = true;
+								player.setAAttack(true);
 								return;
 							}
-							if(player.hasControl && !player.isSkilling) {
+							if(player.hasControl() && !player.isSkilling()) {
 								
 								if(object instanceof Packet3InputSkill1) {
-									player.isSkilling = true;
-									player.isSkill1 = true;
+									player.enableSkilling();
+									player.setSkill1(true);
 									fighter.startSkill1(connection);
 //										GameMatchManager.getClosedMatch(connection).womboCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill2) {
-									player.isSkilling = true;
-									player.isSkill2 = true;
+									player.enableSkilling();
+									player.setSkill2(true);
 									fighter.startSkill2(connection);
 //										GameMatchManager.getClosedMatch(connection).moveCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill3) {
-									player.isSkilling = true;
-									player.isSkill3 = true;
+									player.enableSkilling();
+									player.setSkill3(true);
 									fighter.startSkill3(connection);
 //										GameMatchManager.getClosedMatch(connection).stopCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill4) {
-									player.isSkilling = true;
-									player.isSkill4 = true;
+									player.enableSkilling();
+									player.setSkill4(true);
 									fighter.startSkill4(connection);
 //										GameMatchManager.getClosedMatch(connection).womboCombo(connection);
 									return;
@@ -107,21 +107,21 @@ public class NetworkListener extends Listener {
 					}
 		
 					if (object instanceof Packet4ReleaseLeft) {
-						player.isLeft = false;
+						player.setLeft(false);
 						//player.velx = 0;
 						return;
 					} else if (object instanceof Packet4ReleaseRight) {
-						player.isRight = false;
+						player.setRight(false);
 						//player.velx = 0;
 						return;
 					} else if (object instanceof Packet4ReleaseJump) {
-						player.isJump = false;
+						player.setJump(false);
 						return;
 					} else if (object instanceof Packet4ReleaseRun) {
-						player.isRunning = false;
+						player.setRunning(false);
 						return;
 					} else if (object instanceof Packet4ReleaseAAttack) {
-						player.isAAttack = false;
+						player.setAAttack(false);
 						return;
 					}
 				}

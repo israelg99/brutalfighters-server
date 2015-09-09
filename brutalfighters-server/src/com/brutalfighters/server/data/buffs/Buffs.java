@@ -10,9 +10,9 @@ public class Buffs {
 	private static ArrayList<BuffData> buffs = new ArrayList<BuffData>();
 	
 	public static void addBuff(PlayerData p, BuffData buff) {
-		setBuffsArray(p.buffs);
+		setBuffsArray(p.getBuffs());
 		add(buff);
-		p.buffs = getBuffsArray();
+		p.setBuffs(getBuffsArray());
 	}
 	
 	private static void add(BuffData buff) {

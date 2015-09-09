@@ -13,29 +13,29 @@ import com.esotericsoftware.kryonet.Connection;
 public class AOE {
 	
 	// With BUFFS
-	public static boolean dealAOE_players(int team, Rectangle bounds, int aoe, BuffData[] buffs) {
+	public static boolean dealAOE_players(int team, Rectangle bounds, float aoe, BuffData[] buffs) {
 		return dealAOE_players(getAOE_Players(team, bounds), aoe, buffs);
 	}
-	public static boolean dealAOE_players(Rectangle bounds, int aoe, BuffData[] buffs) {
+	public static boolean dealAOE_players(Rectangle bounds, float aoe, BuffData[] buffs) {
 		return dealAOE_players(getAOE_Players(bounds), aoe, buffs);
 	}
-	public static boolean dealAOE_enemy(int team, Rectangle bounds, int aoe, BuffData[] buffs) {
+	public static boolean dealAOE_enemy(int team, Rectangle bounds, float aoe, BuffData[] buffs) {
 		return dealAOE_players(GameMatch.getEnemyTeamID(team), bounds, aoe, buffs);
 	}
 	
 	// WITHOUT BUFFS (Feeding the "with buffs" functions with empty buff arrays).
-	public static boolean dealAOE_players(int team, Rectangle bounds, int aoe) {
+	public static boolean dealAOE_players(int team, Rectangle bounds, float aoe) {
 		return dealAOE_players(team, bounds, aoe, new BuffData[0]);
 	}
-	public static boolean dealAOE_players(Rectangle bounds, int aoe) {
+	public static boolean dealAOE_players(Rectangle bounds, float aoe) {
 		return dealAOE_players(bounds, aoe, new BuffData[0]);
 	}
-	public static boolean dealAOE_enemy(int team, Rectangle bounds, int aoe) {
+	public static boolean dealAOE_enemy(int team, Rectangle bounds, float aoe) {
 		return dealAOE_enemy(team, bounds, aoe, new BuffData[0]);
 	}
 	
 	// Main Deal AOE
-	public static boolean dealAOE_players(ArrayList<Fighter> players, int aoe, BuffData[] buffs) {
+	public static boolean dealAOE_players(ArrayList<Fighter> players, float aoe, BuffData[] buffs) {
 		if(players.size() > 0) {
 			
 			boolean areBuffs = buffs.length > 0;
@@ -44,7 +44,7 @@ public class AOE {
 			for(int i = 0; i < players.size(); i++) {
 				Fighter p = players.get(i);
 				
-				if(p.getPlayer().isVulnerable) {
+				if(p.getPlayer().isVulnerable()) {
 					// Apply HP
 					if(isDmg) { // In order no to call the function for nothing.
 						p.applyRandomHP(aoe);
@@ -65,7 +65,7 @@ public class AOE {
 	public static ArrayList<Fighter> getAOE_Players(int team, Rectangle bounds) {
 		ArrayList<Fighter> players = new ArrayList<Fighter>();
 		for(Map.Entry<Connection, Fighter> entry : GameMatchManager.getCurrentMatch().getTeam(team).entrySet()) {
-			if(!entry.getValue().getPlayer().isDead && entry.getValue().intersects(bounds)) {
+			if(!entry.getValue().getPlayer().isDead() && entry.getValue().intersects(bounds)) {
 				players.add(entry.getValue());
 			}
 		}

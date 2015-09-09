@@ -113,11 +113,11 @@ public class GameMap extends TiledMap {
 	}
 	
 	// Other map
-	private int getWidthScaledPixels() { // WIDTH OF THE WHOLE MAP NOT TILES!!!
+	private int getWidthScaledPixels() { // width OF THE WHOLE MAP NOT TILES!!!
 		return width * getTileWidth()+getTileWidth();
 	}
 	
-	private int getHeightScaledPixels() { // HEIGHT OF THE WHOLE MAP NOT TILES!!!
+	private int getHeightScaledPixels() { // height OF THE WHOLE MAP NOT TILES!!!
 		return height * getTileHeight()+getTileHeight();
 	}
 	

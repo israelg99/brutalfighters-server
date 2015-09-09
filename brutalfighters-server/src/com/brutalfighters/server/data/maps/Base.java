@@ -21,7 +21,7 @@ public class Base {
 	public float getY() {
 		return getPos().getY();
 	}
-	private Vec2 getPos() {
+	public Vec2 getPos() {
 		return pos;
 	}
 	private void setPos(Vec2 pos) {
