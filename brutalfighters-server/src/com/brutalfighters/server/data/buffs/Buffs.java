@@ -7,21 +7,21 @@ import com.brutalfighters.server.data.players.PlayerData;
 
 public class Buffs {
 	
-	private static ArrayList<BuffData> buffs = new ArrayList<BuffData>();
+	private static ArrayList<Buff> buffs = new ArrayList<Buff>();
 	
-	public static void addBuff(PlayerData p, BuffData buff) {
+	public static void addBuff(PlayerData p, Buff buff) {
 		setBuffsArray(p.getBuffs());
 		add(buff);
 		p.setBuffs(getBuffsArray());
 	}
 	
-	private static void add(BuffData buff) {
+	private static void add(Buff buff) {
 		buffs.add(buff);
 	}
-	private static void setBuffsArray(BuffData[] array) {
-		buffs = new ArrayList<BuffData>(Arrays.asList(array));
+	private static void setBuffsArray(Buff[] array) {
+		buffs = new ArrayList<Buff>(Arrays.asList(array));
 	}
-	private static BuffData[] getBuffsArray() {
-		return buffs.toArray(new BuffData[buffs.size()]);
+	private static Buff[] getBuffsArray() {
+		return buffs.toArray(new Buff[buffs.size()]);
 	}
 }

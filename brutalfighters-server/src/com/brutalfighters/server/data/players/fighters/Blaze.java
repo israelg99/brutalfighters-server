@@ -2,7 +2,8 @@ package com.brutalfighters.server.data.players.fighters;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
-import com.brutalfighters.server.data.buffs.BuffData;
+import com.brutalfighters.server.data.buffs.Buff_Heal;
+import com.brutalfighters.server.data.buffs.Buff_Slow;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.brutalfighters.server.util.AOE;
@@ -28,7 +29,7 @@ public class Blaze extends Fighter {
 		
 		if(getPlayer().getSkillCD()[0] > 0) {
 			if(getPlayer().getSkillCD()[0] <= max_skillCD[0] - GameServer.getDelay() * 12 && getPlayer().getSkillCD()[0] >= max_skillCD[0] - GameServer.getDelay() * 15) {
-				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX() + convertSpeed(20), getPlayer().getPos().getY(), s1_WIDTH, s1_HEIGHT), -dmg, new BuffData[] {(Buff.getBuff("BIT_SLOW"))}); //$NON-NLS-1$
+				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX() + convertSpeed(20), getPlayer().getPos().getY(), s1_WIDTH, s1_HEIGHT), -dmg, new Buff[] {new Buff_Slow(5)});
 			}
 			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
 		} else {
@@ -78,7 +79,7 @@ public class Blaze extends Fighter {
 			if(getPlayer().getSkillCD()[2] == max_skillCD[2] - GameServer.getDelay() * 12) {
 				Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Blaze_PHEONIX", getPlayer().getPos().getX(), getPlayer().getPos().getY()+getPlayer().getSize().getY()*2, getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 				applyHP(self_hp);
-				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds("both", getPlayer().getPos().getX(), getPlayer().getPos().getY(), 400, 400), 0, new BuffData[] {(Buff.getBuff("SLOW_HEALING"))}); //$NON-NLS-1$ //$NON-NLS-2$
+				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds("both", getPlayer().getPos().getX(), getPlayer().getPos().getY(), 400, 400), 0, new Buff[] {new Buff_Heal(10)}); //$NON-NLS-1$
 			}
 			getPlayer().getSkillCD()[2] -= GameServer.getDelay();
 		} else {

@@ -1,6 +1,7 @@
 package com.brutalfighters.server.data.players;
 
 import com.brutalfighters.server.base.GameServer;
+import com.brutalfighters.server.data.buffs.Buff;
 import com.brutalfighters.server.data.buffs.BuffData;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.matches.GameMatch;
@@ -29,7 +30,7 @@ public class PlayerData {
 	private int DCD;
 	
 	// Buffs
-	private BuffData[] buffs;
+	private Buff[] buffs;
 	
 	// Skills
 	private int[] skillCD;
@@ -88,7 +89,7 @@ public class PlayerData {
 		setDCD(GameMatch.getDefaultRespawn());
 		
 		// Buffs
-		setBuffs(new BuffData[0]);
+		setBuffs(new Buff[0]);
 		
 		// States
 		setRunning(false);
@@ -139,7 +140,7 @@ public class PlayerData {
 		setDCD(GameMatch.getDefaultRespawn());
 		
 		// Buffs
-		setBuffs(new BuffData[0]);
+		setBuffs(new Buff[0]);
 		
 		// States
 		setRunning(false);
@@ -266,10 +267,10 @@ public class PlayerData {
 		DCD = dCD;
 	}
 
-	public BuffData[] getBuffs() {
+	public Buff[] getBuffs() {
 		return buffs;
 	}
-	public void setBuffs(BuffData[] buffs) {
+	public void setBuffs(Buff[] buffs) {
 		this.buffs = buffs;
 	}
 

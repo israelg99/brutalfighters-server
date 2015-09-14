@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.brutalfighters.server.data.buffs.BuffData;
+import com.brutalfighters.server.data.buffs.Buff;
 import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.matches.GameMatch;
 import com.brutalfighters.server.matches.GameMatchManager;
@@ -13,29 +13,29 @@ import com.esotericsoftware.kryonet.Connection;
 public class AOE {
 	
 	// With BUFFS
-	public static boolean dealAOE_players(int team, Rectangle bounds, float aoe, BuffData[] buffs) {
+	public static boolean dealAOE_players(int team, Rectangle bounds, float aoe, Buff[] buffs) {
 		return dealAOE_players(getAOE_Players(team, bounds), aoe, buffs);
 	}
-	public static boolean dealAOE_players(Rectangle bounds, float aoe, BuffData[] buffs) {
+	public static boolean dealAOE_players(Rectangle bounds, float aoe, Buff[] buffs) {
 		return dealAOE_players(getAOE_Players(bounds), aoe, buffs);
 	}
-	public static boolean dealAOE_enemy(int team, Rectangle bounds, float aoe, BuffData[] buffs) {
+	public static boolean dealAOE_enemy(int team, Rectangle bounds, float aoe, Buff[] buffs) {
 		return dealAOE_players(GameMatch.getEnemyTeamID(team), bounds, aoe, buffs);
 	}
 	
 	// WITHOUT BUFFS (Feeding the "with buffs" functions with empty buff arrays).
 	public static boolean dealAOE_players(int team, Rectangle bounds, float aoe) {
-		return dealAOE_players(team, bounds, aoe, new BuffData[0]);
+		return dealAOE_players(team, bounds, aoe, new Buff[0]);
 	}
 	public static boolean dealAOE_players(Rectangle bounds, float aoe) {
-		return dealAOE_players(bounds, aoe, new BuffData[0]);
+		return dealAOE_players(bounds, aoe, new Buff[0]);
 	}
 	public static boolean dealAOE_enemy(int team, Rectangle bounds, float aoe) {
-		return dealAOE_enemy(team, bounds, aoe, new BuffData[0]);
+		return dealAOE_enemy(team, bounds, aoe, new Buff[0]);
 	}
 	
 	// Main Deal AOE
-	public static boolean dealAOE_players(ArrayList<Fighter> players, float aoe, BuffData[] buffs) {
+	public static boolean dealAOE_players(ArrayList<Fighter> players, float aoe, Buff[] buffs) {
 		if(players.size() > 0) {
 			
 			boolean areBuffs = buffs.length > 0;

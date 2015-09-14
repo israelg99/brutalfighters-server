@@ -1,6 +1,27 @@
 package com.brutalfighters.server.data.buffs;
 
 public class BuffData {
-	public String name;
-	public int time;
+	private String name;
+	private int time;
+	
+	public BuffData(String name, int time) {
+		setName(name);
+		setTime(time);
+	}
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getTime() {
+		return time;
+	}
+	public void setTime(int time) {
+		this.time = time;
+	}
+	
+	
 }

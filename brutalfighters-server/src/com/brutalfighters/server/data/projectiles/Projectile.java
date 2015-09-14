@@ -4,7 +4,10 @@ import java.util.Iterator;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
-import com.brutalfighters.server.data.buffs.BuffData;
+import com.brutalfighters.server.data.buffs.Buff_Burn;
+import com.brutalfighters.server.data.buffs.Buff_IceStun;
+import com.brutalfighters.server.data.buffs.Buff_RedBats;
+import com.brutalfighters.server.data.buffs.Buff_Slow;
 import com.brutalfighters.server.matches.GameMatchManager;
 import com.brutalfighters.server.util.AOE;
 import com.brutalfighters.server.util.Vec2;
@@ -30,7 +33,7 @@ public enum Projectile {
 		}
 	},
 	
-	Blaze_SkullFire(65, 57, 30, 0, new BuffData[] {(Buff.getBuff("BURN"))}) { //$NON-NLS-1$
+	Blaze_SkullFire(65, 57, 30, 0, new Buff[] {new Buff_Burn(2)}) {
 
 	},
 	
@@ -50,11 +53,11 @@ public enum Projectile {
 		
 	},
 	
-	Dusk_BATZ(180, 90, 17, 0, new BuffData[] {(Buff.getBuff("RED_BATS"))}) { //$NON-NLS-1$
+	Dusk_BATZ(180, 90, 17, 0, new Buff[] {new Buff_RedBats()}) { 
 		
 	},
 	
-	Chip_MINE(60, 57, 0, 100, new BuffData[] {(Buff.getBuff("HALF_SLOW"))}) { //$NON-NLS-1$
+	Chip_MINE(60, 57, 0, 100, new Buff[] {new Buff_Slow(2)}) { 
 		@Override
 		public void initialize(ActiveProjectile proj) {
 			ProjectileData p = proj.data();
@@ -83,7 +86,7 @@ public enum Projectile {
 		}
 	},
 	
-	Chip_TNT(60, 67, 35, 200, new BuffData[] {(Buff.getBuff("HALF_SLOW"))}) { //$NON-NLS-1$
+	Chip_TNT(60, 67, 35, 200, new Buff[] {new Buff_Slow(2)}) {
 		@Override
 		public void update(ActiveProjectile proj, Iterator<ActiveProjectile> iterator) {
 			ProjectileData p = proj.data();
@@ -108,7 +111,7 @@ public enum Projectile {
 
 	},
 	
-	Surge_EnergyWave(185, 90, 17, 200, new BuffData[] {(Buff.getBuff("ICE_STUN"))}) { //$NON-NLS-1$
+	Surge_EnergyWave(185, 90, 17, 200, new Buff[] {(new Buff_IceStun())}) { 
 
 	},
 	
@@ -116,15 +119,15 @@ public enum Projectile {
 
 	},
 	
-	Lust_EnergyBall(65, 57, 20, 100, new BuffData[] {(Buff.getBuff("HALF_SLOW"))}) { //$NON-NLS-1$
+	Lust_EnergyBall(65, 57, 20, 100, new Buff[] {new Buff_Slow(2)}) { 
 		
 	};
 	
 	public final int WIDTH, HEIGHT;
 	public final int speed, dmg;
-	public final BuffData[] buffs;
+	public final Buff[] buffs;
 	
-	Projectile(int w, int h, int speedX, int dmg, BuffData[] buffs) {
+	Projectile(int w, int h, int speedX, int dmg, Buff[] buffs) {
 		this.WIDTH = w;
 		this.HEIGHT = h;
 		this.speed = speedX;
@@ -133,7 +136,7 @@ public enum Projectile {
 	}
 	
 	Projectile(int w, int h, int speedX, int dmg) {
-		this(w,h,speedX,dmg, new BuffData[0]);
+		this(w,h,speedX,dmg, new Buff[0]);
 	}
 	
 	public void initialize(ActiveProjectile proj) {

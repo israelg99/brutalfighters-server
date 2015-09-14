@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
-import com.brutalfighters.server.data.buffs.BuffData;
 import com.brutalfighters.server.data.buffs.Buffs;
 import com.brutalfighters.server.data.flags.Flag;
 import com.brutalfighters.server.data.maps.Base;
@@ -232,13 +231,13 @@ abstract public class Fighter {
 	}
 
 	protected final void updateBuffs() {
-		List<BuffData> buffs = new ArrayList<BuffData>(Arrays.asList(getPlayer().getBuffs()));
-		Iterator<BuffData> iterator = buffs.iterator();
+		List<Buff> buffs = new ArrayList<Buff>(Arrays.asList(getPlayer().getBuffs()));
+		Iterator<Buff> iterator = buffs.iterator();
 		while(iterator.hasNext()) {
-		    BuffData buff = iterator.next();
-		    Buff.valueOf(buff.name).update(this, buff, iterator);
+			Buff buff = iterator.next();
+			buff.update(this, iterator);
 		}
-		getPlayer().setBuffs(buffs.toArray(new BuffData[buffs.size()]));
+		getPlayer().setBuffs(buffs.toArray(new Buff[buffs.size()]));
 	}
 
 	protected final void applyTeleport(GameMap map) {
@@ -588,18 +587,18 @@ abstract public class Fighter {
 	}
 	
 	// Buffs
-	public final void applyBuffs(BuffData[] buffs) {
+	public final void applyBuffs(Buff[] buffs) {
 		if(getPlayer().isVulnerable()) {
 			for(int i = 0; i < buffs.length; i++) {
-				// Add Buff
-				Buffs.addBuff(getPlayer(), Buff.getBuff(buffs[i]));
+				// Add Buffd
+				Buffs.addBuff(getPlayer(), buffs[i].getNewBuff());
 				
 				// We need to get a new buff(), because buffs are passed by ref by value,
 				// that's how are objects are treated in Java and we don't want
 				// players to refer to the same buff object.
 				
-				// Start/Initiate the Buff
-				Buff.valueOf(getPlayer().getBuffs()[getPlayer().getBuffs().length-1].name).start(this, getPlayer().getBuffs().length);
+				// Start/Initiate the Buffd
+				getPlayer().getBuffs()[getPlayer().getBuffs().length-1].start(this, getPlayer().getBuffs().length);
 			}
 		}
 	}

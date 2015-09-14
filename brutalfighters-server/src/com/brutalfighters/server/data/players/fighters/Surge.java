@@ -2,7 +2,7 @@ package com.brutalfighters.server.data.players.fighters;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
-import com.brutalfighters.server.data.buffs.BuffData;
+import com.brutalfighters.server.data.buffs.Buff_Slow;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.brutalfighters.server.util.AOE;
@@ -40,7 +40,7 @@ public class Surge extends Fighter {
 					Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Surge_DashBall", xstart, getPlayer().getPos().getY(), getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				if(getPlayer().getSkillCD()[0] > max_skillCD[0] - GameServer.getDelay() * 5) {
-					AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), 150, 30), -DMG, new BuffData[] {(Buff.getBuff("BIT_SLOW"))}); //$NON-NLS-1$
+					AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), 150, 30), -DMG, new Buff[] {(new Buff_Slow(2))});
 					getPlayer().getVel().setX(convertSpeed(20));
 				}
 			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
