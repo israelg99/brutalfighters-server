@@ -1,6 +1,5 @@
 package com.brutalfighters.server.data.flags;
 
-import com.brutalfighters.server.matches.GameMatch;
 import com.brutalfighters.server.util.Vec2;
 
 public class FlagData {
@@ -65,10 +64,10 @@ public class FlagData {
 		this.flip = flip;
 	}
 	public void flipRight() {
-		this.flip = GameMatch.RIGHT;
+		this.flip = "right"; //$NON-NLS-1$
 	}
 	public void flipLeft() {
-		this.flip = GameMatch.LEFT;
+		this.flip = "left"; //$NON-NLS-1$
 	}
 	
 	

@@ -15,7 +15,7 @@ public class Vec2 implements Serializable {
 		this(0, 0);
 	}
 	public Vec2(Vec2 vec) {
-		this(vec.x, vec.y);
+		this(vec.getX(), vec.getY());
 	}
 	public Vec2(float xy) {
 		this(xy, xy);
@@ -28,13 +28,15 @@ public class Vec2 implements Serializable {
 		return this.y;
 	}
 	
-	public void set(float num) {
-		setX(num);
-		setY(num);
+	public void set(float x, float y) {
+		setX(x);
+		setY(y);
 	}
-	public void set(float xa, float ya) {
-		setX(xa);
-		setY(ya);
+	public void set(float num) {
+		set(num,num);
+	}
+	public void set(Vec2 pos) {
+		set(pos.getX(), pos.getY());
 	}
 	public void setX(float xa) {
 		this.x = xa;

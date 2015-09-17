@@ -9,7 +9,6 @@ import java.util.Map;
 import com.brutalfighters.server.data.maps.CTFMap;
 import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.fighters.Fighter;
-import com.brutalfighters.server.data.projectiles.Projectile;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.esotericsoftware.kryonet.Connection;
 
@@ -25,16 +24,6 @@ public class GameMatchManager {
 		openMatches = new GameMatches<OpenGameMatch>(OpenGameMatch.class);
 		freestyleMatches = new GameMatches<FreestyleGameMatch>(FreestyleGameMatch.class);
 		matchID = new SecureRandom();
-		
-		gameResources();
-		
-	}
-	
-	private static void gameResources() {		
-		// Loading the Projectile Enum
-		System.err.println("Initialize the Projectile Enum!"); //$NON-NLS-1$
-		Projectile.init();
-		System.out.println("Finished Initializing the Projectile Enum!"); //$NON-NLS-1$
 	}
 
 	// Getters and Setters

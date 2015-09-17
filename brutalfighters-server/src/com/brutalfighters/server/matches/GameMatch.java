@@ -36,9 +36,6 @@ abstract public class GameMatch {
 	 * 
 	 */
 	
-	// Flip Sides
-	public static final String RIGHT = "right", LEFT = "left"; //$NON-NLS-1$ //$NON-NLS-2$
-	
 	public static final int TEAM_LENGTH = 2;
 	public static final int TEAM1 = 0;
 	public static final int TEAM2 = 1;
@@ -152,11 +149,11 @@ abstract public class GameMatch {
 		Flag.updateFlags(flags);
 	}
 	protected void updateProjectiles() {
-		projectiles.updateProjectiles();
+		projectiles.update();
 	}	
 	protected void updatePlayers() {
 		for(Map.Entry<Connection, Fighter> entry : players.entrySet()) {
-			entry.getValue().update(entry.getKey(), getMap());
+			entry.getValue().update(getMap());
 		}
 	}
 	
@@ -187,35 +184,35 @@ abstract public class GameMatch {
 					pd.setAAttack(true);
 					pd.enableSkilling();
 					pd.setSkill3(true);
-					fighter.startSkill3(connection);
+					fighter.startSkill3();
 				break;
 				
 				case "Dusk": //$NON-NLS-1$
 					pd.setAAttack(true);
 					pd.enableSkilling();
 					pd.setSkill1(true);
-					fighter.startSkill1(connection);
+					fighter.startSkill1();
 				break;
 				
 				case "Chip": //$NON-NLS-1$
 					pd.setAAttack(true);
 					pd.enableSkilling();
 					pd.setSkill2(true);
-					fighter.startSkill2(connection);
+					fighter.startSkill2();
 				break;
 				
 				case "Surge": //$NON-NLS-1$
 					pd.setAAttack(true);
 					pd.enableSkilling();
 					pd.setSkill4(true);
-					fighter.startSkill4(connection);
+					fighter.startSkill4();
 				break;
 				
 				case "Lust": //$NON-NLS-1$
 					pd.setAAttack(true);
 					pd.enableSkilling();
 					pd.setSkill1(true);
-					fighter.startSkill1(connection);
+					fighter.startSkill1();
 				break;
 			}
 		}
@@ -231,13 +228,13 @@ abstract public class GameMatch {
 				case "Blaze": //$NON-NLS-1$
 					pd.enableSkilling();
 					pd.setSkill1(true);
-					fighter.startSkill1(connection);
+					fighter.startSkill1();
 				break;
 				
 				case "Dusk": //$NON-NLS-1$
 					pd.enableSkilling();
 					pd.setSkill4(true);
-					fighter.startSkill4(connection);
+					fighter.startSkill4();
 				break;
 				
 				case "Chip": //$NON-NLS-1$
@@ -245,13 +242,13 @@ abstract public class GameMatch {
 					pd.setRunning(true);
 					pd.enableSkilling();
 					pd.setSkill2(true);
-					fighter.startSkill2(connection);
+					fighter.startSkill2();
 				break;
 				
 				case "Surge": //$NON-NLS-1$
 					pd.enableSkilling();
 					pd.setSkill2(true);
-					fighter.startSkill2(connection);
+					fighter.startSkill2();
 				break;
 				
 				case "Lust": //$NON-NLS-1$
@@ -338,7 +335,7 @@ abstract public class GameMatch {
 		Base base = getMap().getBase(team);
 		
 		// Getting the fighter
-		Fighter player = Champion.valueOf(fighter).getNew(base, m_id);
+		Fighter player = Champion.valueOf(fighter).getNew(connection, base, m_id);
 		player.getPlayer().setTeam(team);
 		
 		// Adding the fighter into the data arrays
@@ -442,7 +439,7 @@ abstract public class GameMatch {
 		ProjectileData[] array = new ProjectileData[getProjectiles().getAll().size()];
 		
 		for(int i = 0; i < array.length; i++) {
-			array[i] = getProjectiles().get(i).data();
+			array[i] = getProjectiles().get(i).getProjectile();
 		}
 		
 		return array;

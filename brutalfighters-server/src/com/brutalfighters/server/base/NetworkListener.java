@@ -80,25 +80,25 @@ public class NetworkListener extends Listener {
 								if(object instanceof Packet3InputSkill1) {
 									player.enableSkilling();
 									player.setSkill1(true);
-									fighter.startSkill1(connection);
+									fighter.startSkill1();
 //										GameMatchManager.getClosedMatch(connection).womboCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill2) {
 									player.enableSkilling();
 									player.setSkill2(true);
-									fighter.startSkill2(connection);
+									fighter.startSkill2();
 //										GameMatchManager.getClosedMatch(connection).moveCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill3) {
 									player.enableSkilling();
 									player.setSkill3(true);
-									fighter.startSkill3(connection);
+									fighter.startSkill3();
 //										GameMatchManager.getClosedMatch(connection).stopCombo(connection);
 									return;
 								} else if(object instanceof Packet3InputSkill4) {
 									player.enableSkilling();
 									player.setSkill4(true);
-									fighter.startSkill4(connection);
+									fighter.startSkill4();
 //										GameMatchManager.getClosedMatch(connection).womboCombo(connection);
 									return;
 								}

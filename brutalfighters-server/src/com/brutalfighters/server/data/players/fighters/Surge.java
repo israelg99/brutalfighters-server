@@ -2,9 +2,12 @@ package com.brutalfighters.server.data.players.fighters;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
+import com.brutalfighters.server.data.buffs.Buff_IceStun;
 import com.brutalfighters.server.data.buffs.Buff_Slow;
 import com.brutalfighters.server.data.maps.Base;
-import com.brutalfighters.server.data.projectiles.Projectiles;
+import com.brutalfighters.server.data.projectiles.types.BlueDashBall;
+import com.brutalfighters.server.data.projectiles.types.BlueEnergyWave;
+import com.brutalfighters.server.matches.GameMatchManager;
 import com.brutalfighters.server.util.AOE;
 import com.brutalfighters.server.util.CollisionDetection;
 import com.brutalfighters.server.util.Vec2;
@@ -12,8 +15,8 @@ import com.esotericsoftware.kryonet.Connection;
 
 public class Surge extends Fighter {
 
-	public Surge(Base base, String m_id) {
-		super(base, m_id, "surge", 1000, 1000, new Vec2(90,100), 8, //$NON-NLS-1$
+	public Surge(Connection connection, Base base, String m_id) {
+		super(connection, base, m_id, "surge", 1000, 1000, new Vec2(90,100), 8, //$NON-NLS-1$
 				16, 44, 500, new Vec2(110,10), 68, 9,
 				new int[] {250,400,200,650}, new int[] {500,900,1200,1300});
 	}
@@ -24,20 +27,20 @@ public class Surge extends Fighter {
 	final int DMG = 20;
 	
 	@Override
-	public void updateSkill1(Connection cnct) {
+	public void updateSkill1() {
 		defaultUpdate();
 		applyFlip();
 	}
 	
 	@Override
-	public void skill1(Connection cnct) {
+	public void skill1() {
 		
-		updateSkill1(cnct);
+		updateSkill1();
 		
 		if(getPlayer().getSkillCD()[0] > 0) {
 				if(getPlayer().getSkillCD()[0] == max_skillCD[0] - GameServer.getDelay() * 5) {
 					float xstart = getPlayer().getPos().getX() + convertSpeed(5);
-					Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Surge_DashBall", xstart, getPlayer().getPos().getY(), getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
+					GameMatchManager.getCurrentProjectiles().add(new BlueDashBall(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()), 30, 100, new Buff[0])); 
 				}
 				if(getPlayer().getSkillCD()[0] > max_skillCD[0] - GameServer.getDelay() * 5) {
 					AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), 150, 30), -DMG, new Buff[] {(new Buff_Slow(2))});
@@ -45,12 +48,12 @@ public class Surge extends Fighter {
 				}
 			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
 		} else {
-			endSkill1(cnct);
+			endSkill1();
 		}
 	}
 	
 	@Override
-	public void endSkill1(Connection cnct) {
+	public void endSkill1() {
 		getPlayer().getSkillCD()[0] = max_skillCD[0];
 		getPlayer().setSkill1(false);
 		getPlayer().disableSkilling();
@@ -59,28 +62,28 @@ public class Surge extends Fighter {
 	// Skill 2
 	
 	@Override
-	public void updateSkill2(Connection cnct) {
+	public void updateSkill2() {
 		defaultUpdate();
 	}
 	
 	@Override
-	public void skill2(Connection cnct) {
+	public void skill2() {
 		
-		updateSkill2(cnct);
+		updateSkill2();
 		
 		if(getPlayer().getSkillCD()[1] > 0) {
 				if(getPlayer().getSkillCD()[1] == max_skillCD[1] - GameServer.getDelay() * 17) {
 					float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()*2);
-					Projectiles.addProjectile(cnct, getPlayer().getTeam(), "Surge_EnergyWave", xstart, getPlayer().getPos().getY(), getPlayer().getFlip(), "init"); //$NON-NLS-1$ //$NON-NLS-2$
+					GameMatchManager.getCurrentProjectiles().add(new BlueEnergyWave(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()), 17, 200, new Buff[] {(new Buff_IceStun())}));
 				}
 			getPlayer().getSkillCD()[1] -= GameServer.getDelay();
 		} else {
-			endSkill2(cnct);
+			endSkill2();
 		}
 	}
 	
 	@Override
-	public void endSkill2(Connection cnct) {
+	public void endSkill2() {
 		getPlayer().getSkillCD()[1] = max_skillCD[1];
 		getPlayer().setSkill2(false);
 		getPlayer().disableSkilling();
@@ -89,14 +92,14 @@ public class Surge extends Fighter {
 	// Skill 3
 	
 	@Override
-	public void updateSkill3(Connection cnct) {
+	public void updateSkill3() {
 		defaultUpdate();
 		applyFlip();
 	}
 	
 	@Override
-	public void skill3(Connection cnct) {
-		updateSkill3(cnct);
+	public void skill3() {
+		updateSkill3();
 		
 		if(getPlayer().getSkillCD()[2] > 0) {
 			if(getPlayer().getSkillCD()[2] == max_skillCD[2] - GameServer.getDelay() * 12) {
@@ -104,12 +107,12 @@ public class Surge extends Fighter {
 			}
 			getPlayer().getSkillCD()[2] -= GameServer.getDelay();
 		} else {
-			endSkill3(cnct);
+			endSkill3();
 		}
 	}
 	
 	@Override
-	public void endSkill3(Connection cnct) {
+	public void endSkill3() {
 		getPlayer().getSkillCD()[2] = max_skillCD[2];
 		getPlayer().setSkill3(false);
 		getPlayer().disableSkilling();
@@ -121,8 +124,8 @@ public class Surge extends Fighter {
 	final int S4_dmg = 300, S4_X_RANGE = 150, S4_Y_RANGE = 350, DISTANCE = 230;
 	
 	@Override
-	public void skill4(Connection cnct) {
-		updateSkill4(cnct);
+	public void skill4() {
+		updateSkill4();
 		
 		if(getPlayer().getSkillCD()[3] > 0) {
 			if(getPlayer().getSkillCD()[3] == max_skillCD[3] - GameServer.getDelay() * 14) {
@@ -133,13 +136,13 @@ public class Surge extends Fighter {
 			}
 			getPlayer().getSkillCD()[3] -= GameServer.getDelay();
 		} else {
-			endSkill4(cnct);
+			endSkill4();
 		}
 		
 	}
 	
 	@Override
-	public void endSkill4(Connection cnct) {
+	public void endSkill4() {
 		getPlayer().getSkillCD()[3] = max_skillCD[3];
 		getPlayer().setSkill4(false);
 		getPlayer().disableSkilling();

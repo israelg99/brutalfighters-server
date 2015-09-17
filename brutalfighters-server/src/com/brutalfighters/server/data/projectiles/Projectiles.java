@@ -3,60 +3,37 @@ package com.brutalfighters.server.data.projectiles;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.brutalfighters.server.matches.GameMatchManager;
-import com.esotericsoftware.kryonet.Connection;
-
 public class Projectiles {
-	private ArrayList<ActiveProjectile> projectiles;
+	private ArrayList<Projectile> projectiles;
 	
 	public Projectiles() {
-		projectiles = new ArrayList<ActiveProjectile>();
+		projectiles = new ArrayList<Projectile>();
 	}
 	
-	public void add(ActiveProjectile p) {
+	public void add(Projectile p) {
 		projectiles.add(p);
-		Projectile.valueOf(p.data().name).initialize(p);
-	}
-	public void add(Connection cnct, String name, int posx, int posy, int width, int height, String flip, String mode) {
-		add(cnct, GameMatchManager.getClosedMatch(cnct).getPlayer(cnct).getPlayer().getTeam(), name, posx, posy, width, height, flip, mode);
-	}
-	public void add(Connection cnct, int team, String name, float posx, float posy, int width, int height, String flip, String mode) {
-		ProjectileData pd = new ProjectileData();
-		pd.name = name;
-		pd.x = posx;
-		pd.y = posy;
-		pd.width = width;
-		pd.height = height;
-		pd.flip = flip;
-		pd.mode = mode;
-		
-		add(new ActiveProjectile(cnct, pd, team));
+		p.initialize();
 	}
 	
-	public ProjectileData getData(int i) {
-		return projectiles.get(i).data();
+	public ProjectileData getProjectile(int i) {
+		return projectiles.get(i).getProjectile();
 	}
-	public ActiveProjectile get(int i) {
+	public Projectile get(int i) {
 		return projectiles.get(i);
 	}
-	public ArrayList<ActiveProjectile> getAll() {
+	public ArrayList<Projectile> getAll() {
 		return projectiles;
 	}
 	
-	public void updateProjectiles() {
-		for (Iterator<ActiveProjectile> iterator = projectiles.iterator(); iterator.hasNext();) {
-			ActiveProjectile projectile = iterator.next();
-			if(projectile.data().mode == Projectile.explode) {
+	public void update() {
+		for (Iterator<Projectile> iterator = projectiles.iterator(); iterator.hasNext();) {
+			Projectile projectile = iterator.next();
+			if(projectile.getProjectile().isExplode()) {
 				iterator.remove();
 			} else {
-				Projectile.valueOf(projectile.data().name).update(projectile, iterator);
+				projectile.update(iterator);
 			}
 		}
-	}
-	
-	public static void addProjectile(Connection cnct, int team, String name, float posx, float posy, String flip, String mode) {
-		Projectile projectile = Projectile.valueOf(name);
-		GameMatchManager.getCurrentMatch().getProjectiles().add(cnct, team, name, posx, posy, projectile.WIDTH, projectile.HEIGHT, flip, mode);
 	}
 
 	public void remove(int i) {

@@ -11,7 +11,7 @@ abstract public class Buff {
 	
 	protected BuffData buff;
 	
-	public Buff(String name, int MAX_TIME) {
+	protected Buff(String name, int MAX_TIME) {
 		this.MAX_TIME = MAX_TIME;
 		setBuff(new BuffData(name, getMAX_TIME()));
 	}

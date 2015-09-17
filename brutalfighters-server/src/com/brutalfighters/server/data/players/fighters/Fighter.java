@@ -32,6 +32,8 @@ abstract public class Fighter {
 	protected static final int GRAVITY_FORCE = 27;
 	protected static final int FALLING_MOMENTUM = 9;
 	
+	// Connection
+	protected Connection connection;
 	
 	// Mana
 	protected int manaRegen;
@@ -62,16 +64,19 @@ abstract public class Fighter {
 	// The PlayerData
 	protected PlayerData player;
 	
-	public Fighter(Base base, String m_id, String name, int maxhp, int maxmana, Vec2 size, int walking_speed,
+	protected Fighter(Connection connection, Base base, String m_id, String name, int maxhp, int maxmana, Vec2 size, int walking_speed,
 				int running_speed, int jump_height, int AA_CD,
 				Vec2 AA_range, int AA_DMG, int manaRegen,
 				int[] skillMana, int[] max_skillCD) {
+		
+		// Setting connection
+		setConnection(connection);
 		
 		// Skill Temp CD
 		this.max_skillCD = max_skillCD.clone();
 		
 		// Constructing a new fighter/player data
-		setPlayer(new PlayerData(base, name, maxhp, maxmana, size));
+		setPlayer(new PlayerData(base, name, maxhp, maxmana, size, GameMatch.getDefaultRespawn()));
 
 		// Mana
 		setManaRegen(manaRegen);
@@ -100,6 +105,13 @@ abstract public class Fighter {
 
 	}
 	
+	public Connection getConnection() {
+		return connection;
+	}
+	public void setConnection(Connection connection) {
+		this.connection = connection;
+	}
+
 	public static int getSkills() {
 		return SKILLS;
 	}
@@ -197,17 +209,17 @@ abstract public class Fighter {
 		this.player = pdata;
 	}
 	
-	public final void update(Connection cnct, GameMap map) {
+	public final void update(GameMap map) {
 		
 		resetExtrapolation();
 		
 		if(!applyDeath()) {
 			
 			if(getPlayer().isSkilling()) {
-				applySkill(cnct);
+				applySkill();
 			} else if(getPlayer().hasControl()) {
 				applyVelocity();
-				applyAA(cnct);
+				applyAA();
 				applyTeleport(map);
 			}
 					
@@ -353,15 +365,15 @@ abstract public class Fighter {
 		
 	}
 
-	protected final void applySkill(Connection cnct) {
+	protected final void applySkill() {
 		if(getPlayer().isSkill1()) {
-			skill1(cnct);
+			skill1();
 		} else if(getPlayer().isSkill2()) {
-			skill2(cnct);
+			skill2();
 		} else if(getPlayer().isSkill3()) {
-			skill3(cnct);
+			skill3();
 		} else if(getPlayer().isSkill4()) {
-			skill4(cnct);
+			skill4();
 		}	
 	}
 
@@ -369,7 +381,7 @@ abstract public class Fighter {
 		if(getPlayer().isDCD()) {
 			getPlayer().subDCD();
 		} else {
-			getPlayer().reset((GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam())));
+			getPlayer().reset((GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam())), GameMatch.getDefaultRespawn());
 		}
 		
 	}
@@ -512,7 +524,7 @@ abstract public class Fighter {
 	}
 	
 	public final boolean isFacingCollision() {
-		return (getPlayer().getFlip().equals(GameMatch.RIGHT) && getPlayer().isCollidingRight()) || (getPlayer().getFlip().equals(GameMatch.LEFT) && getPlayer().isCollidingLeft()); 
+		return (getPlayer().getFlip().equals("right") && getPlayer().isCollidingRight()) || (getPlayer().getFlip().equals("left") && getPlayer().isCollidingLeft());  //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public final Rectangle getBounds() {
@@ -526,11 +538,11 @@ abstract public class Fighter {
 		return getBounds().intersects(player.getBounds());
 	}
 	
-	protected final void applyAA(Connection cnct) {
+	protected final void applyAA() {
 		if(getPlayer().isAAttack() && isBum()) {
 			if(getAA_CD().getX() <= 0) {
 				
-				AAttack(cnct);
+				AAttack();
 				
 				resetAA_CD();
 			} else {
@@ -656,7 +668,7 @@ abstract public class Fighter {
 	
 	// SPEED CONVERTION
 	public final float convertSpeed(float speed) {
-		return getPlayer().getFlip().equals(GameMatch.RIGHT) ? speed : -speed; 
+		return getPlayer().getFlip().equals("right") ? speed : -speed;  //$NON-NLS-1$
 	}
 	
 	protected void defaultUpdate() {
@@ -664,63 +676,63 @@ abstract public class Fighter {
 		applyGravity();
 	}
 	
-	public void startSkill1(Connection cnct) {
+	public void startSkill1() {
 		if(!applySkillMana(0)) {
-			endSkill1(cnct);
+			endSkill1();
 		}
 	}
-	public void updateSkill1(Connection cnct) {
+	public void updateSkill1() {
 		defaultUpdate();
 	}
-	public void skill1(Connection cnct) {
+	public void skill1() {
 		
 	}
-	public void endSkill1(Connection cnct) {
+	public void endSkill1() {
 		
 	}
 
-	public void startSkill2(Connection cnct) {
+	public void startSkill2() {
 		if(!applySkillMana(1)) {
-			endSkill2(cnct);
+			endSkill2();
 		}
 	}
-	public void updateSkill2(Connection cnct) {
+	public void updateSkill2() {
 		defaultUpdate();
 	}
-	public void skill2(Connection cnct) {
+	public void skill2() {
 		
 	}
-	public void endSkill2(Connection cnct) {
+	public void endSkill2() {
 		
 	}
 
-	public void startSkill3(Connection cnct) {
+	public void startSkill3() {
 		if(!applySkillMana(2)) {
-			endSkill3(cnct);
+			endSkill3();
 		}
 	}
-	public void updateSkill3(Connection cnct) {
+	public void updateSkill3() {
 		defaultUpdate();
 	}
-	public void skill3(Connection cnct) {
+	public void skill3() {
 		
 	}
-	public void endSkill3(Connection cnct) {
+	public void endSkill3() {
 		
 	}
 	
-	public void startSkill4(Connection cnct) {
+	public void startSkill4() {
 		if(!applySkillMana(3)) {
-			endSkill4(cnct);
+			endSkill4();
 		}
 	}
-	public void updateSkill4(Connection cnct) {
+	public void updateSkill4() {
 		defaultUpdate();
 	}
-	public void skill4(Connection cnct) {
+	public void skill4() {
 		
 	}
-	public void endSkill4(Connection cnct) {
+	public void endSkill4() {
 		
 	}
 	
@@ -745,7 +757,7 @@ abstract public class Fighter {
 		getJumpHeight().setX(getJumpHeight().getY());
 	}
 	
-	public final void AAttack(Connection cnct) {
+	public final void AAttack() {
 		AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX()-convertSpeed(getPlayer().getSize().getX()/2), getPlayer().getPos().getY(), getAA_Range().getX(), getAA_Range().getY()), -getAA_Dmg());
 	}
 	

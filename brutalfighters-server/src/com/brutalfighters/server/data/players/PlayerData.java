@@ -2,9 +2,7 @@ package com.brutalfighters.server.data.players;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
-import com.brutalfighters.server.data.buffs.BuffData;
 import com.brutalfighters.server.data.maps.Base;
-import com.brutalfighters.server.matches.GameMatch;
 import com.brutalfighters.server.util.Vec2;
 
 public class PlayerData {
@@ -72,7 +70,7 @@ public class PlayerData {
 	private boolean isExtrapolating;
 
 	
-	public PlayerData(Base base, String name, float maxhp, float maxmana, Vec2 size) {
+	public PlayerData(Base base, String name, float maxhp, float maxmana, Vec2 size, int DCD) {
 		
 		// Basic
 		setName(Character.toUpperCase(name.charAt(0)) + name.substring(1));
@@ -86,7 +84,7 @@ public class PlayerData {
 		setMana(new Vec2(maxmana));
 		
 		// CD
-		setDCD(GameMatch.getDefaultRespawn());
+		setDCD(DCD);
 		
 		// Buffs
 		setBuffs(new Buff[0]);
@@ -125,7 +123,7 @@ public class PlayerData {
 		isCollidingBot(false);
 	}
 	
-	public void reset(Base base) {
+	public void reset(Base base, int DCD) {
 	
 		// Basic
 		setPos(base.getPos());
@@ -137,7 +135,7 @@ public class PlayerData {
 		maxMana();
 		
 		// CD
-		setDCD(GameMatch.getDefaultRespawn());
+		setDCD(DCD);
 		
 		// Buffs
 		setBuffs(new Buff[0]);
@@ -288,10 +286,10 @@ public class PlayerData {
 		this.flip = flip;
 	}
 	public void flipRight() {
-		flip = GameMatch.RIGHT;
+		flip = "right"; //$NON-NLS-1$
 	}
 	public void flipLeft() {
-		flip = GameMatch.LEFT;
+		flip = "left"; //$NON-NLS-1$
 	}
 	
 

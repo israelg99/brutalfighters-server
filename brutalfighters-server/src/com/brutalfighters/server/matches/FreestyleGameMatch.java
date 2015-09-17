@@ -3,10 +3,7 @@ package com.brutalfighters.server.matches;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.brutalfighters.server.data.maps.Base;
-import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.PlayerMap;
-import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.util.Counter;
 import com.esotericsoftware.kryonet.Connection;
 
@@ -22,8 +19,8 @@ public class FreestyleGameMatch extends GameMatch {
 	 * 
 	 */
 	
-	protected static final int DEFAULT_PLAYER_LIMIT = 50;
-	protected static final int DEFAULT_WARMUP = 0;
+	private static final int DEFAULT_PLAYER_LIMIT = 50;
+	private static final int DEFAULT_WARMUP = 0;
 	
 	/* Constructors */
 	public FreestyleGameMatch(String mapName, String ID, PlayerMap players, PlayerMap[] teams) {
@@ -57,24 +54,7 @@ public class FreestyleGameMatch extends GameMatch {
 	@Override
 	public void addPlayer(Connection connection, String m_id, String fighter) {
 
-		fighter = Character.toUpperCase(fighter.charAt(0)) + fighter.substring(1);
-		
-		// Checking if the fighter name the client passed does in fact exist
-		if(!Champion.contains(fighter)) {
-			return;
-		}
-		
-		// Setting up the information needed for getting the fighter
-		int team = teams[0].size() < teams[1].size() ? TEAM1 : TEAM2;
-		Base base = getMap().getBase(team);
-		
-		// Getting the fighter
-		Fighter player = Champion.valueOf(fighter).getNew(base, m_id);
-		player.getPlayer().setTeam(team);
-		
-		// Adding the fighter into the data arrays
-		teams[team].put(connection, player);
-		players.put(connection, teams[team].get(connection));
+		super.addPlayer(connection, m_id, fighter);
 		
 		// In freestyle we send resources immediately
 		approveResources(connection);

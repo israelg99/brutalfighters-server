@@ -1,162 +1,115 @@
 package com.brutalfighters.server.data.projectiles;
 
+import java.awt.Rectangle;
 import java.util.Iterator;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
-import com.brutalfighters.server.data.buffs.Buff_Burn;
-import com.brutalfighters.server.data.buffs.Buff_IceStun;
-import com.brutalfighters.server.data.buffs.Buff_RedBats;
-import com.brutalfighters.server.data.buffs.Buff_Slow;
+import com.brutalfighters.server.data.objects.Collidable;
+import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.brutalfighters.server.matches.GameMatchManager;
 import com.brutalfighters.server.util.AOE;
+import com.brutalfighters.server.util.CollisionDetection;
 import com.brutalfighters.server.util.Vec2;
+import com.esotericsoftware.kryonet.Connection;
 
-public enum Projectile {
+abstract public class Projectile extends Collidable {
 	
-	Blaze_PHEONIX(280, 500, 0, 0) {
-		@Override
-		public void initialize(ActiveProjectile proj) {
-			ProjectileData p = proj.data();
-			p.vely = 5;
-		}
-		
-		@Override
-		public void update(ActiveProjectile proj, Iterator<ActiveProjectile> iterator) {
-			ProjectileData p = proj.data();
-			p.vely += 0.2f;
-			if(p.vely >= 33.2f) {
-				iterator.remove();
-				return;
-			}
-			p.y += p.vely;
-		}
-	},
+	protected Fighter fighter;
+	protected int team;
 	
-	Blaze_SkullFire(65, 57, 30, 0, new Buff[] {new Buff_Burn(2)}) {
+	protected float dmg;
+	protected Buff[] buffs;
+	protected float speed;
+	
+	protected ProjectileData projectile;
+	
+	protected Projectile(String name, Fighter fighter, String flip, Vec2 pos, Vec2 size, float speed, float dmg, Buff[] buffs) {
+		setProjectile(new ProjectileData(name, flip, pos, size));
+		setFighter(fighter);
+		setTeam(fighter.getPlayer().getTeam());
+		setSpeed(speed);
+		setDMG(dmg);
+		setBuffs(buffs);
+		Rectangle(CollisionDetection.getBounds("both", getProjectile().getPos().getX(), getProjectile().getPos().getY(), getProjectile().getSize().getX(), getProjectile().getSize().getY())); //$NON-NLS-1$
+	}
+	
+	public ProjectileData getProjectile() {
+		return projectile;
+	}
+	public void setProjectile(ProjectileData projectile) {
+		this.projectile = projectile;
+	}
 
-	},
-	
-	Blaze_BloodBall(65, 57, 20, 155) {
-		
-	},
-	
-	Dusk_PurpleBat(65, 57, 30, 25) {
-		
-	},
-	
-	Dusk_BATS(130, 77, 45, 100) {
-		
-	},
-	
-	Dusk_LASER(180, 30, 30, 110) {
-		
-	},
-	
-	Dusk_BATZ(180, 90, 17, 0, new Buff[] {new Buff_RedBats()}) { 
-		
-	},
-	
-	Chip_MINE(60, 57, 0, 100, new Buff[] {new Buff_Slow(2)}) { 
-		@Override
-		public void initialize(ActiveProjectile proj) {
-			ProjectileData p = proj.data();
-			if(!GameMatchManager.getCurrentMap().checkBoundaries(new Vec2(p.x, p.y))) {
-				p.mode = explode;
-			} else {
-				p.velx = p.flip.equals("right") ? speed : -speed; //$NON-NLS-1$
-			}
-		}
-		
-		@Override
-		public void update(ActiveProjectile proj, Iterator<ActiveProjectile> iterator) {
-			ProjectileData p = proj.data();
-			p.time += GameServer.getDelay();
-			if(p.mode != explode) {
-				if(p.time >= 1000 && dealDamage(proj)) { // WE MUST USE `getTeam()` and not `getConnection()` because the fighter may disconnect while the projectile is still on which will cause null.
-					p.mode = explode;
-					return;
-				} else if(!GameMatchManager.getCurrentMap().intersectsSurroundX(p.x, p.y-p.height/2, proj.getBounds())) {
-					p.vely = -9;
-					p.y += p.vely;
-				} else { p.vely = 0; }
-			} else {
-				iterator.remove();
-			}
-		}
-	},
-	
-	Chip_TNT(60, 67, 35, 200, new Buff[] {new Buff_Slow(2)}) {
-		@Override
-		public void update(ActiveProjectile proj, Iterator<ActiveProjectile> iterator) {
-			ProjectileData p = proj.data();
-			p.time += GameServer.getDelay();
-			if(p.mode != explode) {
-				if(p.time >= 500) {
-					p.mode = explode;
-					dealDamage(proj);
-				} else if(!isColliding(proj)) {
-					p.x += p.velx;
-				} else {
-					p.mode = explode;
-					return;
-				}
-			} else {
-				iterator.remove();
-			}
-		}
-	},
-	
-	Chip_RPG(60, 57, 50, 170) {
+	public Fighter getFighter() {
+		return fighter;
+	}
+	public void setFighter(Fighter fighter) {
+		this.fighter = fighter;
+	}
 
-	},
-	
-	Surge_EnergyWave(185, 90, 17, 200, new Buff[] {(new Buff_IceStun())}) { 
+	public int getTeam() {
+		return team;
+	}
+	public void setTeam(int team) {
+		this.team = team;
+	}
 
-	},
-	
-	Surge_DashBall(65, 57, 30, 100) {
+	public float getSpeed() {
+		return speed;
+	}
+	public void setSpeed(float speed) {
+		this.speed = speed;
+	}
 
-	},
-	
-	Lust_EnergyBall(65, 57, 20, 100, new Buff[] {new Buff_Slow(2)}) { 
-		
-	};
-	
-	public final int WIDTH, HEIGHT;
-	public final int speed, dmg;
-	public final Buff[] buffs;
-	
-	Projectile(int w, int h, int speedX, int dmg, Buff[] buffs) {
-		this.WIDTH = w;
-		this.HEIGHT = h;
-		this.speed = speedX;
+	public float getDMG() {
+		return dmg;
+	}
+	public void setDMG(float dmg) {
 		this.dmg = dmg;
+	}
+
+	public Buff[] getBuffs() {
+		return buffs;
+	}
+	public void setBuffs(Buff[] buffs) {
 		this.buffs = buffs;
 	}
 	
-	Projectile(int w, int h, int speedX, int dmg) {
-		this(w,h,speedX,dmg, new Buff[0]);
+	@Override
+	public Rectangle getBounds() {
+		setBounds();
+		return bounds;
 	}
 	
-	public void initialize(ActiveProjectile proj) {
-		ProjectileData p = proj.data();
-		if(isColliding(proj)) {
-			p.mode = explode;
+	public void setBounds() {
+		CollisionDetection.setBounds(bounds, "both", getProjectile().getPos().getX(), getProjectile().getPos().getY(), getProjectile().getSize().getX(), getProjectile().getSize().getY()); //$NON-NLS-1$
+	}
+	
+	public boolean isOwner(Connection cnct) {
+		return getFighter().getConnection().equals(cnct);
+	}
+	public boolean isOwner(Fighter fighter) {
+		return getFighter().equals(fighter);
+	}
+
+	public void initialize() {
+		if(isColliding()) {
+			getProjectile().setExplode();
 		} else {
-			p.velx = p.flip.equals("right") ? speed : -speed; //$NON-NLS-1$
+			getProjectile().getVel().setX(convertSpeed(speed));
+			getProjectile().getVel().setX(convertSpeed(speed));
 		}
 	}
-	public void update(ActiveProjectile proj, Iterator<ActiveProjectile> iterator) {
-		ProjectileData p = proj.data();
-		p.time += GameServer.getDelay();
-		if(p.mode != explode) {
-			if(dealDamage(proj)) {
-				p.mode = explode;
-			} else if(!isColliding(proj)) {
-				p.x += p.velx;
+	public void update(Iterator<Projectile> iterator) {
+		getProjectile().addTime(GameServer.getDelay());
+		if(!getProjectile().isExplode()) {
+			if(dealDamage()) {
+				getProjectile().setExplode();
+			} else if(!isColliding()) {
+				getProjectile().getPos().addX(getProjectile().getVel().getX());
 			} else {
-				p.mode = explode;
+				getProjectile().setExplode();
 				return;
 			}
 		} else {
@@ -164,32 +117,15 @@ public enum Projectile {
 		}
 	}
 	
-	public boolean isColliding(ActiveProjectile proj) { // We may modify it, so it's not static.
-		ProjectileData pd = proj.data();
-		return !GameMatchManager.getCurrentMap().checkBoundaries(new Vec2(pd.x, pd.y)) || GameMatchManager.getCurrentMap().intersects(pd.x+pd.velx, pd.y+pd.vely, proj.getBounds());
+	public boolean isColliding() { // We may modify it, so it's not static.
+		return !GameMatchManager.getCurrentMap().checkBoundaries(getProjectile().getPos()) || GameMatchManager.getCurrentMap().intersects(getProjectile().getPos().getX(), getProjectile().getPos().getY(), getBounds());
 	}
 	
-	public boolean dealDamage(ActiveProjectile proj) {
-		return AOE.dealAOE_enemy(proj.getTeam(), proj.getBounds(), -dmg, buffs);
+	public boolean dealDamage() {
+		return AOE.dealAOE_enemy(getTeam(), getBounds(), -getDMG(), getBuffs());
 	}
 	
-	public static final String explode = "explode"; //$NON-NLS-1$
-	
-	public static int convertSpeed(ProjectileData p, int speed) {
-		return p.flip.equals("right") ? speed : -speed; //$NON-NLS-1$
-	}
-
-	public static boolean contains(String projectile) {
-	    for (Projectile c : Projectile.values()) {
-	        if (c.name().equals(projectile)) {
-	            return true;
-	        }
-	    }
-
-	    return false;
-	}
-	
-	public static void init() {
-		values();
+	public float convertSpeed(float speed) {
+		return getProjectile().isRight() ? speed : -speed;
 	}
 }
