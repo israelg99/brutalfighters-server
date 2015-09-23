@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.brutalfighters.server.data.maps.CTFMap;
-import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.fighters.Fighter;
+import com.brutalfighters.server.data.players.fighters.FighterFactory;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.esotericsoftware.kryonet.Connection;
 
@@ -81,7 +81,7 @@ public class GameMatchManager {
 	// Connect and Disconnect Players to Matches
 	public static void connectPlayer(GameMode gamemode, String fighter, Connection cnct) {
 		System.out.println("Got a new player: " + cnct.getID() + " | Playing:" + fighter + " | In Game Mode:" + gamemode.name()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		if(Champion.contains(Character.toUpperCase(fighter.charAt(0)) + fighter.substring(1))) {
+		if(FighterFactory.contains(Character.toUpperCase(fighter.charAt(0)) + fighter.substring(1))) {
 			if(gamemode.equals(GameMode.MATCH)) {
 				matchPlayer(openMatches, fighter, cnct);
 			} else if(gamemode.equals(GameMode.FREESTYLE)) {

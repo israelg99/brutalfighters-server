@@ -40,21 +40,21 @@ public class ProjectileData {
 		return pos;
 	}
 	public void setPos(Vec2 pos) {
-		this.pos = pos;
+		this.pos = new Vec2(pos);
 	}
 	
 	public Vec2 getVel() {
 		return vel;
 	}
 	public void setVel(Vec2 vel) {
-		this.vel = vel;
+		this.vel = new Vec2(vel);
 	}
 	
 	public Vec2 getSize() {
 		return size;
 	}
 	public void setSize(Vec2 size) {
-		this.size = size;
+		this.size = new Vec2(size);
 	}
 	
 	public String getName() {

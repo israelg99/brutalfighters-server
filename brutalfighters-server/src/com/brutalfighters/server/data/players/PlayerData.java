@@ -1,8 +1,6 @@
 package com.brutalfighters.server.data.players;
 
-import com.brutalfighters.server.base.GameServer;
-import com.brutalfighters.server.data.buffs.Buff;
-import com.brutalfighters.server.data.maps.Base;
+import com.brutalfighters.server.data.buffs.BuffData;
 import com.brutalfighters.server.util.Vec2;
 
 public class PlayerData {
@@ -28,7 +26,7 @@ public class PlayerData {
 	private int DCD;
 	
 	// Buffs
-	private Buff[] buffs;
+	private BuffData[] buffs;
 	
 	// Skills
 	private int[] skillCD;
@@ -70,12 +68,12 @@ public class PlayerData {
 	private boolean isExtrapolating;
 
 	
-	public PlayerData(Base base, String name, float maxhp, float maxmana, Vec2 size, int DCD) {
+	public PlayerData(Vec2 pos, String flip, String name, float maxhp, float maxmana, Vec2 size, int DCD) {
 		
 		// Basic
 		setName(Character.toUpperCase(name.charAt(0)) + name.substring(1));
-		setPos(base.getPos());
-		setFlip(base.getFlip());
+		setPos(pos);
+		setFlip(flip);
 		setVel(new Vec2(0,0));
 		setSize(size);
 		
@@ -87,7 +85,7 @@ public class PlayerData {
 		setDCD(DCD);
 		
 		// Buffs
-		setBuffs(new Buff[0]);
+		setBuffs(new BuffData[0]);
 		
 		// States
 		setRunning(false);
@@ -123,11 +121,11 @@ public class PlayerData {
 		isCollidingBot(false);
 	}
 	
-	public void reset(Base base, int DCD) {
+	public void reset(Vec2 pos, String flip, int DCD) {
 	
 		// Basic
-		setPos(base.getPos());
-		setFlip(base.getFlip());
+		setPos(pos);
+		setFlip(flip);
 		setVel(new Vec2(0,0));
 		
 		// Health and Mana
@@ -138,7 +136,7 @@ public class PlayerData {
 		setDCD(DCD);
 		
 		// Buffs
-		setBuffs(new Buff[0]);
+		setBuffs(new BuffData[0]);
 		
 		// States
 		setRunning(false);
@@ -186,14 +184,14 @@ public class PlayerData {
 		return pos;
 	}
 	public void setPos(Vec2 pos) {
-		this.pos = pos;
+		this.pos = new Vec2(pos);
 	}
 
 	public Vec2 getSize() {
 		return size;
 	}
 	public void setSize(Vec2 size) {
-		this.size = size;
+		this.size = new Vec2(size);
 	}
 
 	public Vec2 getHP() {
@@ -206,7 +204,7 @@ public class PlayerData {
 		return !hasNoHP();
 	}
 	public void setHP(Vec2 hp) {
-		this.hp = hp;
+		this.hp = new Vec2(hp);
 	}
 	public void maxHP() {
 		if(!isDead()) {
@@ -227,7 +225,7 @@ public class PlayerData {
 		return !hasNoMana();
 	}
 	public void setMana(Vec2 mana) {
-		this.mana = mana;
+		this.mana = new Vec2(mana);
 	}
 	public void maxMana() {
 		if(!isDead()) {
@@ -242,7 +240,7 @@ public class PlayerData {
 		return vel;
 	}
 	public void setVel(Vec2 vel) {
-		this.vel = vel;
+		this.vel = new Vec2(vel);
 	}
 
 	public int getTeam() {
@@ -258,18 +256,21 @@ public class PlayerData {
 	public boolean isDCD() {
 		return DCD > 0;
 	}
-	public void subDCD() {
-		setDCD(getDCD()-GameServer.getDelay());
+	public void subDCD(int sub) {
+		setDCD(getDCD()-sub);
 	}
 	public void setDCD(int dCD) {
 		DCD = dCD;
 	}
 
-	public Buff[] getBuffs() {
+	public BuffData[] getBuffs() {
 		return buffs;
 	}
-	public void setBuffs(Buff[] buffs) {
+	public void setBuffs(BuffData[] buffs) {
 		this.buffs = buffs;
+	}
+	public void resetBuffs(int length) {
+		this.buffs = new BuffData[length];
 	}
 
 	public int[] getSkillCD() {
@@ -290,6 +291,12 @@ public class PlayerData {
 	}
 	public void flipLeft() {
 		flip = "left"; //$NON-NLS-1$
+	}
+	public boolean facingRight() {
+		return getFlip().equals("right"); //$NON-NLS-1$
+	}
+	public boolean facingLeft() {
+		return getFlip().equals("left"); //$NON-NLS-1$
 	}
 	
 
@@ -462,5 +469,52 @@ public class PlayerData {
 	}
 	public void enableExtrapolating() {
 		this.isExtrapolating = true;
+	}
+	
+	public boolean isWalking() {
+		return isRight() || isLeft();
+	}
+	
+	public boolean movingX() {
+		return getVel().getX() != 0;
+	}
+	public boolean movingY() {
+		return getVel().getY() != 0;
+	}
+	
+	public void applyVelX() {
+		getPos().addX(getVel().getX());
+	}
+	public void applyVelY() {
+		getPos().addY(getVel().getY());
+	}
+	
+	public boolean moveLeft() {
+		return getVel().getX() < 0 && !collidesLeft;
+	}
+	public boolean moveRight() {
+		return getVel().getX() > 0 && !collidesRight;
+	}
+	
+	public boolean isBum() {
+		return hasControl && !isSkilling && onGround() && getVel().getX() == 0 && getVel().getY() == 0;
+	}
+	
+	// Boundary Methods
+	public float getLeft() {
+		return -getSize().getX()/2;
+	}
+	public float getRight() {
+		return getSize().getX()/2;
+	}
+	public float getTop() {
+		return getSize().getY()/2;
+	}
+	public float getBot() {
+		return -getSize().getY()/2;
+	}
+	
+	public boolean isFacingCollision() {
+		return (getFlip().equals("right") && isCollidingRight()) || (getFlip().equals("left") && isCollidingLeft()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

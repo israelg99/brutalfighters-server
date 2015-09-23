@@ -2,13 +2,11 @@ package com.brutalfighters.server.data.players.fighters;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
-import com.brutalfighters.server.data.buffs.Buffs;
 import com.brutalfighters.server.data.flags.Flag;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.maps.GameMap;
@@ -61,6 +59,8 @@ abstract public class Fighter {
 	// Max Size
 	protected Vec2 max_size;
 	
+	protected List<Buff> buffs;
+	
 	// The PlayerData
 	protected PlayerData player;
 	
@@ -76,13 +76,13 @@ abstract public class Fighter {
 		this.max_skillCD = max_skillCD.clone();
 		
 		// Constructing a new fighter/player data
-		setPlayer(new PlayerData(base, name, maxhp, maxmana, size, GameMatch.getDefaultRespawn()));
+		setPlayer(new PlayerData(base.getPos(), base.getFlip(), name, maxhp, maxmana, size, GameMatch.getDefaultRespawn()));
 
 		// Mana
 		setManaRegen(manaRegen);
 		
 		// Max Size
-		max_size = new Vec2(size);
+		setMaxSize(new Vec2(max_size));
 		
 		// Movement Speed
 		setWalkingSpeed(new Vec2(walking_speed));
@@ -102,6 +102,9 @@ abstract public class Fighter {
 		
 		// Skill Mana
 		setSkillMana(skillMana.clone());
+		
+		// Buffs
+		setBuffs(new ArrayList<Buff>());
 
 	}
 	
@@ -125,6 +128,20 @@ abstract public class Fighter {
 		return FALLING_MOMENTUM;
 	}
 	
+	public Vec2 getMaxSize() {
+		return max_size;
+	}
+	public void setMaxSize(Vec2 max_size) {
+		this.max_size = new Vec2(max_size);
+	}
+	
+	public List<Buff> getBuffs() {
+		return buffs;
+	}
+	public void setBuffs(List<Buff> buffs) {
+		this.buffs = buffs;
+	}
+
 	public int getManaRegen() {
 		return manaRegen;
 	}
@@ -164,14 +181,14 @@ abstract public class Fighter {
 		return AA_range;
 	}
 	public void setAA_Range(Vec2 aA_range) {
-		AA_range = aA_range;
+		AA_range = new Vec2(aA_range);
 	}
 
 	public Vec2 getAA_CD() {
 		return AA_CD;
 	}
 	public void setAA_CD(Vec2 aA_CD) {
-		AA_CD = aA_CD;
+		AA_CD = new Vec2(aA_CD);
 	}
 	public void resetAA_CD() {
 		getAA_CD().setX(getAA_CD().getY());
@@ -181,21 +198,21 @@ abstract public class Fighter {
 		return walking_speed;
 	}
 	public void setWalkingSpeed(Vec2 walking_speed) {
-		this.walking_speed = walking_speed;
+		this.walking_speed = new Vec2(walking_speed);
 	}
 
 	public Vec2 getRunningSpeed() {
 		return running_speed;
 	}
 	public void setRunningSpeed(Vec2 running_speed) {
-		this.running_speed = running_speed;
+		this.running_speed = new Vec2(running_speed);
 	}
 
 	public Vec2 getJumpHeight() {
 		return jump_height;
 	}
 	public void setJumpHeight(Vec2 jump_height) {
-		this.jump_height = jump_height;
+		this.jump_height = new Vec2(jump_height);
 	}
 
 	public int[] getMaxSkillCD() {
@@ -243,13 +260,20 @@ abstract public class Fighter {
 	}
 
 	protected final void updateBuffs() {
-		List<Buff> buffs = new ArrayList<Buff>(Arrays.asList(getPlayer().getBuffs()));
-		Iterator<Buff> iterator = buffs.iterator();
+		Iterator<Buff> iterator = getBuffs().iterator();
 		while(iterator.hasNext()) {
 			Buff buff = iterator.next();
 			buff.update(this, iterator);
 		}
-		getPlayer().setBuffs(buffs.toArray(new Buff[buffs.size()]));
+		
+		convertBuffs();
+	}
+	
+	protected final void convertBuffs() {
+		getPlayer().resetBuffs(getBuffs().size());
+		for(int i = 0; i < getBuffs().size(); i++) {
+			getPlayer().getBuffs()[i] = getBuffs().get(i).getBuff();
+		}
 	}
 
 	protected final void applyTeleport(GameMap map) {
@@ -379,9 +403,9 @@ abstract public class Fighter {
 
 	protected final void applyAlive() {
 		if(getPlayer().isDCD()) {
-			getPlayer().subDCD();
+			getPlayer().subDCD(GameServer.getDelay());
 		} else {
-			getPlayer().reset((GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam())), GameMatch.getDefaultRespawn());
+			getPlayer().reset(GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam()).getPos(), GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam()).getFlip(), GameMatch.getDefaultRespawn());
 		}
 		
 	}
@@ -602,15 +626,15 @@ abstract public class Fighter {
 	public final void applyBuffs(Buff[] buffs) {
 		if(getPlayer().isVulnerable()) {
 			for(int i = 0; i < buffs.length; i++) {
-				// Add Buffd
-				Buffs.addBuff(getPlayer(), buffs[i].getNewBuff());
+				// Add Buffs
+				getBuffs().add(buffs[i].getNewBuff());
 				
 				// We need to get a new buff(), because buffs are passed by ref by value,
 				// that's how are objects are treated in Java and we don't want
 				// players to refer to the same buff object.
 				
 				// Start/Initiate the Buffd
-				getPlayer().getBuffs()[getPlayer().getBuffs().length-1].start(this, getPlayer().getBuffs().length);
+				getBuffs().get(getBuffs().size()-1).start(this, getPlayer().getBuffs().length);
 			}
 		}
 	}

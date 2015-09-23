@@ -26,7 +26,7 @@ public class Buff_Slow extends Buff {
 	public void update(Fighter p, Iterator<Buff> iterator) {
 		if(isActive(p, iterator)) {
 			/*if(buff.time / GameServer.getDelay() % 3 == 0) {
-				Champion fighter = Champion.valueOf(p.name);
+				FighterFactory fighter = FighterFactory.valueOf(p.name);
 				p.walking_speed += p.walking_speed < fighter.WALKING_SPEED ? 1 : 0;
 				p.running_speed += p.running_speed < fighter.RUNNING_SPEED ? 1 : 0;
 			}*/

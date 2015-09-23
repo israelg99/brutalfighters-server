@@ -53,22 +53,4 @@ abstract public class Buff {
 	
 	abstract public Buff getNewBuff();
 	
-//	public final BuffData getBuff() {
-//		BuffData buff = new BuffData();
-//		buff.name = Buffd.valueOf(name).NAME;
-//		buff.time = time;
-//		
-//		return buff;
-//	}
-//	public final BuffData getBuff() {
-//		BuffData buff = new BuffData();
-//		buff.name = Buffd.valueOf(name).NAME;
-//		buff.time = Buffd.valueOf(name).TIME;
-//		
-//		return buff;
-//	}
-//	public final BuffData getBuff(BuffData ref) {
-//		return getBuff(ref.name, ref.time);
-//	}
-	
 }

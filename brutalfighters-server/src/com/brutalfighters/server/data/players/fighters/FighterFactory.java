@@ -1,16 +1,10 @@
-package com.brutalfighters.server.data.players;
+package com.brutalfighters.server.data.players.fighters;
 
 import com.brutalfighters.server.data.maps.Base;
-import com.brutalfighters.server.data.players.fighters.Blaze;
-import com.brutalfighters.server.data.players.fighters.Chip;
-import com.brutalfighters.server.data.players.fighters.Dusk;
-import com.brutalfighters.server.data.players.fighters.Fighter;
-import com.brutalfighters.server.data.players.fighters.Lust;
-import com.brutalfighters.server.data.players.fighters.Surge;
 import com.esotericsoftware.kryonet.Connection;
 
 
-public enum Champion {
+public enum FighterFactory {
 	Blaze {
 		@Override
 		public Fighter getNew(Connection connection, Base base, String m_id) {
@@ -53,7 +47,7 @@ public enum Champion {
 	public abstract Fighter getNew(Connection connection, Base base, String m_id);
 	
 	public static boolean contains(String fighter) {
-	    for (Champion c : Champion.values()) {
+	    for (FighterFactory c : FighterFactory.values()) {
 	        if (c.name().equals(fighter)) {
 	            return true;
 	        }

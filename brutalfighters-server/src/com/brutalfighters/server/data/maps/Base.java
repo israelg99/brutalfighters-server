@@ -25,7 +25,7 @@ public class Base {
 		return pos;
 	}
 	private void setPos(Vec2 pos) {
-		this.pos = pos;
+		this.pos = new Vec2(pos);
 	}
 
 	public String getFlip() {

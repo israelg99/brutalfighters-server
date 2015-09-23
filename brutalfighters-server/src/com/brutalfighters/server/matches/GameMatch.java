@@ -8,10 +8,10 @@ import com.brutalfighters.server.data.flags.Flag;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.maps.CTFMap;
 import com.brutalfighters.server.data.maps.MapManager;
-import com.brutalfighters.server.data.players.Champion;
 import com.brutalfighters.server.data.players.PlayerData;
 import com.brutalfighters.server.data.players.PlayerMap;
 import com.brutalfighters.server.data.players.fighters.Fighter;
+import com.brutalfighters.server.data.players.fighters.FighterFactory;
 import com.brutalfighters.server.data.projectiles.ProjectileData;
 import com.brutalfighters.server.data.projectiles.Projectiles;
 import com.brutalfighters.server.packets.Packet;
@@ -326,7 +326,7 @@ abstract public class GameMatch {
 		fighter = Character.toUpperCase(fighter.charAt(0)) + fighter.substring(1);
 		
 		// Checking if the fighter name the client passed does in fact exist
-		if(!Champion.contains(fighter)) {
+		if(!FighterFactory.contains(fighter)) {
 			return;
 		}
 		
@@ -335,7 +335,7 @@ abstract public class GameMatch {
 		Base base = getMap().getBase(team);
 		
 		// Getting the fighter
-		Fighter player = Champion.valueOf(fighter).getNew(connection, base, m_id);
+		Fighter player = FighterFactory.valueOf(fighter).getNew(connection, base, m_id);
 		player.getPlayer().setTeam(team);
 		
 		// Adding the fighter into the data arrays
