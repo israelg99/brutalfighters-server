@@ -8,8 +8,8 @@ public class Vec2 implements Serializable {
 	private float x, y;
 	
 	public Vec2(float xa, float ya) {
-		this.x = xa;
-		this.y = ya;
+		setX(xa);
+		setY(ya);
 	}
 	public Vec2() {
 		this(0, 0);

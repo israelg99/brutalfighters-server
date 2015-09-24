@@ -40,6 +40,7 @@ import com.brutalfighters.server.packets.Packet4ReleaseSkill4;
 import com.brutalfighters.server.packets.Packet4ReleaseTeleport;
 import com.brutalfighters.server.packets.Packet5EscapeMatch;
 import com.brutalfighters.server.util.Score;
+import com.brutalfighters.server.util.Vec2;
 
 public class GameServer {
 	private static MPServer server;
@@ -70,6 +71,8 @@ public class GameServer {
 
 	private static void registerPackets() {
 		server.getKryo().register(Packet.class);
+		server.getKryo().register(Vec2.class);
+		
 		server.getKryo().register(GameMatchPacket.class);
 		server.getKryo().register(ConnectGameMatch.class);
 		

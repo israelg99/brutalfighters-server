@@ -82,7 +82,7 @@ abstract public class Fighter {
 		setManaRegen(manaRegen);
 		
 		// Max Size
-		setMaxSize(new Vec2(max_size));
+		setMaxSize(max_size);
 		
 		// Movement Speed
 		setWalkingSpeed(new Vec2(walking_speed));
