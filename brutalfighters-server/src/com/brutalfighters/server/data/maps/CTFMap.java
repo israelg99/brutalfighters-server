@@ -14,14 +14,14 @@ public class CTFMap extends GameMap {
 	public CTFMap(TiledMap map) {
 		super(map);
 
-		this.bases = new Base[GameMatch.TEAM_LENGTH];
-		this.flags = new Flag[GameMatch.TEAM_LENGTH];
+		this.bases = new Base[GameMatch.getTeamLength()];
+		this.flags = new Flag[GameMatch.getTeamLength()];
 		
-		this.setBase(GameMatch.TEAM1, new Base(new Vec2(leftBoundary+100, 384), "right")); //$NON-NLS-1$
-		this.setBase(GameMatch.TEAM2, new Base(new Vec2(rightBoundary-100, 384), "left")); //$NON-NLS-1$
+		this.setBase(GameMatch.getTEAM1(), new Base(new Vec2(leftBoundary+100, 384), "right")); //$NON-NLS-1$
+		this.setBase(GameMatch.getTEAM2(), new Base(new Vec2(rightBoundary-100, 384), "left")); //$NON-NLS-1$
 
-		this.setFlag(GameMatch.TEAM1, new Vec2(leftBoundary+400, FlagData.getSize().getY() + 291), "right"); //$NON-NLS-1$
-		this.setFlag(GameMatch.TEAM2, new Vec2(rightBoundary-400, FlagData.getSize().getY() + 291), "left"); //$NON-NLS-1$
+		this.setFlag(GameMatch.getTEAM1(), new Vec2(leftBoundary+400, FlagData.getSize().getY() + 291), "right"); //$NON-NLS-1$
+		this.setFlag(GameMatch.getTEAM2(), new Vec2(rightBoundary-400, FlagData.getSize().getY() + 291), "left"); //$NON-NLS-1$
 	}
 	
 	// It's not the main constructor because the default base and flags values

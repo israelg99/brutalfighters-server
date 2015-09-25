@@ -73,8 +73,8 @@ public class AOE {
 	}
 	public static ArrayList<Fighter> getAOE_Players(Rectangle bounds) {
 		ArrayList<Fighter> both = new ArrayList<Fighter>();
-		both.addAll(getAOE_Players(GameMatch.TEAM1, bounds));
-		both.addAll(getAOE_Players(GameMatch.TEAM2, bounds));
+		both.addAll(getAOE_Players(GameMatch.getTEAM1(), bounds));
+		both.addAll(getAOE_Players(GameMatch.getTEAM1(), bounds));
 		return both;
 	}
 }

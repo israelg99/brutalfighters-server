@@ -16,11 +16,11 @@ public class MapManager {
 
 		CTFMap journeyVale = new CTFMap(TMXMapLoader.readMap("assets/maps/journey_vale/journey_vale.tmx")); //$NON-NLS-1$
 		
-		journeyVale.setBase(GameMatch.TEAM1, new Vec2(journeyVale.getLeftBoundary() + 100, 600), "right"); //$NON-NLS-1$
-		journeyVale.setBase(GameMatch.TEAM2, new Vec2(journeyVale.getRightBoundary() - 100, 600), "left"); //$NON-NLS-1$
+		journeyVale.setBase(GameMatch.getTEAM1(), new Vec2(journeyVale.getLeftBoundary() + 100, 600), "right"); //$NON-NLS-1$
+		journeyVale.setBase(GameMatch.getTEAM2(), new Vec2(journeyVale.getRightBoundary() - 100, 600), "left"); //$NON-NLS-1$
 		
-		journeyVale.setFlag(GameMatch.TEAM1, new Vec2(journeyVale.getLeftBoundary() + 400, FlagData.getSize().getY() + 291), "right"); //$NON-NLS-1$
-		journeyVale.setFlag(GameMatch.TEAM2, new Vec2(journeyVale.getRightBoundary() - 400, FlagData.getSize().getY() + 291), "left"); //$NON-NLS-1$
+		journeyVale.setFlag(GameMatch.getTEAM1(), new Vec2(journeyVale.getLeftBoundary() + 400, FlagData.getSize().getY() + 291), "right"); //$NON-NLS-1$
+		journeyVale.setFlag(GameMatch.getTEAM2(), new Vec2(journeyVale.getRightBoundary() - 400, FlagData.getSize().getY() + 291), "left"); //$NON-NLS-1$
 		
 		maps.put("journey_vale", journeyVale); //$NON-NLS-1$
 	}

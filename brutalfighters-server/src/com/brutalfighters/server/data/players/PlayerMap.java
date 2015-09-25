@@ -9,7 +9,7 @@ import com.brutalfighters.server.data.players.fighters.Fighter;
 import com.esotericsoftware.kryonet.Connection;
 
 public class PlayerMap {
-	public HashMap<Connection, Fighter> players;
+	private HashMap<Connection, Fighter> players;
 	
 	public PlayerMap() {
 		players = new HashMap<Connection, Fighter>();

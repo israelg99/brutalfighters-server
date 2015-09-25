@@ -5,7 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.brutalfighters.server.data.buffs.BuffData;
-import com.brutalfighters.server.data.flags.Flag;
+import com.brutalfighters.server.data.flags.FlagData;
 import com.brutalfighters.server.data.maps.MapManager;
 import com.brutalfighters.server.data.players.PlayerData;
 import com.brutalfighters.server.data.projectiles.ProjectileData;
@@ -70,24 +70,39 @@ public class GameServer {
 	}
 
 	private static void registerPackets() {
-		server.getKryo().register(Packet.class);
+		server.getKryo().register(boolean.class);
+		
+		server.getKryo().register(float.class);
+		
+		server.getKryo().register(int.class);
+		server.getKryo().register(int[].class);
+		
+		server.getKryo().register(String.class);
+		
 		server.getKryo().register(Vec2.class);
 		
+		server.getKryo().register(Packet.class);
+
 		server.getKryo().register(GameMatchPacket.class);
 		server.getKryo().register(ConnectGameMatch.class);
 		
 		server.getKryo().register(Packet0ConnectMatch.class);
-		server.getKryo().register(PlayerData.class);
-		server.getKryo().register(PlayerData[].class);
+		
 		server.getKryo().register(BuffData.class);
 		server.getKryo().register(BuffData[].class);
-		server.getKryo().register(int[].class);
+		
+		server.getKryo().register(PlayerData.class);
+		server.getKryo().register(PlayerData[].class);
+		
 		server.getKryo().register(ProjectileData.class);
 		server.getKryo().register(ProjectileData[].class);
-		server.getKryo().register(Flag.class);
-		server.getKryo().register(Flag[].class);
+		
+		server.getKryo().register(FlagData.class);
+		server.getKryo().register(FlagData[].class);
+		
 		server.getKryo().register(Score.class);
-		server.getKryo().register(Packet1Connected.class);		
+		
+		server.getKryo().register(Packet1Connected.class);
 		server.getKryo().register(Packet2Players.class);
 		server.getKryo().register(Packet2MatchOver.class);
 		server.getKryo().register(Packet2MatchFinished.class);

@@ -32,8 +32,16 @@ public class FreestyleGameMatch extends GameMatch {
 		setupFreestyle();
 	}
 	public void setupFreestyle() {
-		this.WARMUP = new Counter(DEFAULT_WARMUP);
-		this.playerLimit = DEFAULT_PLAYER_LIMIT;
+		this.warmup = new Counter(getDefaultWarmup());
+		this.playerLimit = getDefaultPlayerLimit();
+	}
+	
+	
+	public static int getDefaultPlayerLimit() {
+		return DEFAULT_PLAYER_LIMIT;
+	}
+	public static int getDefaultWarmup() {
+		return DEFAULT_WARMUP;
 	}
 	
 	/* Updates */

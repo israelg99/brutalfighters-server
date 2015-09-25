@@ -5,7 +5,7 @@ import com.brutalfighters.server.data.buffs.Buff;
 import com.brutalfighters.server.data.buffs.Buff_RedBats;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.projectiles.types.BigBats;
-import com.brutalfighters.server.data.projectiles.types.Laser;
+import com.brutalfighters.server.data.projectiles.types.PurpleLaser;
 import com.brutalfighters.server.data.projectiles.types.PurpleBat;
 import com.brutalfighters.server.data.projectiles.types.SmallBats;
 import com.brutalfighters.server.matches.GameMatchManager;
@@ -81,7 +81,7 @@ public class Dusk extends Fighter {
 		if(getPlayer().getSkillCD()[2] > 0) {
 			if(getPlayer().getSkillCD()[2] == max_skillCD[2] - GameServer.getDelay() * 10) {
 				float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()*2);
-				GameMatchManager.getCurrentProjectiles().add(new Laser(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()+8), 30, 110, new Buff[0])); 
+				GameMatchManager.getCurrentProjectiles().add(new PurpleLaser(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()+8), 30, 110, new Buff[0])); 
 			}
 			getPlayer().getSkillCD()[2] -= GameServer.getDelay();
 		} else {

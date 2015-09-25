@@ -18,7 +18,10 @@ public class FlagData {
 		setTaken(isTaken);
 	}
 	public FlagData(Vec2 pos, String flip) {
-		this(pos, new Vec2(0,0), false, flip);
+		this(pos, new Vec2(), false, flip);
+	}
+	public FlagData() {
+		this(new Vec2(), "right"); //$NON-NLS-1$
 	}
 	
 	
@@ -69,6 +72,5 @@ public class FlagData {
 	public void flipLeft() {
 		this.flip = "left"; //$NON-NLS-1$
 	}
-	
 	
 }

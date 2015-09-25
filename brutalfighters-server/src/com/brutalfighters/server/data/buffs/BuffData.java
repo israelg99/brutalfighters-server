@@ -8,6 +8,9 @@ public class BuffData {
 		setName(name);
 		setTime(time);
 	}
+	public BuffData() {
+		this("dummy", 0); //$NON-NLS-1$
+	}
 
 	public String getName() {
 		return name;
@@ -22,6 +25,4 @@ public class BuffData {
 	public void setTime(int time) {
 		this.time = time;
 	}
-	
-	
 }

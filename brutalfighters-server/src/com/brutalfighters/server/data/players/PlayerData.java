@@ -71,7 +71,8 @@ public class PlayerData {
 	public PlayerData(Vec2 pos, String flip, String name, float maxhp, float maxmana, Vec2 size, int DCD) {
 		
 		// Basic
-		setName(Character.toUpperCase(name.charAt(0)) + name.substring(1));
+		//setName(Character.toUpperCase(name.charAt(0)) + name.substring(1));
+		setName(name);
 		setPos(pos);
 		setFlip(flip);
 		setVel(new Vec2(0,0));
@@ -170,6 +171,9 @@ public class PlayerData {
 		isCollidingRight(false);
 		isCollidingTop(false);
 		isCollidingBot(false);
+	}
+	public PlayerData() {
+		this(new Vec2(), "right", "dummy", 10, 10, new Vec2(), 10); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	

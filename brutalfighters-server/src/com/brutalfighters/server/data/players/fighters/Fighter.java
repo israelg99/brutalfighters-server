@@ -64,7 +64,7 @@ abstract public class Fighter {
 	// The PlayerData
 	protected PlayerData player;
 	
-	protected Fighter(Connection connection, Base base, String m_id, String name, int maxhp, int maxmana, Vec2 size, int walking_speed,
+	protected Fighter(Connection connection, Base base, String m_id, String name, int maxhp, int maxmana, Vec2 max_size, int walking_speed,
 				int running_speed, int jump_height, int AA_CD,
 				Vec2 AA_range, int AA_DMG, int manaRegen,
 				int[] skillMana, int[] max_skillCD) {
@@ -72,17 +72,17 @@ abstract public class Fighter {
 		// Setting connection
 		setConnection(connection);
 		
-		// Skill Temp CD
-		this.max_skillCD = max_skillCD.clone();
+		// Max Size
+		setMaxSize(max_size);	
 		
 		// Constructing a new fighter/player data
-		setPlayer(new PlayerData(base.getPos(), base.getFlip(), name, maxhp, maxmana, size, GameMatch.getDefaultRespawn()));
+		setPlayer(new PlayerData(base.getPos(), base.getFlip(), name, maxhp, maxmana, getMaxSize(), GameMatch.getDefaultRespawn()));
+		
+		// Skill Temp CD
+		this.max_skillCD = max_skillCD.clone();
 
 		// Mana
 		setManaRegen(manaRegen);
-		
-		// Max Size
-		setMaxSize(max_size);
 		
 		// Movement Speed
 		setWalkingSpeed(new Vec2(walking_speed));
@@ -317,8 +317,8 @@ abstract public class Fighter {
 	protected final void applyFlag() {
 		GameMatch match = GameMatchManager.getCurrentMatch();
 		String mapName = match.getMapName();
-		Flag teamFlag = match.getFlag(getPlayer().getTeam());
-		Flag enemyFlag = match.getEnemyFlag(getPlayer().getTeam());
+		Flag teamFlag = match.getFlags().getFlag(getPlayer().getTeam());
+		Flag enemyFlag = match.getFlags().getFlag(GameMatch.getEnemyTeamID(getPlayer().getTeam()));
 		
 		if(!teamFlag.getFlag().isTaken() && !teamFlag.inBase(mapName, getPlayer().getTeam()) && collidesFlag(teamFlag)) {
 			teamFlag = Flag.getFlag(mapName, getPlayer().getTeam());
@@ -416,7 +416,7 @@ abstract public class Fighter {
 				getPlayer().died();
 				if(getPlayer().isHoldingFlag()) {
 					getPlayer().droppedFlag();
-					GameMatchManager.getCurrentMatch().getEnemyFlag(getPlayer().getTeam()).getFlag().gotDropped();
+					GameMatchManager.getCurrentMatch().getFlags().getFlag(GameMatch.getEnemyTeamID(getPlayer().getTeam())).getFlag().gotDropped();
 				}
 				GameMatchManager.getCurrentMatch().addKill(GameMatch.getEnemyTeamID(getPlayer().getTeam()));
 				getPlayer().setDCD(GameMatchManager.getCurrentMatch().getRespawnTime());

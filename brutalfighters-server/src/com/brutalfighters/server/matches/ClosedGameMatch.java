@@ -28,7 +28,7 @@ public class ClosedGameMatch extends GameMatch {
 	@Override
 	public void updateMatch(Iterator<Map.Entry<String,GameMatch>> iter) {
 		if(!gameFinished(iter)) { // We can split this method into 2 methods, for more security.
-			if(WARMUP.isFinished()) {
+			if(warmup.isFinished()) {
 				updateGame();
 				updateClients();
 			} else {
@@ -36,8 +36,8 @@ public class ClosedGameMatch extends GameMatch {
 				// the client has the warmup already loaded.
 				updateWarmup();
 			}
-		} else if(FINISH.getCounter() > 0) {
-			FINISH.subCounter(GameServer.getDelay());
+		} else if(finish.getCounter() > 0) {
+			finish.subCounter(GameServer.getDelay());
 		} else {
 			removeMatch(iter);
 		}

@@ -1,10 +1,8 @@
 package com.brutalfighters.server.util;
 
-import java.io.Serializable;
 
-public class Vec2 implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Vec2 {
+	
 	private float x, y;
 	
 	public Vec2(float xa, float ya) {

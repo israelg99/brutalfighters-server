@@ -20,7 +20,7 @@ public class Flag {
 		flag = new FlagData(pos, vel, isTaken, flip);
 	}
 	public Flag(Vec2 pos, String flip) {
-		this(pos, new Vec2(0,0), false, flip);
+		this(pos, new Vec2(), false, flip);
 	}
 	public Flag(FlagData flag) {
 		this(flag.getPos(), flag.getVel(), flag.isTaken(), flag.getFlip());
@@ -40,12 +40,6 @@ public class Flag {
 	public boolean inBase(String mapName, int team) {
 		Flag mflag = MapManager.getMap(mapName).getFlag(team);
 		return collides(mflag);
-	}
-	
-	public static void updateFlags(Flag[] flags) {
-		for(int i = 0; i < flags.length; i++) {
-			flags[i].updateFlag(i);
-		}
 	}
 	
 	public void updateFlag(int index) {
