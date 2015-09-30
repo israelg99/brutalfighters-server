@@ -8,7 +8,7 @@ public class BuffData {
 		setName(name);
 		setTime(time);
 	}
-	public BuffData() {
+	private BuffData() {
 		this("dummy", 0); //$NON-NLS-1$
 	}
 

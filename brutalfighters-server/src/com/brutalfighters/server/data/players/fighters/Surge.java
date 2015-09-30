@@ -15,8 +15,8 @@ import com.esotericsoftware.kryonet.Connection;
 
 public class Surge extends Fighter {
 
-	public Surge(Connection connection, Base base, String m_id) {
-		super(connection, base, m_id, "surge", 1000, 1000, new Vec2(90,100), 8, //$NON-NLS-1$
+	public Surge(Connection connection, int team, Base base, String m_id) {
+		super(connection, team, base, m_id, "Surge", 1000, 1000, new Vec2(90,100), 8, //$NON-NLS-1$
 				16, 44, 500, new Vec2(110,10), 68, 9,
 				new int[] {250,400,200,650}, new int[] {500,900,1200,1300});
 	}
@@ -38,11 +38,11 @@ public class Surge extends Fighter {
 		updateSkill1();
 		
 		if(getPlayer().getSkillCD()[0] > 0) {
-				if(getPlayer().getSkillCD()[0] == max_skillCD[0] - GameServer.getDelay() * 5) {
+				if(getPlayer().getSkillCD()[0] == getMaxSkillCD()[0] - GameServer.getDelay() * 5) {
 					float xstart = getPlayer().getPos().getX() + convertSpeed(5);
 					GameMatchManager.getCurrentProjectiles().add(new BlueDashBall(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()), 30, 100, new Buff[0])); 
 				}
-				if(getPlayer().getSkillCD()[0] > max_skillCD[0] - GameServer.getDelay() * 5) {
+				if(getPlayer().getSkillCD()[0] > getMaxSkillCD()[0] - GameServer.getDelay() * 5) {
 					AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), 150, 30), -DMG, new Buff[] {(new Buff_Slow(2))});
 					getPlayer().getVel().setX(convertSpeed(20));
 				}
@@ -54,7 +54,7 @@ public class Surge extends Fighter {
 	
 	@Override
 	public void endSkill1() {
-		getPlayer().getSkillCD()[0] = max_skillCD[0];
+		getPlayer().getSkillCD()[0] = getMaxSkillCD()[0];
 		getPlayer().setSkill1(false);
 		getPlayer().disableSkilling();
 	}
@@ -72,7 +72,7 @@ public class Surge extends Fighter {
 		updateSkill2();
 		
 		if(getPlayer().getSkillCD()[1] > 0) {
-				if(getPlayer().getSkillCD()[1] == max_skillCD[1] - GameServer.getDelay() * 17) {
+				if(getPlayer().getSkillCD()[1] == getMaxSkillCD()[1] - GameServer.getDelay() * 17) {
 					float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()*2);
 					GameMatchManager.getCurrentProjectiles().add(new BlueEnergyWave(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()), 17, 200, new Buff[] {(new Buff_IceStun())}));
 				}
@@ -84,7 +84,7 @@ public class Surge extends Fighter {
 	
 	@Override
 	public void endSkill2() {
-		getPlayer().getSkillCD()[1] = max_skillCD[1];
+		getPlayer().getSkillCD()[1] = getMaxSkillCD()[1];
 		getPlayer().setSkill2(false);
 		getPlayer().disableSkilling();
 	}
@@ -102,7 +102,7 @@ public class Surge extends Fighter {
 		updateSkill3();
 		
 		if(getPlayer().getSkillCD()[2] > 0) {
-			if(getPlayer().getSkillCD()[2] == max_skillCD[2] - GameServer.getDelay() * 12) {
+			if(getPlayer().getSkillCD()[2] == getMaxSkillCD()[2] - GameServer.getDelay() * 12) {
 				getPlayer().setVulnerable(false);
 			}
 			getPlayer().getSkillCD()[2] -= GameServer.getDelay();
@@ -113,7 +113,7 @@ public class Surge extends Fighter {
 	
 	@Override
 	public void endSkill3() {
-		getPlayer().getSkillCD()[2] = max_skillCD[2];
+		getPlayer().getSkillCD()[2] = getMaxSkillCD()[2];
 		getPlayer().setSkill3(false);
 		getPlayer().disableSkilling();
 		getPlayer().setVulnerable(true);
@@ -128,7 +128,7 @@ public class Surge extends Fighter {
 		updateSkill4();
 		
 		if(getPlayer().getSkillCD()[3] > 0) {
-			if(getPlayer().getSkillCD()[3] == max_skillCD[3] - GameServer.getDelay() * 14) {
+			if(getPlayer().getSkillCD()[3] == getMaxSkillCD()[3] - GameServer.getDelay() * 14) {
 //						dealAOE_enemy(getPlayer().getTeam(),"both", getPlayer().getPos().getX()-getPlayer().width-DISTANCE+S4_X_RANGE/2, getPlayer().getPos().getY()-getPlayer().height/2+S4_Y_RANGE, S4_X_RANGE, S4_Y_RANGE, -S4_dmg);
 				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds("both", getPlayer().getPos().getX()-getPlayer().getSize().getX()-DISTANCE, getPlayer().getPos().getY(), S4_X_RANGE, S4_Y_RANGE), -S4_dmg); //$NON-NLS-1$
 //						dealAOE_enemy(getPlayer().getTeam(),"both", getPlayer().getPos().getX()+getPlayer().width+DISTANCE-S4_X_RANGE/2, getPlayer().getPos().getY()-getPlayer().height/2+S4_Y_RANGE, S4_X_RANGE, S4_Y_RANGE, -S4_dmg);
@@ -143,7 +143,7 @@ public class Surge extends Fighter {
 	
 	@Override
 	public void endSkill4() {
-		getPlayer().getSkillCD()[3] = max_skillCD[3];
+		getPlayer().getSkillCD()[3] = getMaxSkillCD()[3];
 		getPlayer().setSkill4(false);
 		getPlayer().disableSkilling();
 	}

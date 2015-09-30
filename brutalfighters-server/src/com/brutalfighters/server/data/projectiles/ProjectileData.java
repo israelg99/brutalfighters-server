@@ -22,7 +22,7 @@ public class ProjectileData {
 		setFlip(flip);
 		setInit();
 	}
-	public ProjectileData() {
+	private ProjectileData() {
 		this("dummy", "right", new Vec2(), new Vec2()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	

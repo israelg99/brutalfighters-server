@@ -68,11 +68,12 @@ public class PlayerData {
 	private boolean isExtrapolating;
 
 	
-	public PlayerData(Vec2 pos, String flip, String name, float maxhp, float maxmana, Vec2 size, int DCD) {
+	public PlayerData(int team, Vec2 pos, String flip, String name, float maxhp, float maxmana, Vec2 size, int[] maxSkillCD, int DCD) {
 		
 		// Basic
 		//setName(Character.toUpperCase(name.charAt(0)) + name.substring(1));
 		setName(name);
+		setTeam(team);
 		setPos(pos);
 		setFlip(flip);
 		setVel(new Vec2(0,0));
@@ -84,6 +85,7 @@ public class PlayerData {
 		
 		// CD
 		setDCD(DCD);
+		setSkillCD(maxSkillCD.clone());
 		
 		// Buffs
 		setBuffs(new BuffData[0]);
@@ -121,59 +123,8 @@ public class PlayerData {
 		isCollidingTop(false);
 		isCollidingBot(false);
 	}
-	
-	public void reset(Vec2 pos, String flip, int DCD) {
-	
-		// Basic
-		setPos(pos);
-		setFlip(flip);
-		setVel(new Vec2(0,0));
-		
-		// Health and Mana
-		maxHP();
-		maxMana();
-		
-		// CD
-		setDCD(DCD);
-		
-		// Buffs
-		setBuffs(new BuffData[0]);
-		
-		// States
-		setRunning(false);
-		isOnGround(false);
-		setAAttack(false);
-		setDead(false);
-		setVulnerable(true);
-		setFlagged(false);
-		setControl(true);
-		enableExtrapolating();
-		
-		// Skill States
-		setSkill1(false);
-		setSkill2(false);
-		setSkill3(false);
-		setSkill4(false);
-		setSkilling(false);
-		
-		// Teleport
-		disableTeleporting();
-		
-		// Movement States
-		setLeft(false);
-		setRight(false);
-		setJump(false);
-		setRunning(false);
-		setDead(false);
-		
-		// Collisions
-		isCollidingLeft(false);
-		isCollidingRight(false);
-		isCollidingTop(false);
-		isCollidingBot(false);
-	}
-	public PlayerData() {
-		this(new Vec2(), "right", "dummy", 10, 10, new Vec2(), 10); //$NON-NLS-1$ //$NON-NLS-2$
+	private PlayerData() {
+		this(-1, new Vec2(), "right", "dummy", 10, 10, new Vec2(), new int[0], 10); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	
@@ -223,10 +174,10 @@ public class PlayerData {
 		return mana;
 	}
 	public boolean hasNoMana() {
-		return mana.getX() <= 0;
+		return !hasMana();
 	}
 	public boolean hasMana() {
-		return !hasNoMana();
+		return mana.getX() > 0;
 	}
 	public void setMana(Vec2 mana) {
 		this.mana = new Vec2(mana);

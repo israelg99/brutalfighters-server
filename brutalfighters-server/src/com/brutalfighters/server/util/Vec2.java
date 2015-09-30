@@ -54,6 +54,13 @@ public class Vec2 {
 		setY(0);
 	}
 	
+	public void XtoY() {
+		setY(getX());
+	}
+	public void YtoX() {
+		setX(getY());
+	}
+	
 	public void add(float num) {
 		addX(num);
 		addY(num);

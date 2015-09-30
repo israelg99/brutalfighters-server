@@ -9,7 +9,7 @@ public class Buff_Heal extends Buff {
 	private final int heal;
 	
 	public Buff_Heal(int MAX_TIME, int heal) {
-		super("Healing", MAX_TIME); //$NON-NLS-1$
+		super("Heal", MAX_TIME); //$NON-NLS-1$
 		this.heal = heal;
 	}
 	public Buff_Heal(int heal) {

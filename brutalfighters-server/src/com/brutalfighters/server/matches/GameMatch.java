@@ -238,8 +238,7 @@ abstract public class GameMatch {
 		Base base = getMap().getBase(team);
 		
 		// Getting the fighter
-		Fighter player = FighterFactory.valueOf(fighter).getNew(connection, base, m_id);
-		player.getPlayer().setTeam(team);
+		Fighter player = FighterFactory.valueOf(fighter).getNew(connection, team, base, m_id);
 		
 		// Adding the fighter into the data arrays
 		teams[team].put(connection, player);

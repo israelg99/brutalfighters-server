@@ -20,7 +20,7 @@ public class FlagData {
 	public FlagData(Vec2 pos, String flip) {
 		this(pos, new Vec2(), false, flip);
 	}
-	public FlagData() {
+	private FlagData() {
 		this(new Vec2(), "right"); //$NON-NLS-1$
 	}
 	

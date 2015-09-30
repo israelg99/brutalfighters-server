@@ -64,7 +64,7 @@ abstract public class Fighter {
 	// The PlayerData
 	protected PlayerData player;
 	
-	protected Fighter(Connection connection, Base base, String m_id, String name, int maxhp, int maxmana, Vec2 max_size, int walking_speed,
+	protected Fighter(Connection connection, int team, Base base, String m_id, String name, int maxhp, int maxmana, Vec2 max_size, int walking_speed,
 				int running_speed, int jump_height, int AA_CD,
 				Vec2 AA_range, int AA_DMG, int manaRegen,
 				int[] skillMana, int[] max_skillCD) {
@@ -75,11 +75,11 @@ abstract public class Fighter {
 		// Max Size
 		setMaxSize(max_size);	
 		
-		// Constructing a new fighter/player data
-		setPlayer(new PlayerData(base.getPos(), base.getFlip(), name, maxhp, maxmana, getMaxSize(), GameMatch.getDefaultRespawn()));
-		
 		// Skill Temp CD
 		this.max_skillCD = max_skillCD.clone();
+		
+		// Constructing a new fighter/player data
+		setPlayer(new PlayerData(team, base.getPos(), base.getFlip(), name, maxhp, maxmana, getMaxSize(), getMaxSkillCD(), GameMatch.getDefaultRespawn()));
 
 		// Mana
 		setManaRegen(manaRegen);
@@ -104,7 +104,7 @@ abstract public class Fighter {
 		setSkillMana(skillMana.clone());
 		
 		// Buffs
-		setBuffs(new ArrayList<Buff>());
+		resetBuffs();
 
 	}
 	
@@ -140,6 +140,9 @@ abstract public class Fighter {
 	}
 	public void setBuffs(List<Buff> buffs) {
 		this.buffs = buffs;
+	}
+	public void resetBuffs() {
+		this.buffs = new ArrayList<Buff>();
 	}
 
 	public int getManaRegen() {
@@ -333,7 +336,7 @@ abstract public class Fighter {
 			GameMatchManager.getCurrentMatch().addFlag(getPlayer().getTeam());
 			enemyFlag.getFlag().gotDropped();
 			getPlayer().droppedFlag();
-			enemyFlag = Flag.getFlag(mapName, getPlayer().getTeam());
+			enemyFlag = Flag.getFlag(mapName, GameMatch.getEnemyTeamID(getPlayer().getTeam()));
 		}
 	}
 	public final boolean collidesFlag(Flag flag) {
@@ -405,9 +408,16 @@ abstract public class Fighter {
 		if(getPlayer().isDCD()) {
 			getPlayer().subDCD(GameServer.getDelay());
 		} else {
-			getPlayer().reset(GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam()).getPos(), GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam()).getFlip(), GameMatch.getDefaultRespawn());
+			reset();
 		}
-		
+	}
+	
+	protected final void reset() {
+		resetPlayer();
+		resetBuffs();
+	}
+	protected final void resetPlayer() {
+		setPlayer(new PlayerData(getPlayer().getTeam(), GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam()).getPos(), GameMatchManager.getCurrentMap().getBase(getPlayer().getTeam()).getFlip(), getPlayer().getName(), getPlayer().getHP().getY(), getPlayer().getMana().getY(), getMaxSize(), getMaxSkillCD(), GameMatch.getDefaultRespawn()));
 	}
 
 	protected final boolean applyDeath() {
@@ -489,7 +499,7 @@ abstract public class Fighter {
 			}
 		} else {
 			getPlayer().isCollidingBot(false);
-			getPlayer().isOnGround(true);
+			getPlayer().isOnGround(false);
 		}
 		
 		if(collidesLeft(map)) {
@@ -654,13 +664,15 @@ abstract public class Fighter {
 	}
 	protected final void dealHP(float dmg) {
 		if(!getPlayer().isDead() && getPlayer().hasHP() && getPlayer().isVulnerable()) {
-			getPlayer().getHP().setX(getPlayer().getHP().getX() + dmg < 0 ? 0 : getPlayer().getHP().getX() + dmg); // the dmg itself is negative.
+			float newhp = getPlayer().getHP().getX() + dmg;
+			getPlayer().getHP().setX(newhp < 0 ? 0 : newhp); // the dmg itself is negative.
 		}
 	}
 	protected final void healHP(float heal) {
 		if(!getPlayer().isDead()) {
-			getPlayer().getHP().setX(getPlayer().getHP().getX() + heal > getPlayer().getHP().getY() ?
-					getPlayer().getHP().getY() : getPlayer().getHP().getX() + heal);
+			float newhp = getPlayer().getHP().getX() + heal;
+			getPlayer().getHP().setX(newhp > getPlayer().getHP().getY() ?
+					getPlayer().getHP().getY() : newhp);
 		}
 	}
 	
@@ -679,7 +691,8 @@ abstract public class Fighter {
 	}
 	protected final void dealMana(float dmg) {
 		if(!getPlayer().isDead() && getPlayer().hasMana() && getPlayer().isVulnerable()) {
-			getPlayer().getMana().setX((getPlayer().getMana().getX() + dmg < 0 ? 0 : getPlayer().getMana().getX())); // the dmg itself is negative.
+			float newMana = getPlayer().getMana().getX() + dmg;
+			getPlayer().getMana().setX((newMana < 0 ? 0 : newMana)); // the dmg itself is negative.
 		}
 	}
 	protected final void healMana(float heal) {
@@ -767,18 +780,18 @@ abstract public class Fighter {
 	
 	public final void resetSpeeds() {
 		resetWalkingSpeed();
-		resetWalkingSpeed();
+		resetRunningSpeed();
 		resetJumpHeight();
 	}
 	
 	public final void resetWalkingSpeed() {
-		getWalkingSpeed().setX(getWalkingSpeed().getY());
+		getWalkingSpeed().YtoX();
 	}
 	public final void resetRunningSpeed() {
-		getRunningSpeed().setX(getRunningSpeed().getY());
+		getRunningSpeed().YtoX();
 	}
 	public final void resetJumpHeight() {
-		getJumpHeight().setX(getJumpHeight().getY());
+		getJumpHeight().YtoX();
 	}
 	
 	public final void AAttack() {
@@ -793,4 +806,3 @@ abstract public class Fighter {
 		return false;
 	}
 }
-

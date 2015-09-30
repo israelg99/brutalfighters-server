@@ -13,8 +13,8 @@ import com.esotericsoftware.kryonet.Connection;
 
 public class Lust extends Fighter {
 
-	public Lust(Connection connection, Base base, String m_id) {
-		super(connection, base, m_id, "lust", 800, 1000, new Vec2(90,100), //$NON-NLS-1$
+	public Lust(Connection connection, int team, Base base, String m_id) {
+		super(connection, team, base, m_id, "Lust", 800, 1000, new Vec2(90,100), //$NON-NLS-1$
 				14, 26, 48, 500, new Vec2(150,10), 75, 9,
 				new int[] {250,200,400,300}, new int[] {600,380,0,450});
 	}
@@ -46,7 +46,7 @@ public class Lust extends Fighter {
 		updateSkill1();
 		
 		if(getPlayer().getSkillCD()[0] > 0) {
-			if(getPlayer().getSkillCD()[0] == max_skillCD[0] - GameServer.getDelay() * 3) {
+			if(getPlayer().getSkillCD()[0] == getMaxSkillCD()[0] - GameServer.getDelay() * 3) {
 				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), S1_WIDTH, S1_HEIGHT), -S1_DMG);
 			}
 			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
@@ -57,7 +57,7 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void endSkill1() {
-		getPlayer().getSkillCD()[0] = max_skillCD[0];
+		getPlayer().getSkillCD()[0] = getMaxSkillCD()[0];
 		getPlayer().setSkill1(false);
 		getPlayer().disableSkilling();
 	}
@@ -79,7 +79,7 @@ public class Lust extends Fighter {
 		updateSkill2();
 		
 		if(getPlayer().getSkillCD()[1] > 0) {
-			if(getPlayer().getSkillCD()[1] == max_skillCD[1] - GameServer.getDelay() * 3) {
+			if(getPlayer().getSkillCD()[1] == getMaxSkillCD()[1] - GameServer.getDelay() * 3) {
 				float xstart = getPlayer().getPos().getX() + convertSpeed(10);
 				GameMatchManager.getCurrentProjectiles().add(new RedEnergyBall(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()-3), 20, 100, new Buff[] {new Buff_Slow(2)}));
 			}
@@ -91,7 +91,7 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void endSkill2() {
-		getPlayer().getSkillCD()[1] = max_skillCD[1];
+		getPlayer().getSkillCD()[1] = getMaxSkillCD()[1];
 		getPlayer().setSkill2(false);
 		getPlayer().disableSkilling();
 	}
@@ -114,7 +114,7 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void endSkill3() {
-		getPlayer().getSkillCD()[2] = max_skillCD[2];
+		getPlayer().getSkillCD()[2] = getMaxSkillCD()[2];
 		getPlayer().setSkill3(false);
 		getPlayer().disableSkilling();
 	}
@@ -151,7 +151,7 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void endSkill4() {
-		getPlayer().getSkillCD()[3] = max_skillCD[3];
+		getPlayer().getSkillCD()[3] = getMaxSkillCD()[3];
 		getPlayer().setSkill4(false);
 		getPlayer().disableSkilling();
 		getPlayer().setVulnerable(true);

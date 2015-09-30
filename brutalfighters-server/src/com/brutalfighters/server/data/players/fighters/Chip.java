@@ -13,8 +13,8 @@ import com.esotericsoftware.kryonet.Connection;
 
 public class Chip extends Fighter {
 	
-	public Chip(Connection connection, Base base, String m_id) {
-		super(connection, base, m_id, "chip", 600, 1000, new Vec2(90,100), 12, //$NON-NLS-1$
+	public Chip(Connection connection, int team, Base base, String m_id) {
+		super(connection, team, base, m_id, "Chip", 600, 1000, new Vec2(90,100), 12, //$NON-NLS-1$
 				21, 44, 500, new Vec2(110,10), 68, 9,
 				new int[] {300,200,300,600}, new int[] {900,820,560,440});
 	}
@@ -35,7 +35,7 @@ public class Chip extends Fighter {
 		updateSkill1();
 		
 		if(getPlayer().getSkillCD()[0] > 0) {
-				if(getPlayer().getSkillCD()[0] == max_skillCD[0] - GameServer.getDelay() * 14) {
+				if(getPlayer().getSkillCD()[0] == getMaxSkillCD()[0] - GameServer.getDelay() * 14) {
 					float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()/2);
 					GameMatchManager.getCurrentProjectiles().add(new RPG(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()-3), 50, 170, new Buff[0]));
 				}
@@ -47,7 +47,7 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void endSkill1() {
-		getPlayer().getSkillCD()[0] = max_skillCD[0];
+		getPlayer().getSkillCD()[0] = getMaxSkillCD()[0];
 		getPlayer().setSkill1(false);
 		getPlayer().disableSkilling();
 	}
@@ -79,7 +79,7 @@ public class Chip extends Fighter {
 		updateSkill2();
 		
 		if(getPlayer().getSkillCD()[1] > 0) {
-			if(getPlayer().getSkillCD()[1] >= max_skillCD[1] - GameServer.getDelay() * 10) {
+			if(getPlayer().getSkillCD()[1] >= getMaxSkillCD()[1] - GameServer.getDelay() * 10) {
 				getPlayer().getVel().addY(S2_Velocity);
 			}
 			getPlayer().getSkillCD()[1] -= GameServer.getDelay();
@@ -90,7 +90,7 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void endSkill2() {
-		getPlayer().getSkillCD()[1] = max_skillCD[1];
+		getPlayer().getSkillCD()[1] = getMaxSkillCD()[1];
 		getPlayer().setSkill2(false);
 		getPlayer().disableSkilling();
 	}
@@ -103,7 +103,7 @@ public class Chip extends Fighter {
 		updateSkill3();
 		
 		if(getPlayer().getSkillCD()[2] > 0) {
-			if(getPlayer().getSkillCD()[2] == max_skillCD[2] - GameServer.getDelay() * 9) {
+			if(getPlayer().getSkillCD()[2] == getMaxSkillCD()[2] - GameServer.getDelay() * 9) {
 				float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()-10);
 				GameMatchManager.getCurrentProjectiles().add(new TNT(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()-8), 35, 200, new Buff[] {new Buff_Slow(2)}));
 			}
@@ -116,7 +116,7 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void endSkill3() {
-		getPlayer().getSkillCD()[2] = max_skillCD[2];
+		getPlayer().getSkillCD()[2] = getMaxSkillCD()[2];
 		getPlayer().setSkill3(false);
 		getPlayer().disableSkilling();
 	}
@@ -129,7 +129,7 @@ public class Chip extends Fighter {
 		updateSkill4();
 		
 		if(getPlayer().getSkillCD()[3] > 0) {
-			if(getPlayer().getSkillCD()[3] == max_skillCD[3] - GameServer.getDelay() * 5) {
+			if(getPlayer().getSkillCD()[3] == getMaxSkillCD()[3] - GameServer.getDelay() * 5) {
 				float xstart = getPlayer().getPos().getX() + convertSpeed(getPlayer().getSize().getX()/2+5);
 				GameMatchManager.getCurrentProjectiles().add(new Mine(this, getPlayer().getFlip(), new Vec2(xstart, getPlayer().getPos().getY()-getPlayer().getSize().getY()/2-10), 100, new Buff[] {new Buff_Slow(2)}));
 			}
@@ -142,7 +142,7 @@ public class Chip extends Fighter {
 	
 	@Override
 	public void endSkill4() {
-		getPlayer().getSkillCD()[3] = max_skillCD[3];
+		getPlayer().getSkillCD()[3] = getMaxSkillCD()[3];
 		getPlayer().setSkill4(false);
 		getPlayer().disableSkilling();
 	}
