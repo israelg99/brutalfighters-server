@@ -20,7 +20,7 @@ public class Blaze extends Fighter {
 	
 	public Blaze(Connection connection, int team, Base base, String m_id) {
 		super(connection, team, base, m_id, "Blaze", 1000, 1000, new Vec2(90,100), 10, //$NON-NLS-1$
-				18, 44, 500, new Vec2(110,10), 75, 9,
+				18, 44, 500, new Vec2(200,50), 75, 9,
 				new int[] {400,200,950,500}, new int[] {980,580,820,820});
 	}
 	
@@ -100,6 +100,21 @@ public class Blaze extends Fighter {
 	}
 	
 	
+	// SKILL 4
+	@Override
+	public void startSkill4() {
+		if(applySkillMana(3)) {
+			getRunningSpeed().setX(getWalkingSpeed().getX());
+		} else {
+			endSkill4();
+		}
+	}
+	
+	@Override
+	public void updateSkill4() {
+		applyVelocity();
+	}
+	
 	@Override
 	public void skill4() {
 		updateSkill4();
@@ -121,5 +136,6 @@ public class Blaze extends Fighter {
 		getPlayer().getSkillCD()[3] = getMaxSkillCD()[3];
 		getPlayer().setSkill4(false);
 		getPlayer().disableSkilling();
+		resetSpeeds();
 	}
 }

@@ -12,6 +12,7 @@ import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.maps.GameMap;
 import com.brutalfighters.server.data.maps.MapManager;
 import com.brutalfighters.server.data.players.PlayerData;
+import com.brutalfighters.server.data.players.PlayerMap;
 import com.brutalfighters.server.matches.GameMatch;
 import com.brutalfighters.server.matches.GameMatchManager;
 import com.brutalfighters.server.tiled.Tile;
@@ -64,6 +65,9 @@ abstract public class Fighter {
 	// The PlayerData
 	protected PlayerData player;
 	
+	// Bounds
+	protected Rectangle bounds;
+	
 	protected Fighter(Connection connection, int team, Base base, String m_id, String name, int maxhp, int maxmana, Vec2 max_size, int walking_speed,
 				int running_speed, int jump_height, int AA_CD,
 				Vec2 AA_range, int AA_DMG, int manaRegen,
@@ -102,6 +106,9 @@ abstract public class Fighter {
 		
 		// Skill Mana
 		setSkillMana(skillMana.clone());
+		
+		// Bounds
+		setBounds(new Rectangle());
 		
 		// Buffs
 		resetBuffs();
@@ -150,6 +157,10 @@ abstract public class Fighter {
 	}
 	public void setManaRegen(int manaRegen) {
 		this.manaRegen = manaRegen;
+	}
+	
+	private void setBounds(Rectangle rect) {
+		this.bounds = rect;
 	}
 
 	public int[] getSkillMana() {
@@ -229,7 +240,7 @@ abstract public class Fighter {
 		this.player = pdata;
 	}
 	
-	public final void update(GameMap map) {
+	public final void update() {
 		
 		resetExtrapolation();
 		
@@ -240,17 +251,17 @@ abstract public class Fighter {
 			} else if(getPlayer().hasControl()) {
 				applyVelocity();
 				applyAA();
-				applyTeleport(map);
+				applyTeleport();
 			}
 					
-			applyCollision(map);
+			applyCollision();
 			applyFlag();
 			applyRegen();
 			updateBuffs();
 			applyPosition();
 
 		} else {
-			applyBodyGravity(map);
+			applyBodyGravity();
 			applyAlive();
 		}
 	}
@@ -279,33 +290,33 @@ abstract public class Fighter {
 		}
 	}
 
-	protected final void applyTeleport(GameMap map) {
+	protected final void applyTeleport() {
 		if(getPlayer().isTeleporting()) {
 			disableExtrapolation();
-			applyTeleporting(map);
+			applyTeleporting();
 		}
 	}
-	public final boolean applyTeleporting(GameMap map) {
+	public final boolean applyTeleporting() {
 		
 		// Resetting the teleporting state, so the player won't have this on true all the time.
 		// Note that we do not use the release packet for teleporting, because we can easily just reset it here.
 		getPlayer().disableTeleporting();
 		
 		// Get the tileset, not the tile itself just tileset to get properties.
-		Tileset teleport = map.getTileset(0, getPlayer().getPos().getX(), getPlayer().getPos().getY()-getPlayer().getSize().getY()/3);
+		Tileset teleport = GameMatchManager.getCurrentMap().getTileset(0, getPlayer().getPos().getX(), getPlayer().getPos().getY()-getPlayer().getSize().getY()/3);
 		
 		if(teleport.hasProperty(Tileset.TELEPORT())) { // Are we standing on a teleport?
 			// Decoding the coordinates, parsing them, and multiplying them to real game pixel coordinates.
 			String[] target = ((String) teleport.getProperty(Tileset.TELEPORT())).split(","); //$NON-NLS-1$
 			
 			// Setting the coordinates to the player.
-			getPlayer().getPos().setX(map.toPixelX(Integer.parseInt(target[0])));
+			getPlayer().getPos().setX(GameMatchManager.getCurrentMap().toPixelX(Integer.parseInt(target[0])));
 			
 			// The coordinates in Tiled and the map file are flipped,
 			// the (0,0) block tile, is in the top left,
 			// but we are going to flip the Y so it will be in the bottom left.
 			// We add half of the tile height, so the player won't be stuck in the middle of the block tile.
-			getPlayer().getPos().setY((map.getHeightPixels() - map.toPixelY(Integer.parseInt(target[1]))) + map.getTileHeight()/2);
+			getPlayer().getPos().setY((GameMatchManager.getCurrentMap().getHeightPixels() - GameMatchManager.getCurrentMap().toPixelY(Integer.parseInt(target[1]))) + GameMatchManager.getCurrentMap().getTileHeight()/2);
 			
 			// Returns true, as the player teleported successfully.
 			return true;
@@ -324,7 +335,7 @@ abstract public class Fighter {
 		Flag enemyFlag = match.getFlags().getFlag(GameMatch.getEnemyTeamID(getPlayer().getTeam()));
 		
 		if(!teamFlag.getFlag().isTaken() && !teamFlag.inBase(mapName, getPlayer().getTeam()) && collidesFlag(teamFlag)) {
-			teamFlag = Flag.getFlag(mapName, getPlayer().getTeam());
+			match.getFlags().setFlag(getPlayer().getTeam(), Flag.getFlag(mapName, getPlayer().getTeam()));
 		}
 		
 		if(collidesFlag(enemyFlag) && !enemyFlag.getFlag().isTaken() && !getPlayer().isHoldingFlag()) {
@@ -336,7 +347,7 @@ abstract public class Fighter {
 			GameMatchManager.getCurrentMatch().addFlag(getPlayer().getTeam());
 			enemyFlag.getFlag().gotDropped();
 			getPlayer().droppedFlag();
-			enemyFlag = Flag.getFlag(mapName, GameMatch.getEnemyTeamID(getPlayer().getTeam()));
+			match.getFlags().setFlag(GameMatch.getEnemyTeamID(getPlayer().getTeam()), Flag.getFlag(mapName, GameMatch.getEnemyTeamID(getPlayer().getTeam())));
 		}
 	}
 	public final boolean collidesFlag(Flag flag) {
@@ -363,7 +374,7 @@ abstract public class Fighter {
 		}
 	}
 	public final void gravityVelocityReset() {
-		if(getPlayer().getVel().getY() < 0) {
+		if(getPlayer().onGround() && getPlayer().isCollidingBot() && getPlayer().getVel().getY() < 0) {
 			getPlayer().getVel().resetY();
 		}
 	}
@@ -381,10 +392,10 @@ abstract public class Fighter {
 	}
 	
 	
-	protected final void applyBodyGravity(GameMap map) {
-		if(getPlayer().onGround() || collidesBot(map)) {
+	protected final void applyBodyGravity() {
+		if(collidesBot()) {
 			getPlayer().getVel().resetY();
-			alignGround(map.getTileHeight());
+			alignGround(GameMatchManager.getCurrentMap().getTileHeight());
 		} else {
 			applyGravitation();
 			getPlayer().getPos().addY(getPlayer().getVel().getY());
@@ -414,6 +425,7 @@ abstract public class Fighter {
 	
 	protected final void reset() {
 		resetPlayer();
+		resetSpeeds();
 		resetBuffs();
 	}
 	protected final void resetPlayer() {
@@ -440,32 +452,32 @@ abstract public class Fighter {
 
 	public final void applyVelocity() {
 		
-		// Getting the champion and the speed
 		float speed = getSpeed();
 		
-		if(getPlayer().onGround()) {
+		if((getPlayer().onGround() || getPlayer().isCollidingBot()) && getPlayer().getVel().getY() <= 0) {
 			
-			// Velocity Reset
-			gravityVelocityReset();
+			getPlayer().getVel().resetY();
 			
-			/* JUMP */
-			if(getPlayer().isJump() && hasFullControl()) {
-				if(!getPlayer().isCollidingTop()) {
-					getPlayer().getVel().setY(getJumpHeight().getX());
-				} else {
-					getPlayer().getVel().resetY();
+			if(getPlayer().onGround()) {
+				/* JUMP */
+				if(getPlayer().isJump() && hasFullControl()) {
+					if(!getPlayer().isCollidingTop()) {
+						getPlayer().getVel().setY(getJumpHeight().getX());
+					} else {
+						getPlayer().getVel().resetY();
+					}
 				}
+				
+				if(getPlayer().isCollidingTop() && getPlayer().isCollidingBot()) {
+					getPlayer().getVel().resetY();
+					getPlayer().setJump(false);
+				}
+				/* END JUMP */
 			}
-			
-			if(getPlayer().isCollidingTop() && getPlayer().isCollidingBot()) {
-				getPlayer().getVel().resetY();
-				getPlayer().setJump(false);
-			}
-			/* END JUMP */
 			
 		} else {
 			
-			// Jump Cut
+			//Jump Cut
 			if(hasFullControl() && !getPlayer().isJump() && getPlayer().getVel().getY() > getJumpHeight().getX()/2) {
 				getPlayer().getVel().setY(getJumpHeight().getX()/2);
 			}
@@ -475,9 +487,10 @@ abstract public class Fighter {
 			
 			// Gravity
 			applyGravitation();
+			
 		}
 		
-		// Walking (Velocity X reset inside ofc)
+		//Walking (Velocity X reset inside ofc)
 		applyWalking((int)speed);
 	}
 	
@@ -485,35 +498,14 @@ abstract public class Fighter {
 		return getPlayer().hasControl() && !getPlayer().isSkilling();
 	}
 
-	protected final void applyCollision(GameMap map) {
-		if(collidesTop(map)) {
-			getPlayer().isCollidingTop(true);
-		} else {
-			getPlayer().isCollidingTop(false);
-		}
-		if(collidesBot(map)) {
-			getPlayer().isCollidingBot(true);
-			if(getPlayer().getVel().getY() <= 0) {
-				getPlayer().isOnGround(true);
-				alignGround(map.getTileHeight());
-			}
-		} else {
-			getPlayer().isCollidingBot(false);
-			getPlayer().isOnGround(false);
-		}
+	protected final void applyCollision() {
+		resetCollisions();
 		
-		if(collidesLeft(map)) {
-			getPlayer().isCollidingLeft(true);
-		} else {
-			getPlayer().isCollidingLeft(false);
-		}
-		
-		if(collidesRight(map)) {
-			getPlayer().isCollidingRight(true);
-		} else {
-			getPlayer().isCollidingRight(false);
-		}
+		collidesMap();
+
+		collidesPlayer();
 	}
+	
 	// Boundary Methods - MUST NOT BE CHANGED!!!!!
 	public final float getLeft() {
 		return -getPlayer().getSize().getX()/2;
@@ -528,29 +520,90 @@ abstract public class Fighter {
 		return -getPlayer().getSize().getY()/2;
 	}
 	
-	public final Rectangle getVelocityBounds(boolean velx, boolean vely) {
+	protected final Rectangle getVelocityBounds(boolean velx, boolean vely) {
 		Rectangle bounds = getBounds();
 		bounds.x += velx ? getPlayer().getVel().getX() : 0;
-		bounds.y += vely ? getPlayer().getVel().getY() : 0;
+		
+		/* If vely is true, then we either add the velocityY to the Y coordinate of the bounds, otherwise if velocityY equals zero we add -1
+		 * The reason we add -1, is simply becasue gravity has a constant force downwards, so that -1 represents that gravity, otherwise we would experience gravity and collision problems.
+		 * For example, if we would remove that -1, then when the player will collide bot, and we will RESET the velocityY it will not collide bot, then it will collide bot again until we reset, and it will continue every tick.
+		 * That's why we add -1 if vely is true and velocityY is empty. */
+		bounds.y += vely ? getPlayer().getVel().getY() != 0 ? getPlayer().getVel().getY() : -1 : 0;
+		
 		return bounds;
 	}
 	
 	/* We can use Enum of sides(bot,left,right,top) and pass it as a parameter, thus combine those 4 functions into one. */
-	public final boolean collidesBot(GameMap map) {
+	public final boolean collidesBot() {
 		// BOT!
-		return map.intersectsSurroundXBoth("top", getPlayer().getPos().getX(), getPlayer().getPos().getY()+getBot()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getBot() < map.getBotBoundary(); //$NON-NLS-1$
+		return GameMatchManager.getCurrentMap().intersectsSurroundXBoth("top", getPlayer().getPos().getX(), getPlayer().getPos().getY()+getBot()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getBot() < GameMatchManager.getCurrentMap().getBotBoundary(); //$NON-NLS-1$
 	}
-	public final boolean collidesLeft(GameMap map) {
+	public final boolean collidesLeft() {
 		// LEFT!
-		return map.intersectsSurroundY(getPlayer().getPos().getX()+getLeft()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) ||getPlayer().getPos().getX() + getPlayer().getVel().getX() + getLeft() < map.getLeftBoundary();
+		return GameMatchManager.getCurrentMap().intersectsSurroundY(getPlayer().getPos().getX()+getLeft()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) ||getPlayer().getPos().getX() + getPlayer().getVel().getX() + getLeft() < GameMatchManager.getCurrentMap().getLeftBoundary();
 	}
-	public final boolean collidesRight(GameMap map) {
+	public final boolean collidesRight() {
 		// RIGHT!
-		return map.intersectsSurroundY(getPlayer().getPos().getX()+getRight()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) || getPlayer().getPos().getX() + getPlayer().getVel().getX() + getRight() > map.getRightBoundary();
+		return GameMatchManager.getCurrentMap().intersectsSurroundY(getPlayer().getPos().getX()+getRight()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) || getPlayer().getPos().getX() + getPlayer().getVel().getX() + getRight() > GameMatchManager.getCurrentMap().getRightBoundary();
 	}
-	public final boolean collidesTop(GameMap map) {
+	public final boolean collidesTop() {
 		// TOP!
-		return map.intersectsSurroundX(getPlayer().getPos().getX(), getPlayer().getPos().getY()+getTop()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getTop() > map.getTopBoundary();
+		return GameMatchManager.getCurrentMap().intersectsSurroundX(getPlayer().getPos().getX(), getPlayer().getPos().getY()+getTop()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getTop() > GameMatchManager.getCurrentMap().getTopBoundary();
+	}
+	
+	protected final void collidesMap() {
+		if(collidesTop()) {
+			getPlayer().isCollidingTop(true);
+		}
+		if(collidesBot()) {
+			getPlayer().isCollidingBot(true);
+			if(getPlayer().getVel().getY() <= 0) {
+				getPlayer().isOnGround(true);
+				alignGround(GameMatchManager.getCurrentMap().getTileHeight());
+			}
+		}
+		
+		if(collidesLeft()) {
+			getPlayer().isCollidingLeft(true);
+		}
+		
+		if(collidesRight()) {
+			getPlayer().isCollidingRight(true);
+		}
+	}
+	
+	protected final void collidesPlayer() {
+		PlayerMap players = GameMatchManager.getCurrentMatch().getEnemyTeam(getPlayer().getTeam());
+		for(int i = 0; i < players.getPlayers().length; i++) {
+			if(!players.getPlayers()[i].getPlayer().isDead()) {
+				if(getVelocityBounds(false, true).intersects(players.getPlayers()[i].getBounds())) {
+					if(getPlayer().getVel().getY() > 0) {
+						getPlayer().isCollidingTop(true);
+					} else {
+						getPlayer().isCollidingBot(true);
+						getPlayer().isOnGround(true);
+						alignFighter(players.getPlayers()[i]);
+					}
+				}
+				if(getVelocityBounds(true, false).intersects(players.getPlayers()[i].getBounds())) {
+					if(getPlayer().getVel().getX() > 0) {
+						getPlayer().isCollidingRight(true);
+					} else {
+						getPlayer().isCollidingLeft(true);
+					}
+				}
+			}
+		}
+	}
+	
+	protected final void resetCollisions() {
+		getPlayer().isCollidingTop(false);
+		
+		getPlayer().isCollidingBot(false);
+		getPlayer().isOnGround(false);
+		
+		getPlayer().isCollidingLeft(false);
+		getPlayer().isCollidingRight(false);
 	}
 	
 	public final Tile getCellOn(GameMap map) {
@@ -562,8 +615,8 @@ abstract public class Fighter {
 	}
 	
 	public final Rectangle getBounds() {
-		Rectangle bounds = CollisionDetection.getBounds("both", getPlayer().getPos().getX(), getPlayer().getPos().getY(), getPlayer().getSize().getX(), getPlayer().getSize().getY()); //$NON-NLS-1$
-		return bounds;
+		CollisionDetection.setBounds(this.bounds, "both", getPlayer().getPos().getX(), getPlayer().getPos().getY(), getPlayer().getSize().getX(), getPlayer().getSize().getY()); //$NON-NLS-1$
+		return this.bounds;
 	}
 	public final boolean intersects(Rectangle rect) {
 		return getBounds().intersects(rect);
@@ -573,7 +626,7 @@ abstract public class Fighter {
 	}
 	
 	protected final void applyAA() {
-		if(getPlayer().isAAttack() && isBum()) {
+		if(getPlayer().isAAttack() && getPlayer().canAAttack()) {
 			if(getAA_CD().getX() <= 0) {
 				
 				AAttack();
@@ -593,19 +646,18 @@ abstract public class Fighter {
 		// Apply velocity
 		
 		// Check collision Y
-		if(movingY() && ((getPlayer().getVel().getY() > 0 && !getPlayer().isCollidingTop()) 
+		if(getPlayer().movingY() && ((getPlayer().getVel().getY() > 0 && !getPlayer().isCollidingTop()) 
 				|| (getPlayer().getVel().getY() < 0 && !getPlayer().isCollidingBot()))) {
 			getPlayer().getPos().addY(getPlayer().getVel().getY());
 		}
 		
 		// Check collision X
-		if(movingX()) {
+		if(getPlayer().movingX()) {
 			if((getPlayer().getVel().getX() > 0 && !getPlayer().isCollidingRight())
 					|| getPlayer().getVel().getX() < 0 && !getPlayer().isCollidingLeft()) {
 				getPlayer().getPos().addX(getPlayer().getVel().getX());
 			}
 		}
-		
 	}
 	
 	protected final void applyRegen() {
@@ -618,18 +670,8 @@ abstract public class Fighter {
 	public final void alignGround(int ground) {
 		getPlayer().getPos().setY((int)(getPlayer().getPos().getY() / ground) * ground + getPlayer().getSize().getY()/2 - 1);
 	}
-
-
-	// State Method
-	public final boolean movingX() {
-		return getPlayer().getVel().getX() != 0;
-	}
-	public final boolean movingY() {
-		return getPlayer().getVel().getY() != 0;
-	}
-	
-	public final boolean isBum() {
-		return getPlayer().hasControl() && !getPlayer().isSkilling() && getPlayer().onGround() && !movingX() && !movingY();
+	protected final void alignFighter(Fighter fighter) {
+		getPlayer().getPos().setY(fighter.getPlayer().getPos().getY() + fighter.getPlayer().getSize().getY());
 	}
 	
 	// Buffs

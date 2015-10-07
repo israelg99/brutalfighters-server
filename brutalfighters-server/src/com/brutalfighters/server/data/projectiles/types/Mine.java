@@ -35,9 +35,6 @@ public class Mine extends Projectile {
 			} else if(!GameMatchManager.getCurrentMap().intersectsSurroundX(getProjectile().getPos().getX(), getProjectile().getPos().getY()-getProjectile().getSize().getY()/2, getBounds())) {
 				getProjectile().getVel().setY(vely);
 				getProjectile().getPos().addY(getProjectile().getVel().getY());
-			} else {
-				getProjectile().setExplode();
-				return;
 			}
 		} else {
 			iterator.remove();

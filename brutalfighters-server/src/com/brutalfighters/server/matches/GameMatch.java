@@ -391,7 +391,7 @@ abstract public class GameMatch {
 	}	
 	protected void updatePlayers() {
 		for(Map.Entry<Connection, Fighter> entry : getPlayers().entrySet()) {
-			entry.getValue().update(getMap());
+			entry.getValue().update();
 		}
 	}
 	

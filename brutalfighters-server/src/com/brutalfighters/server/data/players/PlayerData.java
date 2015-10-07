@@ -451,8 +451,8 @@ public class PlayerData {
 		return getVel().getX() > 0 && !collidesRight;
 	}
 	
-	public boolean isBum() {
-		return hasControl && !isSkilling && onGround() && getVel().getX() == 0 && getVel().getY() == 0;
+	public boolean canAAttack() {
+		return hasControl && !isSkilling && onGround() && getVel().getY() == 0 && !isRunning();
 	}
 	
 	// Boundary Methods

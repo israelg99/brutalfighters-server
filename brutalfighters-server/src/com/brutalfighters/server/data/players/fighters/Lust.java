@@ -15,7 +15,7 @@ public class Lust extends Fighter {
 
 	public Lust(Connection connection, int team, Base base, String m_id) {
 		super(connection, team, base, m_id, "Lust", 800, 1000, new Vec2(90,100), //$NON-NLS-1$
-				14, 26, 48, 500, new Vec2(150,10), 75, 9,
+				14, 26, 48, 500, new Vec2(200,50), 75, 9,
 				new int[] {250,200,400,300}, new int[] {600,380,0,450});
 	}
 	
@@ -66,11 +66,18 @@ public class Lust extends Fighter {
 	
 	
 	// Skill 2
+	@Override
+	public void startSkill2() {
+		if(applySkillMana(1)) {
+			getRunningSpeed().setX(getWalkingSpeed().getX());
+		} else {
+			endSkill1();
+		}
+	}
 	
 	@Override
 	public void updateSkill2() {
-		defaultUpdate();
-		applyFlip();
+		applyVelocity();
 	}
 	
 	@Override
@@ -94,6 +101,7 @@ public class Lust extends Fighter {
 		getPlayer().getSkillCD()[1] = getMaxSkillCD()[1];
 		getPlayer().setSkill2(false);
 		getPlayer().disableSkilling();
+		resetSpeeds();
 	}
 	
 	

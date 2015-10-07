@@ -15,7 +15,7 @@ public class Chip extends Fighter {
 	
 	public Chip(Connection connection, int team, Base base, String m_id) {
 		super(connection, team, base, m_id, "Chip", 600, 1000, new Vec2(90,100), 12, //$NON-NLS-1$
-				21, 44, 500, new Vec2(110,10), 68, 9,
+				21, 44, 500, new Vec2(200,50), 68, 9,
 				new int[] {300,200,300,600}, new int[] {900,820,560,440});
 	}
 	
