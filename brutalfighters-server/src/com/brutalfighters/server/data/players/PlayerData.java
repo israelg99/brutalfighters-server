@@ -452,7 +452,11 @@ public class PlayerData {
 	}
 	
 	public boolean canAAttack() {
-		return hasControl && !isSkilling && onGround() && getVel().getY() == 0 && !isRunning();
+		return hasControl && !isSkilling && onGround() && getVel().getY() == 0 && !(isRunning() && getVel().getX() != 0);
+	}
+	
+	public boolean isMidAir() {
+		return !((onGround() || isCollidingBot()) && getVel().getY() <= 0);
 	}
 	
 	// Boundary Methods

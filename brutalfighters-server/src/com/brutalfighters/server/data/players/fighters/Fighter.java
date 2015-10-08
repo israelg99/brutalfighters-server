@@ -366,12 +366,13 @@ abstract public class Fighter {
 			}
 		}
 	}
-	public final void applyGravity() {
-		if(getPlayer().onGround()) {
+	public final boolean applyGravity() {
+		if(!getPlayer().isMidAir()) {
 			gravityVelocityReset();
-		} else {
-			applyGravitation();
+			return false; // Unable to apply gravity, is on ground or collides ground.
 		}
+		applyGravitation();
+		return true; // Able to apply gravity, is mid air.
 	}
 	public final void gravityVelocityReset() {
 		if(getPlayer().onGround() && getPlayer().isCollidingBot() && getPlayer().getVel().getY() < 0) {
@@ -454,14 +455,14 @@ abstract public class Fighter {
 		
 		float speed = getSpeed();
 		
-		if((getPlayer().onGround() || getPlayer().isCollidingBot()) && getPlayer().getVel().getY() <= 0) {
+		if(!getPlayer().isMidAir()) {
 			
 			getPlayer().getVel().resetY();
 			
 			if(getPlayer().onGround()) {
 				/* JUMP */
 				if(getPlayer().isJump() && hasFullControl()) {
-					if(!getPlayer().isCollidingTop()) {
+					if(!getPlayer().isCollidingTop()) { // Should be here
 						getPlayer().getVel().setY(getJumpHeight().getX());
 					} else {
 						getPlayer().getVel().resetY();

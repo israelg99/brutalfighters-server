@@ -2,6 +2,7 @@ package com.brutalfighters.server.data.players.fighters;
 
 import com.brutalfighters.server.base.GameServer;
 import com.brutalfighters.server.data.buffs.Buff;
+import com.brutalfighters.server.data.buffs.Buff_AirJump;
 import com.brutalfighters.server.data.buffs.Buff_Slow;
 import com.brutalfighters.server.data.maps.Base;
 import com.brutalfighters.server.data.projectiles.types.RedEnergyBall;
@@ -24,12 +25,12 @@ public class Lust extends Fighter {
 	// Skill 1
 	
 	// Variables
-	public final float S1_DMG = 200, S1_HEIGHT = getPlayer().getSize().getY()*2, S1_WIDTH = 100;
+	public final float S1_DMG = 200, S1_HEIGHT = getPlayer().getSize().getY()*2, S1_WIDTH = 100, S1_JUMP_HEIGHT = 55;
 	
 	@Override
 	public void startSkill1() {
 		if(!getPlayer().isCollidingTop() && applySkillMana(0)) {
-			getPlayer().getVel().setY(getJumpHeight().getX());
+			getPlayer().getVel().setY(S1_JUMP_HEIGHT);
 		} else {
 			endSkill1();
 		}
@@ -45,9 +46,9 @@ public class Lust extends Fighter {
 		
 		updateSkill1();
 		
-		if(getPlayer().getSkillCD()[0] > 0) {
+		if(getPlayer().getSkillCD()[0] > 0 && getPlayer().isMidAir()) {
 			if(getPlayer().getSkillCD()[0] == getMaxSkillCD()[0] - GameServer.getDelay() * 3) {
-				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), S1_WIDTH, S1_HEIGHT), -S1_DMG);
+				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), S1_WIDTH, S1_HEIGHT), -S1_DMG, new Buff[] {new Buff_AirJump()});
 			}
 			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
 		} else {
