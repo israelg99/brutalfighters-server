@@ -254,7 +254,6 @@ abstract public class Fighter {
 				applyTeleport();
 			}
 					
-			applyCollision();
 			applyFlag();
 			applyRegen();
 			updateBuffs();
@@ -296,7 +295,7 @@ abstract public class Fighter {
 			applyTeleporting();
 		}
 	}
-	public final boolean applyTeleporting() {
+	protected final boolean applyTeleporting() {
 		
 		// Resetting the teleporting state, so the player won't have this on true all the time.
 		// Note that we do not use the release packet for teleporting, because we can easily just reset it here.
@@ -350,14 +349,14 @@ abstract public class Fighter {
 			match.getFlags().setFlag(GameMatch.getEnemyTeamID(getPlayer().getTeam()), Flag.getFlag(mapName, GameMatch.getEnemyTeamID(getPlayer().getTeam())));
 		}
 	}
-	public final boolean collidesFlag(Flag flag) {
+	protected final boolean collidesFlag(Flag flag) {
 		return intersects(flag.getBounds());
 	}
-	public final boolean collidesFlagBase(String mapName, int team) {
+	protected final boolean collidesFlagBase(String mapName, int team) {
 		return collidesFlag(MapManager.getMap(mapName).getFlag(team));
 	}
 
-	public final void applyFlip() {
+	protected final void applyFlip() {
 		if(!getPlayer().isRight() == getPlayer().isLeft()) {
 			if(getPlayer().isRight()) {
 				getPlayer().flipRight();
@@ -374,12 +373,12 @@ abstract public class Fighter {
 		applyGravitation();
 		return true; // Able to apply gravity, is mid air.
 	}
-	public final void gravityVelocityReset() {
+	protected final void gravityVelocityReset() {
 		if(getPlayer().onGround() && getPlayer().isCollidingBot() && getPlayer().getVel().getY() < 0) {
 			getPlayer().getVel().resetY();
 		}
 	}
-	public final void applyWalking(int speed) {
+	protected final void applyWalking(int speed) {
 		getPlayer().getVel().resetX(); // We must have it here, no worries, we should not apply walking when the X velocity is modified anyway.
 		if((getPlayer().isLeft() != getPlayer().isRight())) {
 			if(getPlayer().isRight()) {
@@ -451,7 +450,7 @@ abstract public class Fighter {
 		
 	}
 
-	public final void applyVelocity() {
+	protected final void applyVelocity() {
 		
 		float speed = getSpeed();
 		
@@ -495,10 +494,11 @@ abstract public class Fighter {
 		applyWalking((int)speed);
 	}
 	
-	public final boolean hasFullControl() {
+	protected final boolean hasFullControl() {
 		return getPlayer().hasControl() && !getPlayer().isSkilling();
 	}
 
+	/* Collision Detection */
 	protected final void applyCollision() {
 		resetCollisions();
 		
@@ -507,17 +507,140 @@ abstract public class Fighter {
 		collidesPlayer();
 	}
 	
+	/* We can use Enum of sides(bot,left,right,top) and pass it as a parameter, thus combine those 4 functions into one. */
+	protected final boolean collidesBot() {
+		// BOT!
+		return GameMatchManager.getCurrentMap().intersectsSurroundXBoth("top", getPlayer().getPos().getX(), getPlayer().getPos().getY()+getBot()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getBot() < GameMatchManager.getCurrentMap().getBotBoundary(); //$NON-NLS-1$
+	}
+	protected final boolean collidesLeft() {
+		// LEFT!
+		return GameMatchManager.getCurrentMap().intersectsSurroundY(getPlayer().getPos().getX()+getLeft()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) ||getPlayer().getPos().getX() + getPlayer().getVel().getX() + getLeft() < GameMatchManager.getCurrentMap().getLeftBoundary();
+	}
+	protected final boolean collidesRight() {
+		// RIGHT!
+		return GameMatchManager.getCurrentMap().intersectsSurroundY(getPlayer().getPos().getX()+getRight()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) || getPlayer().getPos().getX() + getPlayer().getVel().getX() + getRight() > GameMatchManager.getCurrentMap().getRightBoundary();
+	}
+	protected final boolean collidesTop() {
+		// TOP!
+		return GameMatchManager.getCurrentMap().intersectsSurroundX(getPlayer().getPos().getX(), getPlayer().getPos().getY()+getTop()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getTop() > GameMatchManager.getCurrentMap().getTopBoundary();
+	}
+	
+	protected final void collidesMap() {
+		collidesMapY();
+		collidesMapX();
+	}
+	
+	protected final void collidesPlayer() {
+		PlayerMap players = GameMatchManager.getCurrentMatch().getEnemyTeam(getPlayer().getTeam());
+		for(int i = 0; i < players.getPlayers().length; i++) {
+			if(!players.getPlayers()[i].getPlayer().isDead()) {
+				collidesPlayerY(players.getPlayers()[i]);
+				collidesPlayerX(players.getPlayers()[i]);
+			}
+		}
+	}
+	
+	protected final void resetCollisions() {
+		resetCollisionsY();
+		resetCollisionsX();
+	}
+	
+	protected final boolean isFacingCollision() {
+		return (getPlayer().getFlip().equals("right") && getPlayer().isCollidingRight()) || (getPlayer().getFlip().equals("left") && getPlayer().isCollidingLeft());  //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/* Collision Detection Y */
+	protected final void applyCollisionY() {
+		resetCollisionsY();
+		collidesMapY();
+		collidesPlayersY();
+	}
+	protected final void resetCollisionsY() {
+		getPlayer().isCollidingTop(false);
+		
+		getPlayer().isCollidingBot(false);
+		getPlayer().isOnGround(false);
+	}
+	protected final void collidesMapY() {
+		if(collidesTop()) {
+			getPlayer().isCollidingTop(true);
+		}
+		if(collidesBot()) {
+			getPlayer().isCollidingBot(true);
+			if(getPlayer().getVel().getY() <= 0) {
+				getPlayer().isOnGround(true);
+				alignGround(GameMatchManager.getCurrentMap().getTileHeight());
+			}
+		}
+	}
+	protected final void collidesPlayersY() {
+		PlayerMap players = GameMatchManager.getCurrentMatch().getEnemyTeam(getPlayer().getTeam());
+		for(int i = 0; i < players.getPlayers().length; i++) {
+			if(!players.getPlayers()[i].getPlayer().isDead()) {
+				collidesPlayerY(players.getPlayers()[i]);
+			}
+		}
+	}
+	protected final void collidesPlayerY(Fighter fighter) {
+		if(getVelocityBounds(false, true).intersects(fighter.getBounds())) {
+			if(getPlayer().getVel().getY() > 0) {
+				getPlayer().isCollidingTop(true);
+			} else {
+				getPlayer().isCollidingBot(true);
+				getPlayer().isOnGround(true);
+				alignFighter(fighter);
+			}
+		}
+	}
+	
+	/* Collision Detection X */
+	protected final void applyCollisionX() {
+		resetCollisionsX();
+		collidesMapX();
+		collidesPlayersX();
+	}
+	protected final void resetCollisionsX() {
+		getPlayer().isCollidingLeft(false);
+		getPlayer().isCollidingRight(false);
+	}
+	protected final void collidesMapX() {
+		if(collidesLeft()) {
+			getPlayer().isCollidingLeft(true);
+		}
+		
+		if(collidesRight()) {
+			getPlayer().isCollidingRight(true);
+		}
+	}
+	protected final void collidesPlayersX() {
+		PlayerMap players = GameMatchManager.getCurrentMatch().getEnemyTeam(getPlayer().getTeam());
+		for(int i = 0; i < players.getPlayers().length; i++) {
+			if(!players.getPlayers()[i].getPlayer().isDead()) {
+				collidesPlayerX(players.getPlayers()[i]);
+			}
+		}
+	}
+	protected final void collidesPlayerX(Fighter fighter) {
+		if(getVelocityBounds(true, false).intersects(fighter.getBounds())) {
+			if(getPlayer().getVel().getX() > 0) {
+				getPlayer().isCollidingRight(true);
+			} else {
+				getPlayer().isCollidingLeft(true);
+			}
+		}
+	}
+	
 	// Boundary Methods - MUST NOT BE CHANGED!!!!!
-	public final float getLeft() {
+	protected final float getLeft() {
 		return -getPlayer().getSize().getX()/2;
 	}
-	public final float getRight() {
+	protected final float getRight() {
 		return getPlayer().getSize().getX()/2;
 	}
-	public final float getTop() {
+	protected final float getTop() {
 		return getPlayer().getSize().getY()/2;
 	}
-	public final float getBot() {
+	protected final float getBot() {
 		return -getPlayer().getSize().getY()/2;
 	}
 	
@@ -534,88 +657,11 @@ abstract public class Fighter {
 		return bounds;
 	}
 	
-	/* We can use Enum of sides(bot,left,right,top) and pass it as a parameter, thus combine those 4 functions into one. */
-	public final boolean collidesBot() {
-		// BOT!
-		return GameMatchManager.getCurrentMap().intersectsSurroundXBoth("top", getPlayer().getPos().getX(), getPlayer().getPos().getY()+getBot()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getBot() < GameMatchManager.getCurrentMap().getBotBoundary(); //$NON-NLS-1$
-	}
-	public final boolean collidesLeft() {
-		// LEFT!
-		return GameMatchManager.getCurrentMap().intersectsSurroundY(getPlayer().getPos().getX()+getLeft()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) ||getPlayer().getPos().getX() + getPlayer().getVel().getX() + getLeft() < GameMatchManager.getCurrentMap().getLeftBoundary();
-	}
-	public final boolean collidesRight() {
-		// RIGHT!
-		return GameMatchManager.getCurrentMap().intersectsSurroundY(getPlayer().getPos().getX()+getRight()+getPlayer().getVel().getX(), getPlayer().getPos().getY(), getVelocityBounds(true, false)) || getPlayer().getPos().getX() + getPlayer().getVel().getX() + getRight() > GameMatchManager.getCurrentMap().getRightBoundary();
-	}
-	public final boolean collidesTop() {
-		// TOP!
-		return GameMatchManager.getCurrentMap().intersectsSurroundX(getPlayer().getPos().getX(), getPlayer().getPos().getY()+getTop()+getPlayer().getVel().getY(), getVelocityBounds(false, true)) || getPlayer().getPos().getY() + getPlayer().getVel().getY() + getTop() > GameMatchManager.getCurrentMap().getTopBoundary();
-	}
-	
-	protected final void collidesMap() {
-		if(collidesTop()) {
-			getPlayer().isCollidingTop(true);
-		}
-		if(collidesBot()) {
-			getPlayer().isCollidingBot(true);
-			if(getPlayer().getVel().getY() <= 0) {
-				getPlayer().isOnGround(true);
-				alignGround(GameMatchManager.getCurrentMap().getTileHeight());
-			}
-		}
-		
-		if(collidesLeft()) {
-			getPlayer().isCollidingLeft(true);
-		}
-		
-		if(collidesRight()) {
-			getPlayer().isCollidingRight(true);
-		}
-	}
-	
-	protected final void collidesPlayer() {
-		PlayerMap players = GameMatchManager.getCurrentMatch().getEnemyTeam(getPlayer().getTeam());
-		for(int i = 0; i < players.getPlayers().length; i++) {
-			if(!players.getPlayers()[i].getPlayer().isDead()) {
-				if(getVelocityBounds(false, true).intersects(players.getPlayers()[i].getBounds())) {
-					if(getPlayer().getVel().getY() > 0) {
-						getPlayer().isCollidingTop(true);
-					} else {
-						getPlayer().isCollidingBot(true);
-						getPlayer().isOnGround(true);
-						alignFighter(players.getPlayers()[i]);
-					}
-				}
-				if(getVelocityBounds(true, false).intersects(players.getPlayers()[i].getBounds())) {
-					if(getPlayer().getVel().getX() > 0) {
-						getPlayer().isCollidingRight(true);
-					} else {
-						getPlayer().isCollidingLeft(true);
-					}
-				}
-			}
-		}
-	}
-	
-	protected final void resetCollisions() {
-		getPlayer().isCollidingTop(false);
-		
-		getPlayer().isCollidingBot(false);
-		getPlayer().isOnGround(false);
-		
-		getPlayer().isCollidingLeft(false);
-		getPlayer().isCollidingRight(false);
-	}
-	
-	public final Tile getCellOn(GameMap map) {
+	protected final Tile getCellOn(GameMap map) {
 		return map.getTile(0, getPlayer().getPos().getX(), getPlayer().getPos().getY() + getBot());
 	}
 	
-	public final boolean isFacingCollision() {
-		return (getPlayer().getFlip().equals("right") && getPlayer().isCollidingRight()) || (getPlayer().getFlip().equals("left") && getPlayer().isCollidingLeft());  //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	public final Rectangle getBounds() {
+	protected final Rectangle getBounds() {
 		CollisionDetection.setBounds(this.bounds, "both", getPlayer().getPos().getX(), getPlayer().getPos().getY(), getPlayer().getSize().getX(), getPlayer().getSize().getY()); //$NON-NLS-1$
 		return this.bounds;
 	}
@@ -644,20 +690,23 @@ abstract public class Fighter {
 	
 	protected final void applyPosition() {
 		
-		// Apply velocity
+		// Apply velocity to position
 		
 		// Check collision Y
+		applyCollisionY();
+		
 		if(getPlayer().movingY() && ((getPlayer().getVel().getY() > 0 && !getPlayer().isCollidingTop()) 
 				|| (getPlayer().getVel().getY() < 0 && !getPlayer().isCollidingBot()))) {
 			getPlayer().getPos().addY(getPlayer().getVel().getY());
 		}
 		
+		
 		// Check collision X
-		if(getPlayer().movingX()) {
-			if((getPlayer().getVel().getX() > 0 && !getPlayer().isCollidingRight())
-					|| getPlayer().getVel().getX() < 0 && !getPlayer().isCollidingLeft()) {
-				getPlayer().getPos().addX(getPlayer().getVel().getX());
-			}
+		applyCollisionX();
+		
+		if(getPlayer().movingX() && ((getPlayer().getVel().getX() > 0 && !getPlayer().isCollidingRight())
+				|| (getPlayer().getVel().getX() < 0 && !getPlayer().isCollidingLeft()))) {
+			getPlayer().getPos().addX(getPlayer().getVel().getX());
 		}
 	}
 	
@@ -665,10 +714,10 @@ abstract public class Fighter {
 		healMana(getManaRegen());
 	}
 	
-	public final void applyGravitation() {
+	protected final void applyGravitation() {
 		getPlayer().getVel().setY(getPlayer().getVel().getY() - getFallingMomentum() < -getGravityForce() ? -getGravityForce() : getPlayer().getVel().getY() - getFallingMomentum());	
 	}
-	public final void alignGround(int ground) {
+	protected final void alignGround(int ground) {
 		getPlayer().getPos().setY((int)(getPlayer().getPos().getY() / ground) * ground + getPlayer().getSize().getY()/2 - 1);
 	}
 	protected final void alignFighter(Fighter fighter) {
@@ -693,7 +742,7 @@ abstract public class Fighter {
 	}
 	
 	// HP
-	public final void applyHP(float hp) {
+	protected final void applyHP(float hp) {
 		if(hp > 0) { 
 			healHP(hp);
 			return;
@@ -720,7 +769,7 @@ abstract public class Fighter {
 	}
 	
 	// MANA
-	public final void applyMana(float mana) {
+	protected final void applyMana(float mana) {
 		if(mana > 0) { 
 			healMana(mana);
 			return;
@@ -729,7 +778,7 @@ abstract public class Fighter {
 			return;
 		}
 	}
-	public final void applyRandomMana(float mana) {
+	protected final void applyRandomMana(float mana) {
 		applyMana(mana - MathUtil.nextFloat(0, (int)(mana*0.1) + MathUtil.nextFloat(0, (mana))));
 	}
 	protected final void dealMana(float dmg) {
@@ -747,7 +796,7 @@ abstract public class Fighter {
 	}
 	
 	// SPEED CONVERTION
-	public final float convertSpeed(float speed) {
+	protected final float convertSpeed(float speed) {
 		return getPlayer().getFlip().equals("right") ? speed : -speed;  //$NON-NLS-1$
 	}
 	
@@ -761,13 +810,13 @@ abstract public class Fighter {
 			endSkill1();
 		}
 	}
-	public void updateSkill1() {
+	protected void updateSkill1() {
 		defaultUpdate();
 	}
-	public void skill1() {
+	protected void skill1() {
 		
 	}
-	public void endSkill1() {
+	protected void endSkill1() {
 		
 	}
 
@@ -776,13 +825,13 @@ abstract public class Fighter {
 			endSkill2();
 		}
 	}
-	public void updateSkill2() {
+	protected void updateSkill2() {
 		defaultUpdate();
 	}
-	public void skill2() {
+	protected void skill2() {
 		
 	}
-	public void endSkill2() {
+	protected void endSkill2() {
 		
 	}
 
@@ -791,13 +840,13 @@ abstract public class Fighter {
 			endSkill3();
 		}
 	}
-	public void updateSkill3() {
+	protected void updateSkill3() {
 		defaultUpdate();
 	}
-	public void skill3() {
+	protected void skill3() {
 		
 	}
-	public void endSkill3() {
+	protected void endSkill3() {
 		
 	}
 	
@@ -806,18 +855,18 @@ abstract public class Fighter {
 			endSkill4();
 		}
 	}
-	public void updateSkill4() {
+	protected void updateSkill4() {
 		defaultUpdate();
 	}
-	public void skill4() {
+	protected void skill4() {
 		
 	}
-	public void endSkill4() {
+	protected void endSkill4() {
 		
 	}
 	
 	
-	public final float getSpeed() {
+	protected final float getSpeed() {
 		return getPlayer().isRunning() ? getRunningSpeed().getX() : getWalkingSpeed().getX();
 	}
 	
@@ -827,21 +876,21 @@ abstract public class Fighter {
 		resetJumpHeight();
 	}
 	
-	public final void resetWalkingSpeed() {
+	protected final void resetWalkingSpeed() {
 		getWalkingSpeed().YtoX();
 	}
-	public final void resetRunningSpeed() {
+	protected final void resetRunningSpeed() {
 		getRunningSpeed().YtoX();
 	}
-	public final void resetJumpHeight() {
+	protected final void resetJumpHeight() {
 		getJumpHeight().YtoX();
 	}
 	
-	public final void AAttack() {
+	protected final void AAttack() {
 		AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX()-convertSpeed(getPlayer().getSize().getX()/2), getPlayer().getPos().getY(), getAA_Range().getX(), getAA_Range().getY()), -getAA_Dmg());
 	}
 	
-	public final boolean applySkillMana(int index) {
+	protected final boolean applySkillMana(int index) {
 		if(getPlayer().getMana().getX() >= skillMana[index]) {
 			applyMana(-skillMana[index]);
 			return true;
