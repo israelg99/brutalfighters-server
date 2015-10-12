@@ -65,6 +65,9 @@ abstract public class Fighter {
 	// The PlayerData
 	protected PlayerData player;
 	
+	// Jump
+	protected boolean jumpSwitch;
+	
 	// Bounds
 	protected Rectangle bounds;
 	
@@ -112,6 +115,9 @@ abstract public class Fighter {
 		
 		// Buffs
 		resetBuffs();
+		
+		// Jump
+		resetJumpSwitch();
 
 	}
 	
@@ -233,6 +239,19 @@ abstract public class Fighter {
 		return max_skillCD;
 	}
 	
+	protected boolean isJumpSwitched() {
+		return jumpSwitch;
+	}
+	public void jumpSwitch() {
+		setJumpSwitch(true);
+	}
+	protected void resetJumpSwitch() {
+		setJumpSwitch(false);
+	}
+	protected void setJumpSwitch(boolean jumpSwitch) {
+		this.jumpSwitch = jumpSwitch;
+	}
+	
 	public final PlayerData getPlayer() {
 		return player;
 	}
@@ -276,7 +295,7 @@ abstract public class Fighter {
 		Iterator<Buff> iterator = getBuffs().iterator();
 		while(iterator.hasNext()) {
 			Buff buff = iterator.next();
-			buff.update(this, iterator);
+			buff.tick(this, iterator);
 		}
 		
 		convertBuffs();
@@ -478,9 +497,10 @@ abstract public class Fighter {
 		} else {
 			
 			//Jump Cut
-			if(hasFullControl() && !getPlayer().isJump() && getPlayer().getVel().getY() > getJumpHeight().getX()/2) {
+			if(isJumpSwitched() && hasFullControl() && !getPlayer().isJump() && getPlayer().getVel().getY() > getJumpHeight().getX()/2) {
 				getPlayer().getVel().setY(getJumpHeight().getX()/2);
 			}
+			resetJumpSwitch();
 			
 			// Air Momentum
 			speed *= getAirForce();
@@ -735,8 +755,8 @@ abstract public class Fighter {
 				// that's how are objects are treated in Java and we don't want
 				// players to refer to the same buff object.
 				
-				// Start/Initiate the Buffd
-				getBuffs().get(getBuffs().size()-1).start(this, getPlayer().getBuffs().length);
+				// Start/Initiate the Buff - NOT HERE! We will do so in the updateBuffs(), because we don't want order to be relevant, IMPORTANT!
+				//getBuffs().get(getBuffs().size()-1).start(this, getPlayer().getBuffs().length);
 			}
 		}
 	}

@@ -115,6 +115,7 @@ public class NetworkListener extends Listener {
 						//player.velx = 0;
 						return;
 					} else if (object instanceof Packet4ReleaseJump) {
+						fighter.jumpSwitch();
 						player.setJump(false);
 						return;
 					} else if (object instanceof Packet4ReleaseRun) {

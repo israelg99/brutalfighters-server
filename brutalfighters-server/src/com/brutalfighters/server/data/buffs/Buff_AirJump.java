@@ -2,7 +2,6 @@ package com.brutalfighters.server.data.buffs;
 
 import java.util.Iterator;
 
-import com.brutalfighters.server.data.players.PlayerData;
 import com.brutalfighters.server.data.players.fighters.Fighter;
 
 public class Buff_AirJump extends Buff {
@@ -14,7 +13,7 @@ public class Buff_AirJump extends Buff {
 		setHeightVel(height_vel);
 	}
 	public Buff_AirJump() {
-		this(50);
+		this(40);
 	}
 	
 	public float getHeightVel() {
@@ -25,32 +24,9 @@ public class Buff_AirJump extends Buff {
 	}
 	
 	@Override
-	public void start(Fighter p, int index) {
-		PlayerData player = p.getPlayer();
-		player.getVel().resetX();
-		player.getVel().setY(getHeightVel());
-		p.getWalkingSpeed().resetX();
-		p.getRunningSpeed().resetX();
-		player.setControl(false);
-		player.setVulnerable(false);
-	}
-	
-	@Override
-	public void update(Fighter p, Iterator<Buff> iterator) {
-		if(!p.getPlayer().isMidAir() && isActive(p, iterator)) {
-			p.applyGravity();
-		} else {
-			end(p, iterator);
-		}
-	}
-	
-	@Override
-	public void end(Fighter p, Iterator<Buff> iterator) {
-		p.getPlayer().setControl(true);
-		p.getPlayer().setVulnerable(true);
-		
-		p.resetSpeeds();
-		
+	public void start(Fighter p, Iterator<Buff> iterator) {
+		p.getPlayer().getVel().addY(getHeightVel());
+		p.getPlayer().setJump(false);
 		iterator.remove();
 	}
 	

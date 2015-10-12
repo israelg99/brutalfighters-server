@@ -456,7 +456,7 @@ public class PlayerData {
 	}
 	
 	public boolean isMidAir() {
-		return !((onGround() || isCollidingBot()) && getVel().getY() <= 0);
+		return (!onGround() && !isCollidingBot()) || getVel().getY() > 0; // It's good! it should be &&!
 	}
 	
 	// Boundary Methods

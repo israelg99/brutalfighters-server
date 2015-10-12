@@ -15,7 +15,7 @@ public class Buff_IceStun extends Buff {
 	}
 	
 	@Override
-	public void start(Fighter p, int index) {
+	public void start(Fighter p, Iterator<Buff> iterator) {
 		PlayerData player = p.getPlayer();
 		player.getVel().resetX();
 		player.getVel().resetY();

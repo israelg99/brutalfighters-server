@@ -10,9 +10,15 @@ abstract public class Buff {
 	protected final int MAX_TIME;
 	
 	protected BuffData buff;
+	protected boolean isStarted;
 	
 	protected Buff(String name, int MAX_TIME) {
 		this.MAX_TIME = MAX_TIME;
+		setStarted(false);
+		setBuff(new BuffData(name, getMAX_TIME()));
+	}
+	protected Buff(String name) {
+		this.MAX_TIME = 0;
 		setBuff(new BuffData(name, getMAX_TIME()));
 	}
 	
@@ -23,19 +29,38 @@ abstract public class Buff {
 		this.buff = buff;
 	}
 	
+	public boolean isStarted() {
+		return isStarted;
+	}
+	protected void setStarted(boolean isStarted) {
+		this.isStarted = isStarted;
+	}
+	public void started() {
+		setStarted(false);
+	}
+	
 	public int getMAX_TIME() {
 		return MAX_TIME;
 	}
+	
+	public void tick(Fighter p, Iterator<Buff> iterator) {
+		if(isStarted()) {
+			update(p, iterator);
+		} else {
+			start(p, iterator);
+			started();
+		}
+	}
 
-	public void start(Fighter p, int index) {
+	protected void start(Fighter p, Iterator<Buff> iterator) {
 		
 	}
 	
-	public void update(Fighter p, Iterator<Buff> iterator) {
+	protected void update(Fighter p, Iterator<Buff> iterator) {
 		isActive(p, iterator);
 	}
 	
-	public void end(Fighter p, Iterator<Buff> iterator) {
+	protected void end(Fighter p, Iterator<Buff> iterator) {
 		iterator.remove();
 	}
 	

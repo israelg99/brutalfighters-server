@@ -17,7 +17,7 @@ public class Buff_Slow extends Buff {
 	}
 	
 	@Override
-	public void start(Fighter p, int index) {
+	public void start(Fighter p, Iterator<Buff> iterator) {
 		p.getWalkingSpeed().setX(p.getWalkingSpeed().getX()/slowness_divide);
 		p.getRunningSpeed().setX(p.getRunningSpeed().getX()/slowness_divide);
 	}
