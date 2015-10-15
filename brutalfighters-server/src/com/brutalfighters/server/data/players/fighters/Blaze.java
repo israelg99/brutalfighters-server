@@ -20,7 +20,7 @@ public class Blaze extends Fighter {
 	
 	public Blaze(Connection connection, int team, Base base, String m_id) {
 		super(connection, team, base, m_id, "Blaze", 1000, 1000, new Vec2(90,100), 10, //$NON-NLS-1$
-				18, 44, 500, new Vec2(200,50), 75, 9,
+				18, 52, 500, new Vec2(200,50), 75, 9,
 				new int[] {400,200,950,500}, new int[] {980,580,820,820});
 	}
 	
@@ -112,7 +112,9 @@ public class Blaze extends Fighter {
 	
 	@Override
 	public void updateSkill4() {
-		applyVelocity();
+		applyJump();
+		applyGravity();
+		applyWalking();
 	}
 	
 	@Override

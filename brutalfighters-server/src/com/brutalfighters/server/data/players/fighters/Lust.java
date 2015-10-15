@@ -16,7 +16,7 @@ public class Lust extends Fighter {
 
 	public Lust(Connection connection, int team, Base base, String m_id) {
 		super(connection, team, base, m_id, "Lust", 800, 1000, new Vec2(90,100), //$NON-NLS-1$
-				14, 26, 48, 500, new Vec2(200,50), 75, 9,
+				14, 26, 52, 500, new Vec2(200,50), 75, 9,
 				new int[] {250,200,400,300}, new int[] {600,380,0,450});
 	}
 	
@@ -38,7 +38,8 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void updateSkill1() {
-		applyVelocity();
+		applyGravity();
+		applyWalking();
 	}
 
 	@Override
@@ -47,8 +48,10 @@ public class Lust extends Fighter {
 		updateSkill1();
 		
 		if(getPlayer().getSkillCD()[0] > 0 && getPlayer().isMidAir()) {
-			if(getPlayer().getSkillCD()[0] == getMaxSkillCD()[0] - GameServer.getDelay() * 3) {
-				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), S1_WIDTH, S1_HEIGHT), -S1_DMG, new Buff[] {new Buff_AirJump()});
+			if(getPlayer().getSkillCD()[0] == getMaxSkillCD()[0] - GameServer.getDelay()) {
+				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), S1_WIDTH, S1_HEIGHT), 0, new Buff[] {new Buff_AirJump()});
+			} else if(getPlayer().getSkillCD()[0] == getMaxSkillCD()[0] - GameServer.getDelay() * 3) {
+				AOE.dealAOE_enemy(getPlayer().getTeam(), CollisionDetection.getBounds(getPlayer().getFlip(), getPlayer().getPos().getX(), getPlayer().getPos().getY(), S1_WIDTH, S1_HEIGHT), -S1_DMG);
 			}
 			getPlayer().getSkillCD()[0] -= GameServer.getDelay();
 		} else {
@@ -78,7 +81,9 @@ public class Lust extends Fighter {
 	
 	@Override
 	public void updateSkill2() {
-		applyVelocity();
+		applyJump();
+		applyGravity();
+		applyWalking();
 	}
 	
 	@Override

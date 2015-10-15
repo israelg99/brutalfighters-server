@@ -36,7 +36,7 @@ abstract public class Buff {
 		this.isStarted = isStarted;
 	}
 	public void started() {
-		setStarted(false);
+		setStarted(true);
 	}
 	
 	public int getMAX_TIME() {

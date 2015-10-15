@@ -17,7 +17,7 @@ public class Dusk extends Fighter {
 	
 	public Dusk(Connection connection, int team, Base base, String m_id) {
 		super(connection, team, base, m_id, "Dusk", 900, 1000, new Vec2(90,100), 10, //$NON-NLS-1$
-				21, 44, 500, new Vec2(200,50), 68, 9,
+				21, 52, 500, new Vec2(200,50), 68, 9,
 				new int[] {300,300,300,500}, new int[] {740,820,580,500});
 	}
 	
@@ -62,7 +62,9 @@ public class Dusk extends Fighter {
 	
 	@Override
 	public void updateSkill2() {
-		applyVelocity();
+		applyJump();
+		applyGravity();
+		applyWalking();
 	}
 	
 	@Override

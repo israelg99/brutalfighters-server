@@ -17,7 +17,7 @@ public class Surge extends Fighter {
 
 	public Surge(Connection connection, int team, Base base, String m_id) {
 		super(connection, team, base, m_id, "Surge", 1000, 1000, new Vec2(90,100), 8, //$NON-NLS-1$
-				16, 44, 500, new Vec2(200,50), 68, 9,
+				16, 52, 500, new Vec2(200,50), 68, 9,
 				new int[] {250,400,200,650}, new int[] {500,900,1200,1300});
 	}
 	
@@ -28,7 +28,9 @@ public class Surge extends Fighter {
 	
 	@Override
 	public void updateSkill1() {
-		applyVelocity();
+		applyJump();
+		applyGravity();
+		applyWalking();
 	}
 	
 	@Override

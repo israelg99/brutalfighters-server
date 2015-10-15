@@ -268,11 +268,14 @@ abstract public class Fighter {
 			if(getPlayer().isSkilling()) {
 				applySkill();
 			} else if(getPlayer().hasControl()) {
-				applyVelocity();
+				applyJump();
+				applyGravity();
+				applyWalking();
 				applyAA();
 				applyTeleport();
 			}
-					
+			
+			resetJumpSwitch();
 			applyFlag();
 			applyRegen();
 			updateBuffs();
@@ -384,20 +387,17 @@ abstract public class Fighter {
 			}
 		}
 	}
-	public final boolean applyGravity() {
-		if(!getPlayer().isMidAir()) {
-			gravityVelocityReset();
-			return false; // Unable to apply gravity, is on ground or collides ground.
-		}
-		applyGravitation();
-		return true; // Able to apply gravity, is mid air.
-	}
+	
 	protected final void gravityVelocityReset() {
 		if(getPlayer().onGround() && getPlayer().isCollidingBot() && getPlayer().getVel().getY() < 0) {
 			getPlayer().getVel().resetY();
 		}
 	}
-	protected final void applyWalking(int speed) {
+	public final void applyWalking() {
+		
+		// Air Momentum
+		float speed = getPlayer().isMidAir() ? getSpeed()*getAirForce() : getSpeed();
+		
 		getPlayer().getVel().resetX(); // We must have it here, no worries, we should not apply walking when the X velocity is modified anyway.
 		if((getPlayer().isLeft() != getPlayer().isRight())) {
 			if(getPlayer().isRight()) {
@@ -468,54 +468,36 @@ abstract public class Fighter {
 		return true;
 		
 	}
-
-	protected final void applyVelocity() {
-		
-		float speed = getSpeed();
-		
-		if(!getPlayer().isMidAir()) {
-			
-			getPlayer().getVel().resetY();
-			
-			if(getPlayer().onGround()) {
-				/* JUMP */
-				if(getPlayer().isJump() && hasFullControl()) {
-					if(!getPlayer().isCollidingTop()) { // Should be here
-						getPlayer().getVel().setY(getJumpHeight().getX());
-					} else {
-						getPlayer().getVel().resetY();
-					}
-				}
-				
-				if(getPlayer().isCollidingTop() && getPlayer().isCollidingBot()) {
+	
+	public final void applyJump() {
+		if(!getPlayer().isMidAir() && getPlayer().onGround()) {
+			if(getPlayer().isJump()) {
+				if(!getPlayer().isCollidingTop()) { // Should be here
+					getPlayer().getVel().setY(getJumpHeight().getX());
+				} else {
 					getPlayer().getVel().resetY();
-					getPlayer().setJump(false);
 				}
-				/* END JUMP */
 			}
 			
+			if(getPlayer().isCollidingTop() && getPlayer().isCollidingBot()) {
+				getPlayer().getVel().resetY();
+				getPlayer().setJump(false);
+			}
 		} else {
-			
-			//Jump Cut
-			if(isJumpSwitched() && hasFullControl() && !getPlayer().isJump() && getPlayer().getVel().getY() > getJumpHeight().getX()/2) {
+			System.out.println(isJumpSwitched());
+			if(isJumpSwitched() && !getPlayer().isJump() && getPlayer().getVel().getY() > getJumpHeight().getX()/2) {
 				getPlayer().getVel().setY(getJumpHeight().getX()/2);
 			}
-			resetJumpSwitch();
-			
-			// Air Momentum
-			speed *= getAirForce();
-			
-			// Gravity
-			applyGravitation();
-			
 		}
-		
-		//Walking (Velocity X reset inside ofc)
-		applyWalking((int)speed);
 	}
-	
-	protected final boolean hasFullControl() {
-		return getPlayer().hasControl() && !getPlayer().isSkilling();
+
+	public final boolean applyGravity() {
+		if(getPlayer().isMidAir()) {
+			applyGravitation();
+			return true;
+		}
+		getPlayer().getVel().resetY();
+		return false;
 	}
 
 	/* Collision Detection */
@@ -821,8 +803,9 @@ abstract public class Fighter {
 	}
 	
 	protected void defaultUpdate() {
-		getPlayer().getVel().resetX();
+		getPlayer().getVel().resetX(); // Otherwise you will continue walking after the skill
 		applyGravity();
+		applyWalking();
 	}
 	
 	public void startSkill1() {

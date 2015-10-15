@@ -29,6 +29,7 @@ public class Buff_IceStun extends Buff {
 	public void update(Fighter p, Iterator<Buff> iterator) {
 		if(isActive(p, iterator)) {
 			p.applyGravity();
+			p.applyWalking();
 		}
 	}
 	
