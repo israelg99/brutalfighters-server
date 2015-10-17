@@ -37,13 +37,16 @@ abstract public class GameMatch {
 	 * 
 	 */
 	
+	/* DON'T TOUCH IT */
 	protected static final int TEAM_LENGTH = 2;
 	protected static final int TEAM1 = 0;
 	protected static final int TEAM2 = 1;
 	
-	protected static final int DEFAULT_PLAYER_LIMIT = 2;
+	/* Configurable */
+	protected static final int DEFAULT_PLAYER_LIMIT = 6;
 	protected static final int WIN_STATE = 3;
 
+	/* Configurable */
 	protected static final int DEFAULT_WARMUP = 20000;
 	protected static final int DEFAULT_RESPAWN = 6000;
 	protected static final int DEFAULT_FINISH = 6000;
